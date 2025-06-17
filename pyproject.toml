@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "csohelper"
+version = "1.0.0"
+description = ""
+authors = ["Slava Petrov <slavapmk@gmail.com>"]
+packages = [{ include = "csohelper", from = "src" }]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+aiogram = "^3.1.1"
+sqlalchemy = "^2.0.20"
+pytz = "*"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+csohelper = "python.main:entrypoint"

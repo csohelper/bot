@@ -1,0 +1,7 @@
+version: '3'
+
+services:
+  csohelper-bot:
+    build: .
+    volumes:
+      - ./storage:/app/storage
