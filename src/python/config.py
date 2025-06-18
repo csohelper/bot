@@ -28,6 +28,14 @@ class AppConfig(BaseModel):
     lang: str = Field(default="ru")
     telegram: TelegramConfig = Field(default_factory=TelegramConfig)
     database: DatabaseConfig = Field(default_factory=DatabaseConfig)
+    cards_images: list[str] = Field(default_factory=lambda: [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+    ])
 
 
 CONFIG_PATH = Path("storage/config.yaml")
@@ -44,10 +52,18 @@ def load_config() -> AppConfig:
     if not CONFIG_PATH.exists():
         save_config(DEFAULT_CONFIG)
         return DEFAULT_CONFIG
+
     try:
         with CONFIG_PATH.open("r", encoding="utf-8") as f:
-            data = yaml.safe_load(f)
-        return AppConfig(**data)
+            raw_data = yaml.safe_load(f) or {}
+
+        config = AppConfig(**raw_data)
+
+        if config.model_dump() != raw_data:
+            save_config(config)
+
+        return config
+
     except (yaml.YAMLError, ValidationError, TypeError) as e:
         print(f"Invalid config: {e}. Restoring defaults.")
         backup_corrupted_config()
