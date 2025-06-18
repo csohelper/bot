@@ -14,6 +14,8 @@ services:
       timeout: 5s
       retries: 5
       start_period: 5s
+    ports:
+      - "5432:5432"
   csohelper-bot:
     build: .
     volumes:

@@ -10,6 +10,7 @@ from .database import open_database_pool, close_database_pool
 import platform
 from .logger import logger
 
+
 dp = Dispatcher()
 
 @dp.startup()
@@ -18,13 +19,18 @@ async def on_startup():
     await open_database_pool()
     logger.info("Aiogram: Бот успешно запущен.")
 
+
 @dp.shutdown()
 async def on_shutdown():
     logger.info("Aiogram: Остановка бота...")
     await close_database_pool()
     logger.info("Aiogram: Бот остановлен.")
 
-@dp.message(Command("start") | F.text == 'Команды' | F.text == 'Помощь')
+
+@dp.message(Command("start"))
+@dp.message(lambda message: message.text and message.text.lower() in [
+    "начать", "помощь", "хелп", "команды", "я долбаеб", "я долбоебка", "я долбаёб", "я долбоёбка", 
+])
 async def command_start_handler(message: Message) -> None:
     await message.answer(get_string('echo_commands.help'))
 
