@@ -10,11 +10,11 @@ os.makedirs("storage", exist_ok=True)
 
 
 class DatabaseConfig(BaseModel):
-    host: str = Field(default="localhost")
+    host: str = Field(default="db")
     port: int = Field(default=5432)
-    user: str = Field(default="user")
-    password: str = Field(default="password")
-    database: str = Field(default="database")
+    user: str = Field(default="postgres")
+    password: str = Field(default="examplepassword")
+    database: str = Field(default="mydatabase")
     min_pool_size: int = Field(default=2)
     max_pool_size: int = Field(default=10)
 
