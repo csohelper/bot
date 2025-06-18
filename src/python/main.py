@@ -4,7 +4,7 @@ from aiogram.filters import Command
 from aiogram.types import Message
 from aiogram import F
 from .config import config
-from .strings import strings
+from .strings import get_string
 from aiogram.client.default import DefaultBotProperties
 from .database import open_database_pool, close_database_pool
 import platform
@@ -26,7 +26,7 @@ async def on_shutdown():
 
 @dp.message(Command("start") | F.text == 'Команды' | F.text == 'Помощь')
 async def command_start_handler(message: Message) -> None:
-    await message.answer(strings['commands'])
+    await message.answer(get_string('echo_commands.help'))
 
 
 async def main() -> None:
