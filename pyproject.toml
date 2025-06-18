@@ -10,8 +10,6 @@ python = "^3.10"
 aiogram = "^3.20.0"
 pydantic = "^2.11.7"
 dynaconf = "^3.2.11"
-tomli = "^2.2.1"
-tomli_w = "^1.2.0"
 psycopg = {extras = ["async", "binary", "pool"], version = "^3.2.9"}
 pyyaml = "^6.0.2"
 

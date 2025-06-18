@@ -1,10 +1,9 @@
 from pydantic import BaseModel, Field, ValidationError
 from pathlib import Path
-import tomli
-import tomli_w
 import shutil
 from datetime import datetime
 import os
+import yaml
 
 os.makedirs("storage", exist_ok=True)
 
@@ -31,7 +30,7 @@ class AppConfig(BaseModel):
     database: DatabaseConfig = Field(default_factory=DatabaseConfig)
 
 
-CONFIG_PATH = Path("storage/config.toml")
+CONFIG_PATH = Path("storage/config.yaml")
 
 DEFAULT_CONFIG = AppConfig()
 
@@ -45,19 +44,18 @@ def load_config() -> AppConfig:
     if not CONFIG_PATH.exists():
         save_config(DEFAULT_CONFIG)
         return DEFAULT_CONFIG
-
     try:
-        with CONFIG_PATH.open("rb") as f:
-            data = tomli.load(f)
+        with CONFIG_PATH.open("r", encoding="utf-8") as f:
+            data = yaml.safe_load(f)
         return AppConfig(**data)
-    except (tomli.TOMLDecodeError, ValidationError, TypeError) as e:
+    except (yaml.YAMLError, ValidationError, TypeError) as e:
         print(f"Invalid config: {e}. Restoring defaults.")
         backup_corrupted_config()
         save_config(DEFAULT_CONFIG)
         return DEFAULT_CONFIG
 
 def save_config(config: AppConfig):
-    with CONFIG_PATH.open("wb") as f:
-        tomli_w.dump(config.model_dump(), f)
+    with CONFIG_PATH.open("w", encoding="utf-8") as f:
+        yaml.dump(config.model_dump(), f, allow_unicode=True, sort_keys=False)
 
 config = load_config()

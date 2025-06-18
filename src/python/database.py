@@ -11,7 +11,6 @@ db_pool = None
 async def open_database_pool() -> None:
     global db_pool
     conninfo = f"host={config.database.host} dbname={config.database.database} user={config.database.user} password={config.database.password} port={config.database.port}"
-    print(conninfo)
     db_pool = AsyncConnectionPool(
         conninfo=conninfo,
         min_size=config.database.min_pool_size,
