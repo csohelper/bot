@@ -8,10 +8,28 @@ import os
 
 os.makedirs("storage", exist_ok=True)
 
+
+class DatabaseConfig(BaseModel):
+    host: str = Field(default="localhost")
+    port: int = Field(default=5432)
+    user: str = Field(default="user")
+    password: str = Field(default="password")
+    database: str = Field(default="database")
+    min_pool_size: int = Field(default=2)
+    max_pool_size: int = Field(default=10)
+
+
+class TelegramConfig(BaseModel):
+    token: str = Field(default="0000000000:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+    chat_whitelist: list[int] = Field(default_factory=list)
+    parse_mode: str = Field(default="HTML")
+
+
 class AppConfig(BaseModel):
-    telegram_token: str = Field(default="0000000000:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
-    chat_whitelist: list[int] = Field(default=[])
     lang: str = Field(default="ru")
+    telegram: TelegramConfig = Field(default_factory=TelegramConfig)
+    database: DatabaseConfig = Field(default_factory=DatabaseConfig)
+
 
 CONFIG_PATH = Path("storage/config.toml")
 
