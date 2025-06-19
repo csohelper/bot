@@ -1,10 +1,11 @@
 import asyncio
+import random
 from aiogram import Bot, Dispatcher
 from aiogram.filters import Command
 from aiogram.types import Message
 from aiogram import F
 from .config import config
-from .strings import get_string
+from .strings import get_string, get_strings
 from aiogram.client.default import DefaultBotProperties
 from .database import open_database_pool, close_database_pool
 import platform
@@ -98,10 +99,21 @@ async def command_services_handler(message: Message) -> None:
     )
 
 
-@dp.message(lambda message: message.text and message.text.lower() in ["мэишники"])
+@dp.message(lambda message: message.text and message.text.lower() in ["мэи", "меи"])
 async def command_mei_handler(message: Message) -> None:
     await message.reply(
-        get_string('echo_commands.mei')
+        random.choice(
+            get_strings('echo_commands.mei')
+        )
+    )
+
+
+@dp.message(lambda message: message.text and message.text.lower() in ["мэишники", "меишники"])
+async def command_meishniky_handler(message: Message) -> None:
+    await message.reply(
+        random.choice(
+            get_strings('echo_commands.meishniky')
+        )
     )
 
 
