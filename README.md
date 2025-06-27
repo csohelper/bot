@@ -1,55 +1,68 @@
 # CSO Helper
 
-**csohelper** — это Telegram-бот для общежития МТУСИ, предоставляющий полезную справочную информацию: контакты, расписания, услуги, скидочные карты и так далее.
+[![🇬🇧 English](https://flagcdn.com/w40/gb.png)](README.md)
+[![🇷🇺 Русский](https://flagcdn.com/w40/ru.png)](/README.ru.md)
 
-## Возможности
+**csohelper** is a Telegram bot for the MTUCI dormitory that provides useful reference information: contacts, schedules, services, discount cards, and more.
 
-- Быстрый доступ к информации об общежитии (адрес, индекс, заведующий, комендант, ЖКО, отдел кадров, деканат, поликлиника, библиотека)
-- Список скидочных карт популярных сетей
-- Графики работы душевых, кухни, прачки, стиральных машин
-- Меню и расписание кафе
-- Информация о текущей учебной неделе
-- Список полезных программ для учёбы
-- Справочник услуг от проживающих
-- Поддержка команд и inline-запросов на русском языке
+## Features
 
-## Установка
+* Quick access to dormitory information (address, postal code, manager, commandant, housing office, HR department, dean’s office, clinic, library)
+* List of discount cards for popular chains
+* Schedules for showers, kitchen, laundry, washing machines
+* Cafe menu and timetable
+* Information about the current academic week
+* List of useful study apps
+* Directory of services offered by residents
+* Support for commands and inline queries in Russian
 
-1. Клонируйте репозиторий:
+## Installation
+
+1. Clone the repository:
+
   ```sh
   git clone https://github.com/yourusername/csohelper.git
   cd csohelper
   ```
-2. Установите зависимости:
+
+2. Install dependencies:
+
   ```sh
   pip install poetry
   poetry install
   ```
-3. Скопируйте .env.example в .env и укажите параметры подключения к БД:
+
+3. Copy `.env.example` to `.env` and specify the database connection parameters:
+
   ```sh
   cp .env.example .env
   nano .env
   ```
-4. Настройте файл `storage/config.yaml` (создаётся автоматически при первом запуске).
-5. Запустите
+
+4. Configure the `storage/config.yaml` file (created automatically on first run).
+5. Start the bot:
+
   ```sh
   docker-compose up -d
   ```
 
-## Структура проекта
-`src/python/` — исходный код бота
-`src/res/locale/ru.yaml` — локализация и тексты команд
-`src/res/images/` — изображения для карточек и кафе
-`storage/config.yaml` — конфигурация приложения
-`Dockerfile`, `docker-compose.yml` — контейнеризация и запуск БД
+## Project structure
 
-## Добавление команд и текстов
-Все команды и тексты для ответов хранятся в src/res/locale/ru.yaml. Для добавления новой команды:
-1. Добавьте описание в раздел `commands`
-2. Добавьте текст ответа в раздел `echo_commands`
-3. Реализуйте обработчик в src/python/main.py
+`src/python/` — bot source code
+`src/res/locale/ru.yaml` — localization and command texts
+`src/res/images/` — images for cards and cafes
+`storage/config.yaml` — application configuration
+`Dockerfile`, `docker-compose.yml` — containerization and database launch
 
-Лицензия
+## Adding commands and texts
+
+All commands and response texts are stored in `src/res/locale/ru.yaml`. To add a new command:
+
+1. Add a description in the `commands` section
+2. Add the response text in the `echo_commands` section
+3. Implement the handler in `src/python/main.py`
+
+License
 MIT
 
-Честно, даже не представляю, что это кто-то прочёл
+Honestly, I have no idea if anyone actually read this
