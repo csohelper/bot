@@ -155,3 +155,40 @@ echo_commands:
     - ебанутые хуеплёты
     - ебанутые пиздобляди
     - ебанутые пиздокрылые хуеплёты
+commands:
+  - command: cards
+    description: Cкидочные карты всех популярных сетей
+  - command: services
+    description: Список услуг от проживающих
+  - command: help
+    description: Помощь
+  - command: index
+    description: Индекс общежития
+  - command: address
+    description: Адрес общежития
+  - command: director
+    description: Информация о заведующем
+  - command: vost
+    description: График работы и меню кафе
+  - command: jko
+    description: Информация о ЖКО
+  - command: hr
+    description: Информация об Отделе Кадров
+  - command: polyclinic
+    description: Поликлиника
+  - command: library
+    description: <b,kbjntrf
+  - command: stolovka
+    description: Столовая в УЛК корпусе
+  - command: week
+    description: Информация о текущей учебной неделе
+  - command: soft
+    description: Полезные программы для учебы
+  - command: shower
+    description: График работы душа 
+  - command: kitchen
+    description: График работы кухни
+  - command: laundress
+    description: Прачка МЭИ
+  - command: washing
+    description: Общадные стиралки

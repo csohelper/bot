@@ -1,11 +1,14 @@
 import asyncio
+from distutils.sysconfig import expand_makefile_vars
+from gc import get_objects
+import os
 import random
 from aiogram import Bot, Dispatcher
 from aiogram.filters import Command
-from aiogram.types import Message
+from aiogram.types import BotCommand, FSInputFile, InputFile, InputFileUnion, InputMediaPhoto, MediaUnion, Message
 from aiogram import F
 from .config import config
-from .strings import get_string, get_strings
+from .strings import get_object, get_string, get_strings
 from aiogram.client.default import DefaultBotProperties
 from .database import open_database_pool, close_database_pool
 import platform
@@ -16,14 +19,19 @@ from aiogram.types.link_preview_options import LinkPreviewOptions
 dp = Dispatcher()
 
 @dp.startup()
-async def on_startup():
+async def on_startup(bot: Bot):
     logger.info("Aiogram: Запуск бота...")
     await open_database_pool()
     logger.info("Aiogram: Бот успешно запущен.")
 
+    await bot.set_my_commands(
+        [
+            BotCommand(command=x['command'], description=x['description']) for x in get_object("commands")
+        ]
+    )
 
 @dp.shutdown()
-async def on_shutdown():
+async def on_shutdown(bot: Bot) -> None:
     logger.info("Aiogram: Остановка бота...")
     await close_database_pool()
     logger.info("Aiogram: Бот остановлен.")
@@ -148,6 +156,41 @@ async def command_washing_handler(message: Message) -> None:
         get_string('echo_commands.washing')
     )
 
+cached_cards_files_id = []
+
+@dp.message(Command("cards"))
+@dp.message(lambda message: message.text and message.text.lower() in ["карты"])
+async def command_cards_handler(message: Message) -> None:
+    """
+    Отправляет пользователю изображения карт из src/res/images/cards.
+    Если изображения уже были отправлены ранее, то использует кэшированные file_id.
+    """
+
+    global cached_cards_files_id
+
+    if len(cached_cards_files_id) == 0:
+        cards_dir = "./src/res/images/cards/"
+        media=[
+            InputMediaPhoto(
+                media=FSInputFile(os.path.join(cards_dir, x))
+            ) for x in os.listdir(cards_dir)
+        ]
+        media[-1].caption = get_string('echo_commands.cards')
+        sent = await message.reply_media_group(media=media) # type: ignore[arg-type]
+        
+        for msg in sent:
+            if msg.photo:
+                largest_photo = msg.photo[-1]
+                cached_cards_files_id.append(largest_photo.file_id)
+    else:
+        media = [
+            InputMediaPhoto(
+                media=file_id
+            ) for file_id in cached_cards_files_id
+        ]
+        media[-1].caption = get_string('echo_commands.cards')
+        await message.reply_media_group(media=media) # type: ignore[arg-type]
+    
 
 async def main() -> None:
     bot = Bot(
@@ -159,7 +202,7 @@ async def main() -> None:
     )
     await dp.start_polling(bot)
 
-def entrypoint():
+def entrypoint() -> None:
     if platform.system() == 'Windows':
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     asyncio.run(main())

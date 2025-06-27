@@ -8,6 +8,14 @@ with open(
     __strings = yaml.safe_load(f)
 
 
+def get_object(path: str) -> Any:
+    keys = path.split(".")
+    value = __strings
+    for key in keys:
+        value = value[key]
+    return value
+
+
 def get_string(path: str, *args: Any) -> str:
     """
     Получает строку по пути и подставляет переданные аргументы.
@@ -42,3 +50,4 @@ def get_strings(path: str, *args: Any) -> list[str]:
         return [x.format(*args) for x in value]
     else:
         raise RuntimeError("Is't string list")
+    
