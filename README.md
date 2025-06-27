@@ -1,69 +1,55 @@
-# Hryaks Telegram Bot
+# CSO Helper
 
-## Installation
+**csohelper** — это Telegram-бот для общежития МТУСИ, предоставляющий полезную справочную информацию: контакты, расписания, услуги, скидочные карты и так далее.
 
-#### Docker installing
+## Возможности
 
-* Install Docker
+- Быстрый доступ к информации об общежитии (адрес, индекс, заведующий, комендант, ЖКО, отдел кадров, деканат, поликлиника, библиотека)
+- Список скидочных карт популярных сетей
+- Графики работы душевых, кухни, прачки, стиральных машин
+- Меню и расписание кафе
+- Информация о текущей учебной неделе
+- Список полезных программ для учёбы
+- Справочник услуг от проживающих
+- Поддержка команд и inline-запросов на русском языке
 
-Arch-Based systems:
+## Установка
 
-```shell      
-sudo pacman -S docker docker-compose && sudo systemctl enable docker && sudo systemctl start docker && mkdir ShTP && git clone https://github.com/ITClassDev/Docker ShTP/Docker && git clone https://github.com/ITClassDev/Backend ShTP/Backend && git clone https://github.com/ITClassDev/FrontEnd ShTP/Frontend
+1. Клонируйте репозиторий:
+   ```sh
+   git clone https://github.com/yourusername/csohelper.git
+   cd csohelper
+  ```
+2. Установите зависимости:
+  ```sh
+  pip install poetry
+  poetry install
+  ```
+3. Скопируйте .env.example в .env и укажите параметры подключения к БД:
+  ```sh
+  cp .env.example .env
+  nano .env
+  ```
+4. Настройте файл storage/config.yaml (создаётся автоматически при первом запуске).
+5. Запустите
+```sh
+docker-compose up -d
 ```
 
-Debian-based systems:
+## Структура проекта
+`src/python/` — исходный код бота
+`src/res/locale/ru.yaml` — локализация и тексты команд
+`src/res/images/` — изображения для карточек и кафе
+`storage/config.yaml` — конфигурация приложения
+`Dockerfile`, `docker-compose.yml` — контейнеризация и запуск БД
 
-```shell
-sudo apt update && sudo apt install apt-transport-https ca-certificates curl software-properties-common -fy && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - && sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable" -y && sudo apt install docker docker-compose -fy && sudo systemctl enable docker && sudo systemctl start docker && mkdir ShTP && git clone https://github.com/ITClassDev/Docker ShTP/Docker && git clone https://github.com/ITClassDev/Backend ShTP/Backend && git clone https://github.com/ITClassDev/FrontEnd ShTP/Frontend
-```
+## Добавление команд и текстов
+Все команды и тексты для ответов хранятся в src/res/locale/ru.yaml. Для добавления новой команды:
+1. Добавьте описание в раздел `commands`
+2. Добавьте текст ответа в раздел `echo_commands`
+3. Реализуйте обработчик в src/python/main.py
 
-* Clone repo and go to folder (command will be work if GH account already logged in)
+Лицензия
+MIT
 
-```shell
-git clone https://github.com/slavapmk/hryaks-bot hryaks && cd hryaks
-```
-
-* Run `docker-compose up` - it will automatically download, build and prepare bot env
-
-```shell
-docker-compose up
-```
-
-* Insert to `storage/tokens.json` file telegram token from [BotFather](https://t.me/BotFather)
-
-```shell
-nano storage/tokens.json
-```
-
-* Retry `docker-compose up` for run
-
-```shell
-docker-compose up
-```
-
-#### Manual install
-
-* Install Python 3.10+
-
-  _For example from [here](https://www.python.org/downloads/release/python-3120/)_
-* Install Poetry (more detailed [here](https://python-poetry.org/docs/))
-
-```shell
-curl -sSL https://install.python-poetry.org | python3 -
-```
-
-* Install poetry dependencies
-
-```shell
-poetry install
-```
-
-* Run poetry "start" task
-
-```shell
-poetry run hryaks
-```
-
-After first run program will create `storage` folder with `tokens.json` and `db.sqlite` files. Insert telegram token
-from [BotFather](https://t.me/BotFather)
+Честно, даже не представляю, что это кто-то прочёл
