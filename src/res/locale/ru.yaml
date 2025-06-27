@@ -128,7 +128,13 @@ echo_commands:
     <u>Меню:</u>
   cafe_ulk_image: https://i.imgur.com/0k2b1dH.png
   week: |
-    {1} неделя ({2}) - №{3}
+    {0} неделя ({1}) - №{2}
+  week_types_even:
+    - чётная
+    - нечётная
+  week_types_up_down:
+    - Нижняя
+    - Верхняя
   soft: |
     <b>Полезные программы для учебы:</b>
   shower: |

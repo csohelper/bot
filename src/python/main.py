@@ -1,4 +1,5 @@
 import asyncio
+import datetime
 from distutils.sysconfig import expand_makefile_vars
 from gc import get_objects
 import os
@@ -14,6 +15,7 @@ from .database import open_database_pool, close_database_pool
 import platform
 from .logger import logger
 from aiogram.types.link_preview_options import LinkPreviewOptions
+from . import utils
 
 
 dp = Dispatcher()
@@ -220,7 +222,21 @@ async def command_cards_handler(message: Message) -> None:
         ]
         media[-1].caption = get_string('echo_commands.cards')
         await message.reply_media_group(media=media) # type: ignore[arg-type]
-    
+
+
+@dp.message(Command("week"))
+@dp.message(lambda message: message.text and message.text.lower() in ["неделя"])
+async def command_week_handler(message: Message) -> None:
+    week_number = utils.get_week_number(datetime.datetime.now())
+    await message.reply(
+        get_string(
+            'echo_commands.week', 
+            get_strings('echo_commands.week_types_up_down')[week_number % 2],
+            get_strings('echo_commands.week_types_even')[week_number % 2],
+            week_number
+        )
+    )
+
 
 async def main() -> None:
     bot = Bot(
