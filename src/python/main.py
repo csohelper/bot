@@ -63,10 +63,23 @@ async def command_director_handler(message: Message) -> None:
     await message.reply(get_string('echo_commands.director'))
 
 
+@dp.message(Command("commandant"))
+@dp.message(lambda message: message.text and message.text.lower() in ["коменда", "комендант", "командант", "командантка", "комменда", "коммендант", "коммандант", "коммандантка"])
+async def command_commandant_handler(message: Message) -> None:
+    await message.reply(
+        get_string('echo_commands.commandant')
+    )
+
 @dp.message(Command("jko"))
-@dp.message(lambda message: message.text and message.text.lower() in ["жко"])
+@dp.message(lambda message: message.text and message.text.lower() in ["жко", "жк", "жилищно коммунальный", "жилищно коммунальный отдел", "жилищно-коммунальный отдел"])
 async def command_jko_handler(message: Message) -> None:
     await message.reply(get_string('echo_commands.jko'))
+
+
+@dp.message(Command("ed"))
+@dp.message(lambda message: message.text and message.text.lower() in ["ед", "единый деканат", "деканат"])
+async def command_ed_handler(message: Message) -> None:
+    await message.reply(get_string('echo_commands.ed'))
 
 
 @dp.message(Command("hr"))
@@ -86,11 +99,28 @@ async def command_polyclinic_handler(message: Message) -> None:
 async def command_library_handler(message: Message) -> None:
     await message.reply(get_string('echo_commands.library'))
 
+cached_vost_file_id = None
 
 @dp.message(Command("vost"))
-@dp.message(lambda message: message.text and message.text.lower() in ["востока"])
+@dp.message(lambda message: message.text and message.text.lower() in ["восточка"])
 async def command_vost_handler(message: Message) -> None:
-    await message.reply(get_string('echo_commands.cafe_vost'))
+    global cached_vost_file_id
+
+    if cached_vost_file_id is None:
+        image_path = "./src/res/images/cafe_vost.jpg"
+        sent: Message = await message.reply_photo(
+            photo=FSInputFile(image_path),
+            caption=get_string('echo_commands.cafe_vost'),
+            show_caption_above_media=True
+        )
+        if sent.photo:
+            cached_vost_file_id = sent.photo[-1].file_id
+    else:
+        await message.reply_photo(
+            photo=cached_vost_file_id,
+            caption=get_string('echo_commands.cafe_vost'),
+            show_caption_above_media=True
+        )
 
 
 @dp.message(Command("stolovka"))
