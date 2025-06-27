@@ -1,6 +1,6 @@
 # CSO Helper
 
-[![🇬🇧 English](https://flagcdn.com/w40/gb.png)](README.md)
+[![🇺🇸 English](https://flagcdn.com/w40/us.png)](README.md)
 [![🇷🇺 Русский](https://flagcdn.com/w40/ru.png)](/README.ru.md)
 
 **csohelper** is a Telegram bot for the MTUCI dormitory that provides useful reference information: contacts, schedules, services, discount cards, and more.
