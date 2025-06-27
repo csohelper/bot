@@ -16,9 +16,9 @@
 ## Установка
 
 1. Клонируйте репозиторий:
-   ```sh
-   git clone https://github.com/yourusername/csohelper.git
-   cd csohelper
+  ```sh
+  git clone https://github.com/yourusername/csohelper.git
+  cd csohelper
   ```
 2. Установите зависимости:
   ```sh
@@ -30,11 +30,11 @@
   cp .env.example .env
   nano .env
   ```
-4. Настройте файл storage/config.yaml (создаётся автоматически при первом запуске).
+4. Настройте файл `storage/config.yaml` (создаётся автоматически при первом запуске).
 5. Запустите
-```sh
-docker-compose up -d
-```
+  ```sh
+  docker-compose up -d
+  ```
 
 ## Структура проекта
 `src/python/` — исходный код бота
