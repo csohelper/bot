@@ -146,6 +146,7 @@ async def command_services_handler(message: Message) -> None:
     )
 
 
+@dp.message(Command("mei"))
 @dp.message(lambda message: message.text and message.text.lower() in ["мэи", "меи"])
 async def command_mei_handler(message: Message) -> None:
     await message.reply(
@@ -155,11 +156,31 @@ async def command_mei_handler(message: Message) -> None:
     )
 
 
+@dp.message(Command("meishniky"))
 @dp.message(lambda message: message.text and message.text.lower() in ["мэишники", "меишники"])
 async def command_meishniky_handler(message: Message) -> None:
     await message.reply(
         random.choice(
             get_strings('echo_commands.meishniky')
+        )
+    )
+
+@dp.message(Command("mai"))
+@dp.message(lambda message: message.text and message.text.lower() in ["маи"])
+async def command_mai_handler(message: Message) -> None:
+    await message.reply(
+        random.choice(
+            get_strings('echo_commands.mai')
+        )
+    )
+
+
+@dp.message(Command("maishniki"))
+@dp.message(lambda message: message.text and message.text.lower() in ["маишники", "маёвцы"])
+async def command_maishniky_handler(message: Message) -> None:
+    await message.reply(
+        random.choice(
+            get_strings('echo_commands.maishniky')
         )
     )
 
