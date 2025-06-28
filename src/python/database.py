@@ -19,13 +19,13 @@ async def open_database_pool() -> None:
     )
     await db_pool.open()
     await test_database_connection()
-    logger.info("Database: Пул соединений с БД запущен.")
+    logger.info("Database: DB connection pool started")
 
 
 async def close_database_pool() -> None:
     if db_pool:
         await db_pool.close()
-        logger.info("Database: Пул соединений с БД закрыт.")
+        logger.info("Database: DB connection pool closed")
 
 
 async def get_db_connection():
@@ -46,9 +46,9 @@ async def test_database_connection():
                 await cur.execute("SELECT 1;")
                 result = await cur.fetchone()
                 if result and result[0] == 1:
-                    logger.info("Database: Успешное подключение к БД подтверждено.")
+                    logger.info("Database: successful connection to the DB has been confirmed.")
                 else:
-                    logger.warning("Database: Подключение установлено, но тестовый запрос не дал ожидаемый результат.")
+                    logger.warning("Database: the connection is established, but the test request did not give the expected result..")
     except Exception as e:
-        logger.error(f"Database: Ошибка при проверке подключения к БД: {e}")
+        logger.error(f"Database: Error when checking the connection to the database: {e}")
         exit(1)
