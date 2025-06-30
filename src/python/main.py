@@ -132,6 +132,37 @@ async def command_vost_handler(message: Message) -> None:
                 continue
         break
 
+cached_linen_file_id = None
+
+@dp.message(Command("linen"))
+@dp.message(lambda message: message.text and message.text.lower() in ["обмен белья"])
+async def command_vost_handler(message: Message) -> None:
+    global cached_linen_file_id
+
+    while True:
+        if cached_linen_file_id is None:
+            image_path = "./src/res/images/linen.jpg"
+            sent: Message = await message.reply_photo(
+                photo=FSInputFile(image_path),
+                caption=get_string('echo_commands.linen'),
+                show_caption_above_media=True
+            )
+            if sent.photo:
+                cached_linen_file_id = sent.photo[-1].file_id
+        else:
+            try:
+                await message.reply_photo(
+                    photo=cached_linen_file_id,
+                    caption=get_string('echo_commands.linen'),
+                    show_caption_above_media=True
+                )
+            except Exception as e:
+                logger.error(f"{e}")
+                cached_linen_file_id = None
+                continue
+        break
+
+
 @dp.message(Command("stolovka"))
 @dp.message(lambda message: message.text and message.text.lower() in ["столовка"])
 async def command_ulk_handler(message: Message) -> None:

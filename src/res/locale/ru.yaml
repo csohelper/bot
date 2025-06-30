@@ -141,6 +141,7 @@ echo_commands:
   shower: |
     <b>График работы душевых</b>
     06:00 - 00:00
+    Сан. час: 12:00 - 13:00
     Левое крыло, этаж: -1
   kitchen: |
     <b>График работы кухни</b>
@@ -289,6 +290,10 @@ echo_commands:
     - ёбнутые кретены
     - пиздецкие дебиланы
     - хуеглоты
+  linen: |
+    <b>Обмен белья</b>
+    ПН 10:00 - 17:00
+    Перерыв 13:00 - 14:00
 commands:
   - command: cards
     description: Cкидочные карты всех популярных сетей
@@ -330,3 +335,5 @@ commands:
     description: Прачка МЭИ
   - command: washing
     description: Общадные стиралки
+  - command: linen
+    description: Информация об обмене белья
