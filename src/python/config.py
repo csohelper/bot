@@ -9,7 +9,7 @@ os.makedirs("storage", exist_ok=True)
 
 
 class DatabaseConfig(BaseModel):
-    host: str = Field(default="db")
+    host: str = Field(default="postgres")
     port: int = Field(default=5432)
     user: str = Field(default="postgres")
     password: str = Field(default="examplepassword")
@@ -28,14 +28,6 @@ class AppConfig(BaseModel):
     lang: str = Field(default="ru")
     telegram: TelegramConfig = Field(default_factory=TelegramConfig)
     database: DatabaseConfig = Field(default_factory=DatabaseConfig)
-    cards_images: list[str] = Field(default_factory=lambda: [
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-    ])
 
 
 CONFIG_PATH = Path("storage/config.yaml")

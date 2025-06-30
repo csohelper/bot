@@ -96,6 +96,12 @@ async def command_soft_handler(message: Message) -> None:
     await message.reply(get_string('echo_commands.soft'))
 
 
+@dp.message(Command("sosat"))
+@dp.message(lambda message: message.text and message.text.lower() in ["сосать", "долбаёб", "шлюха", "мразь", "сука"])
+async def command_sosat_handler(message: Message) -> None:
+    await message.reply(get_string('echo_commands.sosat'))
+
+
 @dp.message(Command("library"))
 @dp.message(lambda message: message.text and message.text.lower() in ["библиотека"])
 async def command_library_handler(message: Message) -> None:
