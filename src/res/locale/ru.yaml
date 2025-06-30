@@ -160,12 +160,12 @@ echo_commands:
     prachka-express@mail.ru
     http://prachka-express.ru
     <a href="https://yandex.ru/maps/-/CHWdN8JD">ул. Лапина, 1</a>
-  washing: |
-    <b>Стиральная машина</b>
-    <u>График работы:</u>
-    ПН-ПТ 10:00 - 21:00
-    СБ-ВС 00:00 - 00:00
-    <a href="https://yandex.ru/maps/-/CHWdN8JD">ул. Лапина, 1</a>
+  # washing: |
+  #   <b>Стиральная машина</b>
+  #   <u>График работы:</u>
+  #   ПН-ПТ 10:00 - 21:00
+  #   СБ-ВС 00:00 - 00:00
+  #   <a href="https://yandex.ru/maps/-/CHWdN8JD">ул. Лапина, 1</a>
   mai:
     - норм вуз вроде
     - не гоните на МАИ
@@ -333,7 +333,7 @@ commands:
     description: График работы кухни
   - command: laundress
     description: Прачка МЭИ
-  - command: washing
-    description: Общадные стиралки
+  # - command: washing
+  #   description: Общадные стиралки
   - command: linen
     description: Информация об обмене белья

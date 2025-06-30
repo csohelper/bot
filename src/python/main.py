@@ -278,12 +278,12 @@ async def command_laundress_handler(message: Message) -> None:
 
 
 
-@dp.message(Command("washing"))
-@dp.message(lambda message: message.text and message.text.lower() in ["стиралка", "машинки"])
-async def command_washing_handler(message: Message) -> None:
-    await message.reply(
-        get_string('echo_commands.washing')
-    )
+# @dp.message(Command("washing"))
+# @dp.message(lambda message: message.text and message.text.lower() in ["стиралка", "машинки"])
+# async def command_washing_handler(message: Message) -> None:
+#     await message.reply(
+#         get_string('echo_commands.washing')
+#     )
 
 cached_cards_files_id = []
 
