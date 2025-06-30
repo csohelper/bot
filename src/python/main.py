@@ -1,6 +1,5 @@
 import asyncio
 import datetime
-from distutils.sysconfig import expand_makefile_vars
 from gc import get_objects
 import os
 import random
@@ -136,7 +135,7 @@ cached_linen_file_id = None
 
 @dp.message(Command("linen"))
 @dp.message(lambda message: message.text and message.text.lower() in ["обмен белья"])
-async def command_vost_handler(message: Message) -> None:
+async def command_linen_handler(message: Message) -> None:
     global cached_linen_file_id
 
     while True:

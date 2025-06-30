@@ -19,7 +19,7 @@ services:
   csohelper-bot:
     build: .
     volumes:
-      - ./storage/config.toml:/app/storage/config.toml
+      - ./storage/bot:/app/storage/
     depends_on:
       postgres:
         condition: service_healthy
