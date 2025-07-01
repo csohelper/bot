@@ -297,6 +297,16 @@ echo_commands:
     <b>Обмен белья</b>
     ПН 10:00 - 17:00
     Перерыв 13:00 - 14:00
+  kek:
+    ban: |
+      <b>{0}</b>, твой «kek» так вышло что забанил тебя на <b>{1} мин</b>
+    too_many: |
+      <b>{0}</b>, не флудите
+      Не используйте «kek» чаще чем раз в <b>2 минуты</b>
+    not_found: |
+      Анекдота с подходящими заменами не найдено
+      Попробуй позже
+      (Алгоритм подбора сделан для работы на картошке, не оббесудьте)
 commands:
   - command: cards
     description: Cкидочные карты всех популярных сетей
@@ -304,6 +314,8 @@ commands:
     description: Список услуг от проживающих
   - command: help
     description: Помощь
+  - command: kek
+    description: Yt df;yj
   - command: index
     description: Индекс общежития
   - command: address

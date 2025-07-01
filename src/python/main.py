@@ -18,7 +18,7 @@ from aiogram.types.link_preview_options import LinkPreviewOptions
 from . import utils
 from . import anecdote
 
-
+bot: Bot = None
 dp = Dispatcher()
 
 @dp.startup()
@@ -54,17 +54,51 @@ async def command_index_handler(message: Message) -> None:
     await message.reply(get_string('echo_commands.index'))
 
 
+kek_last_use = {}
+
+
 @dp.message(Command("kek"))
 @dp.message(lambda message: message.text and message.text.lower() in ["kek", "кек"])
 async def command_anecdote_handler(message: Message) -> None:
+    global kek_last_use
+    if message.chat.id in kek_last_use:
+        last_use_chat = kek_last_use[message.chat.id]
+    else:
+        last_use_chat = datetime.datetime(2000, 1, 1, 0, 0)
+
+    if datetime.datetime.now() - last_use_chat < datetime.timedelta(minutes=2):
+        await message.reply(get_string(
+            'echo_commands.kek.too_many', 
+            message.from_user.full_name
+        ))
+        return
+
+    kek_last_use[message.chat.id] = datetime.datetime.now()
+
+    if random.random() < 0.05:
+        ban_time = random.randint(1, 60)
+        await message.reply(get_string(
+            'echo_commands.kek.ban',
+            message.from_user.full_name,
+            ban_time
+        ))
+        await bot.ban_chat_member(
+            chat_id=message.chat.id,
+            user_id=message.from_user.id,
+            until_date=datetime.datetime.now() + datetime.timedelta(minutes=ban_time)
+        )
+        return
+
     for _ in range(100):
-        original, modified = await anecdote.generate_anekdot()
-        if original and modified:
+        _, modified = await anecdote.generate_anekdot()
+        if modified:
             await message.reply(modified)
             return
         else:
             logger.warning("Failed to generate anecdote with suitable replacements. Retrying...")
-    await message.reply("Я чет не нашёл анекдот с подходящими заменами. Попробуй позже.")
+    await message.reply(get_string(
+        'echo_commands.kek.not_found'
+    ))
 
 
 @dp.message(Command("address"))
@@ -361,6 +395,7 @@ async def command_week_handler(message: Message) -> None:
 
 
 async def main() -> None:
+    global bot
     bot = Bot(
         token=config.telegram.token,
         default=DefaultBotProperties(

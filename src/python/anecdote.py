@@ -8,7 +8,7 @@ import random
 morph = pymorphy2.MorphAnalyzer()
 
 # Замены
-CHARACTER_REPLACEMENT = 'МЭИшник'
+CHARACTER_REPLACEMENT = 'мэишник'
 PLACE_REPLACEMENT = 'МЭИ'
 
 async def download_anekdot():
@@ -101,7 +101,7 @@ def replace_characters_and_places(text, char, place):
             # Замена места
             elif base_place_to_replace and base == base_place_to_replace:
                 inflected = morph.parse(PLACE_REPLACEMENT)[0].inflect(parsed.tag.grammemes)
-                replacement = inflected.word if inflected else PLACE_REPLACEMENT
+                replacement = inflected.word if inflected else PLACE_REPLACEMENT.upper()
                 new_words.append(replacement)
                 replaced = True
             
