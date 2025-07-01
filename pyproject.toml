@@ -12,6 +12,10 @@ pydantic = "^2.11.7"
 dynaconf = "^3.2.11"
 psycopg = {extras = ["async", "binary", "pool"], version = "^3.2.9"}
 pyyaml = "^6.0.2"
+pymorphy2 = "^0.9.1"
+beautifulsoup4 = "^4.13.4"
+requests = "^2.32.4"
+setuptools = "^80.9.0"
 
 [build-system]
 requires = ["poetry-core"]

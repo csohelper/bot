@@ -16,6 +16,7 @@ import platform
 from .logger import logger
 from aiogram.types.link_preview_options import LinkPreviewOptions
 from . import utils
+from . import anecdote
 
 
 dp = Dispatcher()
@@ -51,6 +52,19 @@ async def command_help_handler(message: Message) -> None:
 @dp.message(lambda message: message.text and message.text.lower() in ["индекс"])
 async def command_index_handler(message: Message) -> None:
     await message.reply(get_string('echo_commands.index'))
+
+
+@dp.message(Command("kek"))
+@dp.message(lambda message: message.text and message.text.lower() in ["kek", "кек"])
+async def command_anecdote_handler(message: Message) -> None:
+    for _ in range(100):
+        original, modified = await anecdote.generate_anekdot()
+        if original and modified:
+            await message.reply(modified)
+            return
+        else:
+            logger.warning("Failed to generate anecdote with suitable replacements. Retrying...")
+    await message.reply("Я чет не нашёл анекдот с подходящими заменами. Попробуй позже.")
 
 
 @dp.message(Command("address"))

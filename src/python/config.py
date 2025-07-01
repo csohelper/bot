@@ -18,6 +18,10 @@ class DatabaseConfig(BaseModel):
     max_pool_size: int = Field(default=10)
 
 
+# class WorktimesConfig(BaseModel):
+#     shower_times = Field(default_factory=)
+
+
 class TelegramConfig(BaseModel):
     token: str = Field(default="0000000000:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
     chat_whitelist: list[int] = Field(default_factory=list)
