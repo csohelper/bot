@@ -8,7 +8,7 @@ import random
 morph = pymorphy2.MorphAnalyzer()
 
 # Замены
-CHARACTER_REPLACEMENT = 'мэишник'
+CHARACTER_REPLACEMENTS = ['мэишник', 'мтусишник', 'цсошник', 'общажник']
 PLACE_REPLACEMENT = 'МЭИ'
 
 async def download_anekdot():
@@ -27,7 +27,10 @@ async def download_anekdot():
                     text = text_block.get_text(separator='\n', strip=True)
                     # Удаляем лишние пустые строки и нормализуем пробелы
                     lines = [line.strip() for line in text.split('\n') if line.strip()]
-                    return '\n'.join(lines)
+                    result = '\n'.join(lines)
+                    if not (100 < len(result) < 600):
+                        return None
+                    return result
                 return None
     except (aiohttp.ClientError, ValueError) as e:
         print(f"Ошибка при загрузке: {e}")
@@ -92,18 +95,19 @@ def replace_characters_and_places(text, char, place):
             
             # Замена действующего лица
             if base_char_to_replace and base == base_char_to_replace:
-                inflected = morph.parse(CHARACTER_REPLACEMENT)[0].inflect(parsed.tag.grammemes)
-                replacement = inflected.word if inflected else CHARACTER_REPLACEMENT
+                character_replacement = random.choice(CHARACTER_REPLACEMENTS)
+                inflected = morph.parse(character_replacement)[0].inflect(parsed.tag.grammemes)
+                replacement = inflected.word if inflected else character_replacement
                 replacement = apply_case(word, replacement)
                 new_words.append(replacement)
                 replaced = True
             
-            # Замена места
-            elif base_place_to_replace and base == base_place_to_replace:
-                inflected = morph.parse(PLACE_REPLACEMENT)[0].inflect(parsed.tag.grammemes)
-                replacement = inflected.word if inflected else PLACE_REPLACEMENT.upper()
-                new_words.append(replacement)
-                replaced = True
+            # # Замена места
+            # elif base_place_to_replace and base == base_place_to_replace:
+            #     inflected = morph.parse(PLACE_REPLACEMENT)[0].inflect(parsed.tag.grammemes)
+            #     replacement = inflected.word if inflected else PLACE_REPLACEMENT
+            #     new_words.append(replacement.upper())
+            #     replaced = True
             
             else:
                 new_words.append(word)

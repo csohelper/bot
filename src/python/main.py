@@ -4,8 +4,9 @@ from gc import get_objects
 import os
 import random
 from aiogram import Bot, Dispatcher
+from aiogram.exceptions import TelegramBadRequest, TelegramRetryAfter
 from aiogram.filters import Command
-from aiogram.types import BotCommand, FSInputFile, InputFile, InputFileUnion, InputMediaPhoto, MediaUnion, Message
+from aiogram.types import BotCommand, ChatPermissions, FSInputFile, InputFile, InputFileUnion, InputMediaPhoto, MediaUnion, Message
 from aiogram import F
 from dynaconf.validator_conditions import cont
 from .config import config
@@ -18,7 +19,7 @@ from aiogram.types.link_preview_options import LinkPreviewOptions
 from . import utils
 from . import anecdote
 
-bot: Bot = None
+bot: Bot
 dp = Dispatcher()
 
 @dp.startup()
@@ -60,42 +61,83 @@ kek_last_use = {}
 @dp.message(Command("kek"))
 @dp.message(lambda message: message.text and message.text.lower() in ["kek", "кек"])
 async def command_anecdote_handler(message: Message) -> None:
+    if message.chat.type not in ['group', 'supergroup']:
+        await message.reply(get_string(
+            'echo_commands.kek.only_group'
+        ))
+        return
+
     global kek_last_use
     if message.chat.id in kek_last_use:
         last_use_chat = kek_last_use[message.chat.id]
     else:
         last_use_chat = datetime.datetime(2000, 1, 1, 0, 0)
 
-    if datetime.datetime.now() - last_use_chat < datetime.timedelta(minutes=2):
-        await message.reply(get_string(
+    if not message.from_user:
+        return
+
+    delta: datetime.timedelta = datetime.datetime.now() - last_use_chat
+    if delta < datetime.timedelta(seconds=30):
+        reply = await message.reply(get_string(
             'echo_commands.kek.too_many', 
-            message.from_user.full_name
+            message.from_user.full_name,
+            30 - int(delta.total_seconds())
         ))
+        await asyncio.sleep(5)
+        try:
+            await message.delete()
+        except Exception as e:
+            logger.error(f"Failed delete user message {message}: {e}")
+        try:
+            await reply.delete()
+        except Exception as e:
+            logger.error(f"Failed delete reply message {reply}: {e}")
         return
 
     kek_last_use[message.chat.id] = datetime.datetime.now()
 
     if random.random() < 0.05:
-        ban_time = random.randint(1, 60)
-        await message.reply(get_string(
+        ban_time = random.randint(1, 30)
+        reply = await message.reply(get_string(
             'echo_commands.kek.ban',
             message.from_user.full_name,
             ban_time
         ))
-        await bot.ban_chat_member(
-            chat_id=message.chat.id,
-            user_id=message.from_user.id,
-            until_date=datetime.datetime.now() + datetime.timedelta(minutes=ban_time)
-        )
+        try:
+            await bot.restrict_chat_member(
+                chat_id=message.chat.id,
+                user_id=message.from_user.id,
+                permissions=ChatPermissions(can_send_messages=False),
+                until_date=datetime.datetime.now() + datetime.timedelta(minutes=ban_time)
+            )
+        except TelegramBadRequest:
+            await reply.edit_text(get_string(
+                'echo_commands.kek.ban_admin',
+                message.from_user.full_name,
+                ban_time
+            ))
         return
 
-    for _ in range(100):
-        _, modified = await anecdote.generate_anekdot()
-        if modified:
-            await message.reply(modified)
-            return
-        else:
-            logger.warning("Failed to generate anecdote with suitable replacements. Retrying...")
+    for i in range(100):
+        if i % 5 == 0:
+            try:
+                await bot.send_chat_action(
+                    chat_id=message.chat.id,
+                    action='typing',
+                    message_thread_id=message.message_thread_id
+                )
+            except TelegramRetryAfter:
+                logger.warning("Telegram action type status restricted by flood control")
+        try:
+            _, modified = await anecdote.generate_anekdot()
+            if modified:
+                await message.reply(get_string(
+                    'echo_commands.kek.anecdote',
+                    modified
+                ))
+                return
+        except Exception as e:
+            logger.error(f"Failed to generate anecdote with exc {e}. Retrying...")
     await message.reply(get_string(
         'echo_commands.kek.not_found'
     ))
@@ -400,7 +442,8 @@ async def main() -> None:
         token=config.telegram.token,
         default=DefaultBotProperties(
             parse_mode=config.telegram.parse_mode,
-            link_preview = LinkPreviewOptions(is_disabled = True)
+            link_preview = LinkPreviewOptions(is_disabled = True),
+            disable_notification = True
         )
     )
     await dp.start_polling(bot)
