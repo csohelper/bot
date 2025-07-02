@@ -27,7 +27,7 @@ async def download_anekdot():
                     text = text_block.get_text(separator='\n', strip=True)
                     # Удаляем лишние пустые строки и нормализуем пробелы
                     lines = [line.strip() for line in text.split('\n') if line.strip()]
-                    result = '\n'.join(lines)
+                    result = ' '.join(lines)
                     if not (100 < len(result) < 600):
                         return None
                     return result
