@@ -4,6 +4,7 @@ from gc import get_objects
 import os
 import random
 from aiogram import Bot, Dispatcher
+from aiogram.enums import ChatMemberStatus
 from aiogram.exceptions import TelegramBadRequest, TelegramRetryAfter
 from aiogram.filters import Command
 from aiogram.types import BotCommand, ChatPermissions, FSInputFile, InputFile, InputFileUnion, InputMediaPhoto, MediaUnion, Message
@@ -99,24 +100,41 @@ async def command_anecdote_handler(message: Message) -> None:
     kek_last_use[message.chat.id] = datetime.datetime.now()
 
     if random.random() < 0.05:
-        ban_time = random.randint(1, 30)
-        reply = await message.reply(get_string(
-            'echo_commands.kek.ban',
-            message.from_user.full_name,
-            ban_time
-        ))
-        try:
-            await bot.restrict_chat_member(
-                chat_id=message.chat.id,
-                user_id=message.from_user.id,
-                permissions=ChatPermissions(can_send_messages=False),
-                until_date=datetime.datetime.now() + datetime.timedelta(minutes=ban_time)
-            )
-        except TelegramBadRequest:
-            await reply.edit_text(get_string(
-                'echo_commands.kek.ban_admin',
+        me = await bot.get_me()
+        bot_member = await bot.get_chat_member(chat_id=message.chat.id, user_id=me.id)
+
+        if bot_member.status == ChatMemberStatus.ADMINISTRATOR and bot_member.can_restrict_members:
+            ban_time = random.randint(1, 30)
+            reply = await message.reply(get_string(
+                'echo_commands.kek.ban',
                 message.from_user.full_name,
                 ban_time
+            ))
+            user_member = await bot.get_chat_member(chat_id=message.chat.id, user_id=message.from_user.id)
+            if user_member.status == ChatMemberStatus.ADMINISTRATOR:
+                await reply.edit_text(get_string(
+                    'echo_commands.kek.ban_admin',
+                    message.from_user.full_name
+                ))
+            else:
+                try:
+                    await bot.restrict_chat_member(
+                        chat_id=message.chat.id,
+                        user_id=message.from_user.id,
+                        permissions=ChatPermissions(can_send_messages=False),
+                        until_date=datetime.datetime.now() + datetime.timedelta(minutes=ban_time)
+                    )
+                except TelegramBadRequest as e:
+                    await reply.edit_text(get_string(
+                        'echo_commands.kek.ban_error',
+                        message.from_user.full_name,
+                        ban_time
+                    ))
+                    logger.error(f"Failed to restrict user {message.from_user.id} in chat {message.chat.id}. User not admin and bot has rights\n{e}")
+        else:
+            await message.reply(get_string(
+                'echo_commands.kek.ban_no_rights',
+                message.from_user.full_name
             ))
         return
 
@@ -243,7 +261,6 @@ cached_linen_file_id = None
 @dp.message(Command("linen"))
 @dp.message(lambda message: message.text and message.text.lower() in ["обмен белья"])
 async def command_linen_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     global cached_linen_file_id
 
     while True:
