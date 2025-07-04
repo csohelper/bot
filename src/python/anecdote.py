@@ -1,137 +1,158 @@
+import json
 import aiohttp
 import asyncio
 from bs4 import BeautifulSoup
 import pymorphy2
 import random
+from . import strings
+from .config import config
+from .logger import logger
 
-# Инициализация анализатора один раз для экономии ресурсов
-morph = pymorphy2.MorphAnalyzer()
+prompt = strings.get_object("anecdote_prompt")
 
-# Замены
-CHARACTER_REPLACEMENTS = ['мэишник', 'мтусишник', 'цсошник', 'общажник']
-PLACE_REPLACEMENT = 'МЭИ'
+anecdote_buffer = []
 
-async def download_anekdot():
-    url = 'https://www.anekdot.ru/random/anekdot/'
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
-    
-    try:
+
+async def get_anecdote() -> str | None:
+    global anecdote_buffer
+    l = '\",\n    \"'.join(anecdote_buffer)
+    logger.debug(f"Anecdotes buffer: [\n     \"{l}\"\n]")
+    if len(anecdote_buffer) > 0:
+        return anecdote_buffer.pop()
+    return None
+
+
+async def await_and_run(delay_time: float, task) -> None:
+    await asyncio.sleep(delay_time)
+    await task()
+
+
+def parse_payload(original_text: str) -> dict:
+    return {
+        "contents": [
+            {
+                "role": "user",
+                "parts": [
+                    {
+                        "text": prompt[0]['text']
+                    }
+                ]
+            },
+            {
+                "role": "model",
+                "parts": [
+                    {
+                        "text": prompt[1]['text']
+                    }
+                ]
+            },
+            {
+                "role": "user",
+                "parts": [
+                    {
+                        "text": original_text
+                    }
+                ]
+            }
+        ],
+        "generationConfig": {
+            "temperature": 1.0,
+            "topP": 0.8,
+            "topK": 10,
+            "thinkingConfig": {
+                "thinkingBudget": 0
+            }
+        }
+    }
+
+
+gemini_url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
+async def proccess_anecdote(original: str) -> str | None:
+    payload: dict = parse_payload(original)
+    headers: dict = {
+        'x-goog-api-key': config.anecdote.gemini_token,
+        'Content-Type': 'application/json'
+    }
+    for _ in range(10):
         async with aiohttp.ClientSession() as session:
-            async with session.get(url, headers=headers, timeout=5) as response:
-                response.raise_for_status()
-                text = await response.text()
-                soup = BeautifulSoup(text, 'html.parser')
-                text_block = soup.select_one('.text')
-                if text_block:
-                    # Используем separator='\n' для сохранения переносов строк
-                    text = text_block.get_text(separator='\n', strip=True)
-                    # Удаляем лишние пустые строки и нормализуем пробелы
-                    lines = [line.strip() for line in text.split('\n') if line.strip()]
-                    result = ' '.join(lines)
-                    if not (100 < len(result) < 600):
+            try:
+                async with session.post(gemini_url, json=payload, headers=headers) as response:
+                    if response.status == 429:
+                        await asyncio.sleep(5)
+                        continue
+
+                    response.raise_for_status()  # Вызовет исключение для статусов 4xx/5xx
+                    content = await response.json()
+                    logger.debug(f"Anecdote poller: Response content: {content}") # Log the full content
+
+                    text = content['candidates'][0]['content']['parts'][0]['text']
+
+                    if len(text) < 100:
+                        logger.info(f"Anecdote poller: Result text is too small (l={len(text)}). Perhabs proccess error. Input:\n{original}\nOutput:\n{text}")
                         return None
-                    return result
-                return None
-    except (aiohttp.ClientError, ValueError) as e:
-        print(f"Ошибка при загрузке: {e}")
-        return None
+                    
+                    return text
 
-def get_main_characters_and_places(text):
-    words = text.split()
-    char = None
-    place = None
-    
-    for word in words:
-        # Пропускаем короткие слова и слова с пунктуацией
-        if len(word) < 2 or not word.isalpha():
-            continue
-        parsed = morph.parse(word)[0]
-        base = parsed.normal_form
-        
-        # Проверяем действующее лицо: первое одушевлённое существительное мужского рода в единственном числе и именительном падеже
-        if not char and 'NOUN' in parsed.tag and 'nomn' in parsed.tag and 'anim' in parsed.tag and 'masc' in parsed.tag and 'sing' in parsed.tag:
-            char = (base, word, parsed.tag.grammemes)
-        
-        # Проверяем место: первое неодушевлённое существительное в именительном падеже
-        elif not place and 'NOUN' in parsed.tag and 'nomn' in parsed.tag and 'anim' not in parsed.tag:
-            place = (base, word, parsed.tag.grammemes)
-        
-        # Прерываем цикл, если нашли и персонажа, и место
-        if char and place:
-            break
-    
-    return char, place
+            except aiohttp.ClientError as e:
+                logger.error(f"Anecdote poller: Error process text: {e}")
+                await asyncio.sleep(2)
+            except Exception as e:
+                logger.error(f"Anecdote poller: Unknown error process text: {e}")
+                await asyncio.sleep(1)
+    return None
 
-def apply_case(original, replacement):
-    """
-    Применяет регистр исходного слова к замене.
-    """
-    if original.isupper():
-        return replacement.upper()
-    elif original[0].isupper() and len(original) > 1:
-        return replacement.capitalize()
-    else:
-        return replacement.lower()
 
-def replace_characters_and_places(text, char, place):
-    if not char:  # Нужно хотя бы одно действующее лицо
-        return text, False
-    
-    base_char_to_replace = char[0] if char else None
-    base_place_to_replace = place[0] if place else None
-    
-    # Разбиваем текст на слова, сохраняя переносы строк
-    lines = text.split('\n')
-    new_lines = []
-    replaced = False
-    
-    for line in lines:
-        words = line.split()
-        new_words = []
-        
-        for word in words:
-            parsed = morph.parse(word)[0]
-            base = parsed.normal_form
-            
-            # Замена действующего лица
-            if base_char_to_replace and base == base_char_to_replace:
-                character_replacement = random.choice(CHARACTER_REPLACEMENTS)
-                inflected = morph.parse(character_replacement)[0].inflect(parsed.tag.grammemes)
-                replacement = inflected.word if inflected else character_replacement
-                replacement = apply_case(word, replacement)
-                new_words.append(replacement)
-                replaced = True
-            
-            # # Замена места
-            # elif base_place_to_replace and base == base_place_to_replace:
-            #     inflected = morph.parse(PLACE_REPLACEMENT)[0].inflect(parsed.tag.grammemes)
-            #     replacement = inflected.word if inflected else PLACE_REPLACEMENT
-            #     new_words.append(replacement.upper())
-            #     replaced = True
-            
-            else:
-                new_words.append(word)
-        
-        new_lines.append(' '.join(new_words))
-    
-    return '\n'.join(new_lines), replaced
+anecdotes_url = 'https://baneks.ru/random'
+async def get_original() -> str | None:
+    for _ in range(10):
+        async with aiohttp.ClientSession() as session:
+            try:
+                async with session.get(anecdotes_url) as response:
+                    response.raise_for_status()  # Вызовет исключение для статусов 4xx/5xx
+                    html_content = await response.text()
 
-async def generate_anekdot():
-    """
-    Асинхронно генерирует один анекдот с заменой действующего лица на 'МЭИшник' и места на 'МЭИ'.
-    Возвращает кортеж (оригинал, текст_с_заменой) или (None, None) в случае неудачи.
-    """
-    text = await download_anekdot()
-    if not text:
-        return None, None
-    
-    char, place = get_main_characters_and_places(text)
-    if not char:
-        return None, None
-    
-    result, replaced = replace_characters_and_places(text, char, place)
-    if not replaced:
-        return None, None
-    
-    return text, result
+                    # Используем BeautifulSoup для парсинга HTML
+                    soup = BeautifulSoup(html_content, 'html.parser')
 
+                    # Анекдот находится внутри тега <p> в секции <article>
+                    anekdot_tag = soup.find('article').find('p')
+
+                    if anekdot_tag:
+                        anekdot_text = anekdot_tag.get_text(strip=True)
+                        return anekdot_text
+            except aiohttp.ClientError as e:
+                logger.error(f"Anecdote poller: Error access page: {e}")
+                await asyncio.sleep(5)
+            except Exception as e:
+                logger.error(f"Anecdote poller: Error loading page: {e}")
+                await asyncio.sleep(2)
+    return None
+
+
+async def loop_check() -> None:
+    asyncio.create_task(await_and_run(config.anecdote.buffer_check_time, loop_check))
+
+    logger.debug("Anecdote poller: Check loop")
+    need = config.anecdote.buffer_size - len(anecdote_buffer)
+    if need > 0:
+        logger.info(f"Anecdote poller: Need {need} anecdotes, loading")
+
+        while config.anecdote.buffer_size > len(anecdote_buffer):
+            logger.debug("Proccessing...")
+            original = await get_original()
+            if original is None:
+                logger.debug("Anecdote poller: Anecdote is None")
+                continue
+            l = len(original)
+            if l < 200:
+                logger.debug(f"Anecdote poller: Anecdote l={l} is too small")
+                continue
+            if l > 1000:
+                logger.debug(f"Anecdote poller: Anecdote l={l} is too big")
+                continue
+            proccessed = await proccess_anecdote(original)
+            if proccessed is not None:
+                anecdote_buffer.append(proccessed)
+
+            await asyncio.sleep(5)
+        logger.info("Anecdote poller: Load complete")

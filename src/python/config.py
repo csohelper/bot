@@ -28,10 +28,19 @@ class TelegramConfig(BaseModel):
     parse_mode: str = Field(default="HTML")
 
 
+class AnecdoteConfig(BaseModel):
+    enabled: bool = Field(default=False)
+    gemini_token: str = Field(default="your_gemini_token_here")
+    buffer_size: int = Field(default=5)
+    buffer_check_time: int = Field(default=30)
+
+
 class AppConfig(BaseModel):
     lang: str = Field(default="ru")
+    log_level: str = Field(default="info")
     telegram: TelegramConfig = Field(default_factory=TelegramConfig)
     database: DatabaseConfig = Field(default_factory=DatabaseConfig)
+    anecdote: AnecdoteConfig = Field(default_factory=AnecdoteConfig)
 
 
 CONFIG_PATH = Path("storage/config.yaml")

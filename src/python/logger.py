@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime
 import os
+from .config import config
 
 def setup_logger(name: str = __name__) -> logging.Logger:
     if not os.path.exists("storage/logs"):
@@ -8,7 +9,10 @@ def setup_logger(name: str = __name__) -> logging.Logger:
     log_filename = f"storage/logs/{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.log"
 
     logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
+
+    log_level_str = config.log_level.upper()
+    numeric_log_level = getattr(logging, log_level_str, logging.INFO)
+    logger.setLevel(numeric_log_level)
 
     if not logger.handlers:
         formatter = logging.Formatter(

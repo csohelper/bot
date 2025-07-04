@@ -97,8 +97,6 @@ async def command_anecdote_handler(message: Message) -> None:
             logger.error(f"Failed delete reply message {reply}: {e}")
         return
 
-    kek_last_use[message.chat.id] = datetime.datetime.now()
-
     if random.random() < 0.05:
         me = await bot.get_me()
         bot_member = await bot.get_chat_member(chat_id=message.chat.id, user_id=me.id)
@@ -138,6 +136,8 @@ async def command_anecdote_handler(message: Message) -> None:
             ))
         return
 
+    kek_last_use[message.chat.id] = datetime.datetime.now()
+
     for i in range(100):
         if i % 5 == 0:
             try:
@@ -149,13 +149,13 @@ async def command_anecdote_handler(message: Message) -> None:
             except TelegramRetryAfter:
                 logger.warning("Telegram action type status restricted by flood control")
         try:
-            _, modified = await anecdote.generate_anekdot()
-            if modified:
+            text = await anecdote.get_anecdote()
+            if text:
                 await message.reply(get_string(
                     'echo_commands.kek.anecdote',
-                    modified
+                    text
                 ))
-                return
+                return                
         except Exception as e:
             logger.error(f"Failed to generate anecdote with exc {e}. Retrying...")
     await message.reply(get_string(
@@ -486,6 +486,7 @@ async def main() -> None:
             disable_notification = True
         )
     )
+    asyncio.create_task(anecdote.loop_check())
     await dp.start_polling(bot)
 
 def entrypoint() -> None:
