@@ -138,26 +138,27 @@ async def command_anecdote_handler(message: Message) -> None:
 
     kek_last_use[message.chat.id] = datetime.datetime.now()
 
-    for i in range(100):
-        if i % 5 == 0:
+    if config.anecdote.enabled:
+        for i in range(100):
+            if i % 5 == 0:
+                try:
+                    await bot.send_chat_action(
+                        chat_id=message.chat.id,
+                        action='typing',
+                        message_thread_id=message.message_thread_id
+                    )
+                except TelegramRetryAfter:
+                    logger.warning("Telegram action type status restricted by flood control")
             try:
-                await bot.send_chat_action(
-                    chat_id=message.chat.id,
-                    action='typing',
-                    message_thread_id=message.message_thread_id
-                )
-            except TelegramRetryAfter:
-                logger.warning("Telegram action type status restricted by flood control")
-        try:
-            text = await anecdote.get_anecdote()
-            if text:
-                await message.reply(get_string(
-                    'echo_commands.kek.anecdote',
-                    text
-                ))
-                return                
-        except Exception as e:
-            logger.error(f"Failed to generate anecdote with exc {e}. Retrying...")
+                text = await anecdote.get_anecdote()
+                if text:
+                    await message.reply(get_string(
+                        'echo_commands.kek.anecdote',
+                        text
+                    ))
+                    return                
+            except Exception as e:
+                logger.error(f"Failed to generate anecdote with exc {e}. Retrying...")
     await message.reply(get_string(
         'echo_commands.kek.not_found'
     ))
@@ -486,7 +487,8 @@ async def main() -> None:
             disable_notification = True
         )
     )
-    asyncio.create_task(anecdote.loop_check())
+    if config.anecdote.enabled:
+        asyncio.create_task(anecdote.loop_check())
     await dp.start_polling(bot)
 
 def entrypoint() -> None:
