@@ -115,10 +115,10 @@ async def get_original() -> str | None:
                     soup = BeautifulSoup(html_content, 'html.parser')
 
                     # Анекдот находится внутри тега <p> в секции <article>
-                    anekdot_tag = soup.find('article').find('p')
+                    anekdot_tag = soup.find('article').find('p') # type: ignore
 
                     if anekdot_tag:
-                        anekdot_text = anekdot_tag.get_text(strip=True)
+                        anekdot_text = anekdot_tag.get_text(strip=True) # type: ignore
                         return anekdot_text
             except aiohttp.ClientError as e:
                 logger.error(f"Anecdote poller: Error access page: {e}")
