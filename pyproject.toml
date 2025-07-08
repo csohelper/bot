@@ -23,3 +23,6 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 csohelper = "python.main:entrypoint"
+
+[virtualenvs]
+in-project = true

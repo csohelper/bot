@@ -1,5 +1,3 @@
-import asyncio
-import psycopg
 from psycopg_pool import AsyncConnectionPool
 from .config import config
 from .logger import logger
