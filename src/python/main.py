@@ -54,6 +54,7 @@ async def main() -> None:
         services_commands.router
     )
     kek_command.bot = bot
+    services_commands.bot_username = (await bot.get_me()).username
     await dp.start_polling(bot)
 
 def entrypoint() -> None:
