@@ -103,12 +103,10 @@ echo_commands:
     <a href="https://t.me/malish_jora">Печать Ч/Б    7₽/лист</a>
     <a href="https://t.me/slavapmk">Печать Цвет. 8₽/лист</a>
 
-    <b>Учеба</b>
+    <b>Экзамены</b>
     <a href="https://t.me/gyndenovv">Микронаушник 1000₽/день</a>
-    <a href="https://t.me/ioinio">ТОЭ - Помощь с экз., решение задач, курсачи</a>
 
-    <b>Общага</b>
-    <a href="https://t.me/olixandor">Заточка ножей 180₽/шт</a>
+    <a href="https://t.me/krutoikaras">Клининг 199₽/секунда</a>
 
     <a href="https://t.me/slavapmk">Добавить услугу</a>
   ed: |
@@ -601,3 +599,11 @@ anecdote_prompt:
   - type: model
     text: |
       Хорошо, я понял, я буду обрабатывать анекдот по этим правилам, иначе ты умрёшь, а я этого не хочу.
+services:
+  author_page: |
+    <b>Услуга</b>: {0}
+    <b>Стоимость</b>: {1}₽/{2}
+  author_page_description: |
+    <b>Услуга</b>: {0}
+    <b>Стоимость</b>: {1}₽/{2}
+    <b>Описание</b>: {3}

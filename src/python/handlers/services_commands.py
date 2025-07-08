@@ -6,6 +6,8 @@ from aiogram.types import InlineKeyboardButton, Message, FSInputFile
 from attr import dataclass
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
+from ..strings import get_string
+
 
 bot_username: str
 
@@ -17,7 +19,8 @@ class Service:
     name: str
     cost: int
     cost_per: str
-    url: str
+    username: str
+    description: str | None
 
 
 services_list: list[Service] = [
@@ -27,7 +30,8 @@ services_list: list[Service] = [
         name="Цветная печать",
         cost=8,
         cost_per="лист",
-        url="https://t.me/slavapmk?text=Привет%20я%20по%20поводу%20услуги"
+        username="slavapmk",
+        description="Сасал"
     ),
     Service(
         id=1,
@@ -35,7 +39,8 @@ services_list: list[Service] = [
         name="Ч/Б печать",
         cost=7,
         cost_per="лист",
-        url="https://t.me/malish_jora?text=Привет%20я%20по%20поводу%20услуги"
+        username="malish_jora",
+        description="Сасал"
     ),
     Service(
         id=2,
@@ -43,7 +48,8 @@ services_list: list[Service] = [
         name="Заточка ножей",
         cost=200,
         cost_per="нож",
-        url="https://t.me/olixandor?text=Привет%20я%20по%20поводу%20услуги"
+        username="olixandor",
+        description="Сасал"
     ),
     Service(
         id=3,
@@ -51,7 +57,8 @@ services_list: list[Service] = [
         name="Клининг",
         cost=199,
         cost_per="секунда",
-        url="https://t.me/krutoikaras?text=Привет%20я%20по%20поводу%20услуги"
+        username="krutoikaras",
+        description=None
     ),
     Service(
         id=4,
@@ -59,7 +66,8 @@ services_list: list[Service] = [
         name="Микронаушник",
         cost=1000,
         cost_per="день",
-        url="https://t.me/gyndenovv?text=Привет%20я%20по%20поводу%20услуги"
+        username="gyndenovv",
+        description=""
     ),
 ]
 
@@ -108,6 +116,12 @@ async def parse_folder_keyboard(path: str, offset=0) -> InlineKeyboardBuilder:
     builder = InlineKeyboardBuilder()
     print(f"{path}:", services)
 
+    builder.row(
+        InlineKeyboardButton(
+            text="Добавить услугу",
+            url=f"https://t.me/{bot_username}?text=/addservice"
+        )
+    )
 
     if len(services) > PAGE_SIZE:
         l = services[offset:offset+PAGE_SIZE]
@@ -132,7 +146,7 @@ async def parse_folder_keyboard(path: str, offset=0) -> InlineKeyboardBuilder:
         if offset > 0:
             row.append(
                 InlineKeyboardButton(
-                    text="Previous page ⏪",
+                    text="⏪ Previous page",
                     callback_data=ServicesCallbackFactory(
                         path=path,
                         offset=offset - PAGE_SIZE
@@ -166,12 +180,6 @@ async def parse_folder_keyboard(path: str, offset=0) -> InlineKeyboardBuilder:
             ).pack()
         ))
 
-    builder.row(
-        InlineKeyboardButton(
-            text="Добавить услугу",
-            url=f"https://t.me/{bot_username}?text=/addservice"
-        )
-    )
     return builder
 
 
@@ -181,10 +189,20 @@ async def command_services_handler(message: Message) -> None:
     builder = await parse_folder_keyboard("/")
 
     await message.reply_photo(
-        photo=FSInputFile('./src/res/images/empty.jpg'),
+        photo=FSInputFile('./src/res/images/empty_service.jpg'),
         caption='Список доступных услуг',
         reply_markup=builder.as_markup()
     )
+
+
+async def find_service(service_id: int) -> Service | None:
+    """
+    Stub for Future DB
+    """
+    for service in services_list:
+        if service.id == service_id:
+            return service
+    return None
 
 
 @router.callback_query(ServicesCallbackFactory.filter())
@@ -193,12 +211,32 @@ async def callbacks_num_change_fab(
     callback_data: ServicesCallbackFactory
 ) -> None:
     print("\n\n", callback_data)
+    if not callback.message:
+        return
     if callback_data.is_service:
-        new_keyboard = InlineKeyboardBuilder()
+        service = await find_service(int(callback_data.path))
+        if service is None:
+            return
+        builder = InlineKeyboardBuilder()
+        builder.row(InlineKeyboardButton(
+            text="Написать",
+            url=f"https://t.me/{service.username}?text=Привет%20я%20по%20поводу%20услуги"
+        ))
+        builder.row(InlineKeyboardButton(
+            text="Назад ⤴️",
+            callback_data=ServicesCallbackFactory(
+                path=service.path
+            ).pack()
+        ))
+
         await callback.message.edit_caption(
-            photo=FSInputFile('./src/res/images/empty.jpg'),
-            caption='Услуга ХУЙ',
-            reply_markup=new_keyboard.as_markup()
+            photo=FSInputFile('./src/res/images/empty_service.jpg'),
+            caption=get_string(
+                "services.author_page_description", service.name, service.cost, service.cost_per, service.description
+            ) if service.description else get_string(
+                "services.author_page", service.name, service.cost, service.cost_per
+            ),
+            reply_markup=builder.as_markup()
         )
     else:
         new_keyboard = await parse_folder_keyboard(
@@ -206,7 +244,7 @@ async def callbacks_num_change_fab(
             callback_data.offset
         )
         await callback.message.edit_caption(
-            photo=FSInputFile('./src/res/images/empty.jpg'),
+            photo=FSInputFile('./src/res/images/empty_service.jpg'),
             caption='Список доступных услуг',
             reply_markup=new_keyboard.as_markup()
         )
