@@ -4,8 +4,8 @@ import asyncio
 from bs4 import BeautifulSoup
 import pymorphy2
 import random
-from . import strings
-from .config import config
+from .storage import strings
+from .storage.config import config
 from .logger import logger
 
 prompt = strings.get_object("anecdote_prompt")

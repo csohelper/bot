@@ -1,6 +1,7 @@
+from contextlib import asynccontextmanager
 from psycopg_pool import AsyncConnectionPool
 from .config import config
-from .logger import logger
+from ..logger import logger
 
 
 db_pool = None
@@ -26,10 +27,12 @@ async def close_database_pool() -> None:
         logger.info("Database: DB connection pool closed")
 
 
+@asynccontextmanager
 async def get_db_connection():
     if db_pool is None:
         logger.error("Database: Pool is not initialized. Call open_database_pool first.")
-        exit(1)
+        # В реальном приложении лучше вызвать исключение, а не exit(1)
+        raise RuntimeError("Database pool not initialized.")
     async with db_pool.connection() as conn:
         yield conn
 

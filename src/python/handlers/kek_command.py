@@ -2,21 +2,26 @@ import asyncio
 import datetime
 import random
 from aiogram import Bot, Router
-from ..strings import get_string
+from ..storage.strings import get_string
 from aiogram.types import Message
 from aiogram.filters import Command
 from ..logger import logger
 from aiogram.enums import ChatMemberStatus
 from aiogram.exceptions import TelegramBadRequest, TelegramRetryAfter
 from aiogram.types import ChatPermissions, Message
-from ..config import config
+from ..storage.config import config
 from .. import anecdote
 
 
 router = Router()
-bot: Bot
+_bot: Bot
 
 kek_last_use = {}
+
+
+async def init(bot: Bot):
+    global _bot
+    _bot = bot
 
 
 @router.message(Command("kek"))
@@ -56,8 +61,8 @@ async def command_anecdote_handler(message: Message) -> None:
         return
 
     if random.random() < 0.05:
-        me = await bot.get_me()
-        bot_member = await bot.get_chat_member(chat_id=message.chat.id, user_id=me.id)
+        me = await _bot.get_me()
+        bot_member = await _bot.get_chat_member(chat_id=message.chat.id, user_id=me.id)
 
         if bot_member.status == ChatMemberStatus.ADMINISTRATOR and bot_member.can_restrict_members:
             ban_time = random.randint(1, 30)
@@ -66,7 +71,7 @@ async def command_anecdote_handler(message: Message) -> None:
                 message.from_user.full_name,
                 ban_time
             ))
-            user_member = await bot.get_chat_member(chat_id=message.chat.id, user_id=message.from_user.id)
+            user_member = await _bot.get_chat_member(chat_id=message.chat.id, user_id=message.from_user.id)
             if user_member.status == ChatMemberStatus.ADMINISTRATOR:
                 await reply.edit_text(get_string(
                     'echo_commands.kek.ban_admin',
@@ -74,7 +79,7 @@ async def command_anecdote_handler(message: Message) -> None:
                 ))
             else:
                 try:
-                    await bot.restrict_chat_member(
+                    await _bot.restrict_chat_member(
                         chat_id=message.chat.id,
                         user_id=message.from_user.id,
                         permissions=ChatPermissions(can_send_messages=False),
@@ -100,7 +105,7 @@ async def command_anecdote_handler(message: Message) -> None:
         for i in range(100):
             if i % 5 == 0:
                 try:
-                    await bot.send_chat_action(
+                    await _bot.send_chat_action(
                         chat_id=message.chat.id,
                         action='typing',
                         message_thread_id=message.message_thread_id

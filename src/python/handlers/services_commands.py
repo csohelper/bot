@@ -6,10 +6,18 @@ from aiogram.types import InlineKeyboardButton, Message, FSInputFile
 from attr import dataclass
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from ..strings import get_string
+from python.storage import services_repository
+
+from ..storage.strings import get_string
 
 
-bot_username: str
+_bot_username: str
+
+
+async def init(bot_username: str):
+    global _bot_username
+    _bot_username = bot_username
+    await services_repository.init_database_module()
 
 
 @dataclass(frozen=True)
@@ -119,7 +127,7 @@ async def parse_folder_keyboard(path: str, offset=0) -> InlineKeyboardBuilder:
     builder.row(
         InlineKeyboardButton(
             text="Добавить услугу",
-            url=f"https://t.me/{bot_username}?text=/addservice"
+            url=f"https://t.me/{_bot_username}?text=/addservice"
         )
     )
 

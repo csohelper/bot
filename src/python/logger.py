@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 import os
-from .config import config
+from .storage.config import config
 
 def setup_logger(name: str = __name__) -> logging.Logger:
     if not os.path.exists("storage/logs"):

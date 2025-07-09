@@ -2,7 +2,7 @@ import asyncio
 import datetime
 import random
 from aiogram import Router
-from ..strings import get_string, get_strings
+from ..storage.strings import get_string, get_strings
 from aiogram.types import Message
 from aiogram.filters import Command
 from .. import utils
