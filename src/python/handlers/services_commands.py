@@ -1,3 +1,4 @@
+import urllib.parse
 from aiogram import Router
 from aiogram import types
 from aiogram.filters import Command
@@ -23,7 +24,6 @@ async def init(bot_username: str):
     await services_repository.init_database_module()
 
 
-
 router = Router()
 
 
@@ -33,20 +33,21 @@ class ServicesCallbackFactory(CallbackData, prefix="services"):
     offset: int = 0
 
 
-PAGE_SIZE = 2
+PAGE_SIZE = 5
 
 
-async def parse_folder_keyboard(path: str, offset=0) -> InlineKeyboardBuilder:
+async def parse_folder_keyboard(path: str, offset=0) -> tuple[InlineKeyboardBuilder, int, int]:
     services = await services_repository.get_service_list(path)
     builder = InlineKeyboardBuilder()
-    print(f"{path}:", services)
+    logger.debug(f"{path}:", services)
 
-    builder.row(
-        InlineKeyboardButton(
-            text="Добавить услугу",
-            url=f"https://t.me/{_bot_username}?text=/addservice"
+    if path == "/":
+        builder.row(
+            InlineKeyboardButton(
+                text=get_string("services.add_button.title"),
+                url=get_string("services.add_button.url_placeholder", _bot_username)
+            )
         )
-    )
 
     if len(services) > PAGE_SIZE:
         l = services[offset:offset+PAGE_SIZE]
@@ -54,11 +55,21 @@ async def parse_folder_keyboard(path: str, offset=0) -> InlineKeyboardBuilder:
         l = services
 
     for service in l:
-        button_path: str | int | None = service.folder_dest if service.is_folder else service.service_id
+        if service.is_folder:
+            button_path = service.folder_dest
+            text = get_string("services.folder_button", service.name)
+        else:
+            button_path = service.service_id
+            text = get_string(
+                "services.service_button", 
+                service.name, service.cost, service.cost_per,
+                service.username
+            )
+
         if button_path is not None:
             builder.row(
                 InlineKeyboardButton(
-                    text = f"📂 {service.name}" if service.is_folder else f"{service.name} ➡️",
+                    text = text,
                     callback_data=ServicesCallbackFactory(
                         path=str(button_path),
                         is_service=not service.is_folder
@@ -71,7 +82,7 @@ async def parse_folder_keyboard(path: str, offset=0) -> InlineKeyboardBuilder:
         if offset > 0:
             row.append(
                 InlineKeyboardButton(
-                    text="⏪ Previous page",
+                    text=get_string("services.prev_button"),
                     callback_data=ServicesCallbackFactory(
                         path=path,
                         offset=offset - PAGE_SIZE
@@ -81,15 +92,13 @@ async def parse_folder_keyboard(path: str, offset=0) -> InlineKeyboardBuilder:
         if offset + PAGE_SIZE < len(services):
             row.append(
                 InlineKeyboardButton(
-                    text="Next page ⏩",
+                    text=get_string("services.next_button"),
                     callback_data=ServicesCallbackFactory(
                         path=path,
                         offset=offset + PAGE_SIZE
                     ).pack()
                 )
             )
-        print(len(services), PAGE_SIZE, offset)
-        print(row)
         builder.row(*row)
 
 
@@ -99,23 +108,32 @@ async def parse_folder_keyboard(path: str, offset=0) -> InlineKeyboardBuilder:
         del path_split[-1]
         parent_path = "/" + "/".join(path_split)
         builder.row(InlineKeyboardButton(
-            text="Назад ⤴️",
+            text=get_string("services.back_button"),
             callback_data=ServicesCallbackFactory(
                 path=parent_path
             ).pack()
         ))
 
-    return builder
+    return builder, offset // PAGE_SIZE + 1, len(services) // PAGE_SIZE + 1
 
 
 @router.message(Command("services"))
 @router.message(lambda message: message.text and message.text.lower() in ["услуги"])
 async def command_services_handler(message: Message) -> None:
-    builder = await parse_folder_keyboard("/")
+    builder, page, pages = await parse_folder_keyboard("/")
+
+    caption_lines = [get_string("services.folder_caption.header").strip()]
+    if pages > 1:
+        caption_lines.append(
+            get_string(
+                'services.folder_caption.page',
+                page, pages
+            ).strip()
+        )
 
     await message.reply_photo(
         photo=FSInputFile('./src/res/images/empty_service.jpg'),
-        caption='Список доступных услуг',
+        caption='\n'.join(caption_lines),
         reply_markup=builder.as_markup()
     )
 
@@ -125,7 +143,6 @@ async def callbacks_num_change_fab(
     callback: types.CallbackQuery, 
     callback_data: ServicesCallbackFactory
 ) -> None:
-    print("\n", callback_data)
     if not callback.message:
         return
     if callback_data.is_service:
@@ -134,11 +151,15 @@ async def callbacks_num_change_fab(
             return
         builder = InlineKeyboardBuilder()
         builder.row(InlineKeyboardButton(
-            text="Написать",
-            url=f"https://t.me/{service.username}?text=Привет%20я%20по%20поводу%20услуги"
+            text=get_string("services.go_button.title"),
+            url=get_string(
+                "services.go_button.url_placeholder", 
+                service.username, 
+                urllib.parse.quote(service.name)
+            )
         ))
         builder.row(InlineKeyboardButton(
-            text="Назад ⤴️",
+            text=get_string("services.back_button"),
             callback_data=ServicesCallbackFactory(
                 path=service.directory
             ).pack()
@@ -187,22 +208,41 @@ async def callbacks_num_change_fab(
             )
             logger.error(f"Callback message not present or it is InaccessibleMessage: {callback.message}")
             return 
-        new_keyboard = await parse_folder_keyboard(
+        new_keyboard, page, pages = await parse_folder_keyboard(
             callback_data.path,
             callback_data.offset
         )
+
+        caption_lines = [get_string("services.folder_caption.header").strip()]
+        strip_path = callback_data.path.strip("/")
+        if strip_path:
+            caption_lines.append(
+                get_string('services.folder_caption.folder.sep').join(
+                    get_string(
+                        'services.folder_caption.folder.title', part
+                    ) for part in strip_path.split("/")
+                ).strip()
+            )
+        if pages > 1:
+            caption_lines.append(
+                get_string(
+                    'services.folder_caption.page',
+                    page, pages
+                ).strip()
+            )
+        
         try:
             await callback.message.edit_media(
                 InputMediaPhoto(
                     media=FSInputFile('./src/res/images/empty_service.jpg'),
-                    caption='Список доступных услуг'
+                    caption='\n'.join(caption_lines)
                 ),
                 reply_markup=new_keyboard.as_markup()
             )
         except Exception as e:
             await callback.message.edit_caption(
                 photo=FSInputFile('./src/res/images/empty_service.jpg'),
-                caption='Список доступных услуг',
+                caption='\n'.join(caption_lines),
                 reply_markup=new_keyboard.as_markup()
             )
 

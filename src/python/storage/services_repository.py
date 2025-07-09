@@ -27,14 +27,17 @@ class ServiceItem:
     is_folder: bool
     service_id: int | None = None
     folder_dest: str | None = None
+    cost: float | None = None
+    cost_per: str | None = None
+    username: str | None = None
 
 
 async def get_service_list(path: str = "/") -> list[ServiceItem]:
     async with database.get_db_connection() as conn:
         async with conn.cursor() as cur:
-            # Получаем все сервисы, которые находятся в текущем пути
+            # Get all services directly in the current path
             await cur.execute("""
-                SELECT id, name
+                SELECT id, name, cost, cost_per, username
                 FROM services
                 WHERE directory = %s
             """, (path,))
@@ -44,33 +47,57 @@ async def get_service_list(path: str = "/") -> list[ServiceItem]:
                 ServiceItem(
                     name=row[1],
                     is_folder=False,
-                    service_id=row[0]
+                    service_id=row[0],
+                    cost=row[2],
+                    cost_per=row[3],
+                    username=row[4]
                 )
                 for row in service_rows
             ]
 
-            # Получаем все уникальные подпапки в текущем пути
+            # Construct the LIKE pattern and regex pattern in Python
+            # This ensures psycopg handles placeholders correctly and avoids '%' issues
+            like_pattern = f"{path}%" # No need to add '/' if we use `LIKE`
+            if path == "/":
+                regex_pattern_current_level = r'^/[^/]+(/.*)?$'
+            else:
+                # Escape path for regex if it contains special characters, though '/' is fine
+                escaped_path = path.replace('.', r'\.') # Example: escape dot if your paths use it
+                regex_pattern_current_level = rf'^{escaped_path}/[^/]+(/.*)?$'
+
+
+            # Get all unique immediate subfolders
             await cur.execute("""
                 SELECT DISTINCT
-                    SUBSTRING(directory FROM LENGTH(%s) + 2 FOR POSITION('/' IN SUBSTRING(directory FROM LENGTH(%s) + 2)) - 1)
-                FROM services
-                WHERE directory LIKE %s AND directory != %s
-            """, (path, path, f"{path}%", path))
+                    SPLIT_PART(
+                        SUBSTRING(s.directory, LENGTH(%s) + CASE WHEN %s = '/' THEN 1 ELSE 2 END),
+                        '/',
+                        1
+                    )
+                FROM services s
+                WHERE s.directory LIKE %s -- Use the Python-constructed pattern
+                  AND s.directory != %s
+                  AND s.directory ~ %s -- Use the Python-constructed regex pattern
+            """, (path, path, like_pattern, path, regex_pattern_current_level)) # Parameters must match placeholders
+
             folder_rows = await cur.fetchall()
 
             folders = []
             for row in folder_rows:
                 folder_name = row[0]
-                if folder_name:  # фильтруем NULL/пустые
+                if folder_name:  # Filter NULL/empty
+                    # Construct the full path for the subfolder
+                    folder_dest = f"{path.rstrip('/')}/{folder_name}" if path != "/" else f"/{folder_name}"
                     folders.append(
                         ServiceItem(
                             name=folder_name,
                             is_folder=True,
-                            folder_dest=path.rstrip("/") + "/" + folder_name
+                            folder_dest=folder_dest
                         )
                     )
 
             return folders + services
+
         
 
 @dataclass(frozen=True)
