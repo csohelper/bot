@@ -3,5 +3,5 @@ venv/
 .idea/
 __pycache__/
 poetry.lock
-storage/
+/storage/
 *.env

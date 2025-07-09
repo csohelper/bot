@@ -1,7 +1,7 @@
 import asyncio
 import os
 from aiogram import Router
-from ..strings import get_string
+from ..storage.strings import get_string
 from aiogram.types import Message
 from aiogram.filters import Command
 from ..logger import logger

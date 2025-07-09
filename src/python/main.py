@@ -3,11 +3,12 @@ from aiogram import Bot, Dispatcher
 from aiogram.types import BotCommand
 
 from python.handlers import services_commands
+from python.storage import services_repository
 from .handlers import echo_commands, images_echo_commands, kek_command, services_commands
-from .config import config
-from .strings import get_object
+from .storage.config import config
+from .storage.strings import get_object
 from aiogram.client.default import DefaultBotProperties
-from .database import open_database_pool, close_database_pool
+from .storage.database import open_database_pool, close_database_pool
 import platform
 from .logger import logger
 from aiogram.types.link_preview_options import LinkPreviewOptions
@@ -21,6 +22,8 @@ async def on_startup(bot: Bot):
     logger.info("Aiogram: starting bot")
     await open_database_pool()
     logger.info("Aiogram: bot started")
+    await kek_command.init(bot)
+    await services_commands.init(str((await bot.get_me()).username))
 
     await bot.set_my_commands(
         [
@@ -53,8 +56,6 @@ async def main() -> None:
         kek_command.router,
         services_commands.router
     )
-    kek_command.bot = bot
-    services_commands.bot_username = (await bot.get_me()).username
     await dp.start_polling(bot)
 
 def entrypoint() -> None:
