@@ -247,3 +247,8 @@ async def callbacks_num_change_fab(
             )
 
     await callback.answer()
+
+
+@router.message(Command("addservice"))
+async def on_addservice(message: Message) -> None:
+    pass 
