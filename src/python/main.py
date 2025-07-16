@@ -22,8 +22,13 @@ async def on_startup(bot: Bot):
     logger.info("Aiogram: starting bot")
     await open_database_pool()
     logger.info("Aiogram: bot started")
-    await kek_command.init(bot)
-    await services_commands.init(str((await bot.get_me()).username))
+    await kek_command.init(
+        bot=bot
+    )
+    await services_commands.init(
+        bot_username=str((await bot.get_me()).username),
+        bot=bot
+    )
 
     await bot.set_my_commands(
         [

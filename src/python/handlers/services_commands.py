@@ -1,8 +1,10 @@
 import urllib.parse
-from aiogram import Router
+from aiogram import Bot, Router
 from aiogram import types
-from aiogram.filters import Command
+from aiogram.filters import Command, StateFilter
 from aiogram.filters.callback_data import CallbackData
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import InaccessibleMessage, InlineKeyboardButton, InputMediaPhoto, Message, FSInputFile, BufferedInputFile
 from attr import dataclass
 from aiogram.utils.keyboard import InlineKeyboardBuilder
@@ -16,11 +18,13 @@ from ..storage.strings import get_string
 
 
 _bot_username: str
+_bot: Bot
 
 
-async def init(bot_username: str):
-    global _bot_username
+async def init(bot_username: str, bot: Bot):
+    global _bot_username, _bot
     _bot_username = bot_username
+    _bot = bot
     await services_repository.init_database_module()
 
 
@@ -249,6 +253,153 @@ async def callbacks_num_change_fab(
     await callback.answer()
 
 
-@router.message(Command("addservice"))
-async def on_addservice(message: Message) -> None:
-    pass 
+class AddServiceStates(StatesGroup):
+    choosing_name_state = State()
+    choosing_description_state = State()
+    choosing_cost_state = State()
+    choosing_cost_per_state = State()
+    choosing_picture_state = State()
+
+
+@router.message(StateFilter(None), Command("addservice"))
+async def on_addservice(message: Message, state: FSMContext) -> None:
+    await message.reply(
+        text=get_string('services.add_command.greeting')
+    )
+    await state.set_state(AddServiceStates.choosing_name_state)
+
+@router.message(
+    AddServiceStates.choosing_name_state
+)
+async def on_name_chosen(message: Message, state: FSMContext) -> None:
+    if not message.text or not 4 <= len(message.text) <= 25:
+        await message.reply(
+            text=get_string('services.add_command.incorrect_name')
+        )
+        return
+
+    await state.update_data(
+        name=message.text
+    )
+    await message.reply(
+        text=get_string('services.add_command.choose_description')
+    )
+    await state.set_state(AddServiceStates.choosing_description_state)
+
+
+@router.message(
+    AddServiceStates.choosing_description_state
+)
+async def on_description_chosen(message: Message, state: FSMContext) -> None:
+    if message.text is None or message.text.strip() == '':
+        await message.reply('Incorrect description. Send /empty or some text')
+        return
+    elif message.text == '/empty':
+        await state.update_data(
+            description=None
+        )
+    else:
+        await state.update_data(
+            description=message.text
+        )
+    await message.reply(
+        text=get_string('services.add_command.choose_cost')
+    )
+    await state.set_state(AddServiceStates.choosing_cost_state)
+
+
+@router.message(
+    AddServiceStates.choosing_cost_state
+)
+async def on_cost_chosen(message: Message, state: FSMContext) -> None:
+    if not message.text or not message.text.isdigit() or int(message.text) <= 0:
+        await message.reply(
+            text=get_string('services.add_command.cost_not_int')
+        )
+        return
+
+    await state.update_data(
+        cost=int(message.text)
+    )
+    await message.reply(
+        text=get_string('services.add_command.choose_cost_per')
+    )
+    await state.set_state(AddServiceStates.choosing_cost_per_state)
+
+
+@router.message(
+    AddServiceStates.choosing_cost_per_state
+)
+async def on_cost_per_chosen(message: Message, state: FSMContext) -> None:
+    if not message.text or not (1 <= len(message.text) <= 6):
+        await message.reply(
+            text=get_string('services.add_command.cost_per_incorrect')
+        )
+        return
+
+    await state.update_data(
+        cost_per=message.text
+    )
+    await message.reply(
+        text=get_string('services.add_command.choose_picture')
+    )
+    await state.set_state(AddServiceStates.choosing_picture_state)
+
+
+@router.message(
+    AddServiceStates.choosing_picture_state
+)
+async def on_picture_chosen(message: Message, state: FSMContext) -> None:
+    if message.text == '/empty':
+        await state.update_data(
+            image=None
+        )
+        await process_create_service(message, state)
+        await state.clear()
+        return
+
+    if not message.photo:
+        await message.reply(
+            get_string("services.add_command.not_photo_and_empty")
+        )
+        return
+
+    largest_photo = message.photo[-1]
+    photo_buffer = io.BytesIO()
+    await _bot.download(
+        file=largest_photo.file_id,
+        destination=photo_buffer
+    )
+    photo_buffer.seek(0)
+    photo_bytes = photo_buffer.read()
+    photo_base64 = base64.b64encode(photo_bytes).decode('utf-8')
+
+    await state.update_data(
+        image=photo_base64
+    )
+
+    await process_create_service(message, state)
+    await state.clear()
+
+async def process_create_service(message: Message, state: FSMContext) -> None:
+    data = await state.get_data()
+    if data['image']:
+        image_bytes = base64.b64decode(data['image'])
+        image_stream = io.BytesIO(image_bytes)
+        media = BufferedInputFile(image_stream.read(), filename=f"preview.jpg")
+    else: 
+        media = FSInputFile('./src/res/images/empty_service.jpg')
+
+    desc = data['description']
+    caption = get_string(
+        'services.add_command.preview',
+        data['name'],
+        data['cost'], data['cost_per'],
+        desc if desc else get_string('services.service_no_description')
+    )
+
+    await message.reply_photo(
+        photo=media,
+        caption=caption
+    )
+    print(state)
