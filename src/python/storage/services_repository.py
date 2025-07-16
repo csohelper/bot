@@ -12,10 +12,10 @@ async def init_database_module() -> None:
                     name TEXT NOT NULL,
                     cost NUMERIC(10, 2) NOT NULL,
                     cost_per TEXT NOT NULL,
-                    username TEXT NOT NULL,
                     description TEXT DEFAULT NULL,
-                    onwer INTEGER NOT NULL,
-                    image TEXT DEFAULT NULL
+                    owner INTEGER NOT NULL,
+                    image TEXT DEFAULT NULL,
+                    published BOOLEAN DEFAULT false NOT NULL
                 )
             """)
             await conn.commit()
@@ -29,7 +29,7 @@ class ServiceItem:
     folder_dest: str | None = None
     cost: float | None = None
     cost_per: str | None = None
-    username: str | None = None
+    owner: int | None = None
 
 
 async def get_service_list(path: str = "/") -> list[ServiceItem]:
@@ -37,9 +37,9 @@ async def get_service_list(path: str = "/") -> list[ServiceItem]:
         async with conn.cursor() as cur:
             # Get all services directly in the current path
             await cur.execute("""
-                SELECT id, name, cost, cost_per, username
+                SELECT id, name, cost, cost_per, owner
                 FROM services
-                WHERE directory = %s
+                WHERE directory = %s AND published = true
             """, (path,))
             service_rows = await cur.fetchall()
 
@@ -50,7 +50,7 @@ async def get_service_list(path: str = "/") -> list[ServiceItem]:
                     service_id=row[0],
                     cost=row[2],
                     cost_per=row[3],
-                    username=row[4]
+                    owner=row[4]
                 )
                 for row in service_rows
             ]
@@ -102,22 +102,22 @@ async def get_service_list(path: str = "/") -> list[ServiceItem]:
 
 @dataclass(frozen=True)
 class Service:
-    id: int
+    id: int | None
     directory: str
     name: str
     cost: float
     cost_per: str
-    username: str
     description: str | None
-    onwer: int
+    owner: int
     image: str | None
+    published: bool = False
 
 
 async def find_service(service_id: int) -> Service | None:
     async with database.get_db_connection() as conn:
         async with conn.cursor() as cur:
             await cur.execute("""
-                SELECT id, directory, name, cost, cost_per, username, description, onwer, image
+                SELECT id, directory, name, cost, cost_per, description, owner, image
                 FROM services
                 WHERE id = %s
             """, (service_id,))
@@ -132,8 +132,30 @@ async def find_service(service_id: int) -> Service | None:
                 name=row[2],
                 cost=float(row[3]),
                 cost_per=row[4],
-                username=row[5],
-                description=row[6],
-                onwer=row[7],
-                image=row[8]
+                description=row[5],
+                owner=row[6],
+                image=row[7]
             )
+
+async def create_service(service: Service) -> int | None:
+    async with database.get_db_connection() as conn:
+        async with conn.cursor() as cur:
+            await cur.execute("""
+                INSERT INTO services (
+                    directory, name, cost, cost_per, 
+                    description, owner, image, published
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                RETURNING id
+            """, (
+                service.directory,
+                service.name,
+                service.cost,
+                service.cost_per,
+                service.description,
+                service.owner,
+                service.image,
+                service.published
+            ))
+            new_id_row = await cur.fetchone()
+            await conn.commit()
+            return new_id_row[0] if new_id_row else None

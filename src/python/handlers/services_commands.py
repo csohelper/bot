@@ -1,3 +1,4 @@
+from dataclasses import replace
 import urllib.parse
 from aiogram import Bot, Router
 from aiogram import types
@@ -5,9 +6,9 @@ from aiogram.filters import Command, StateFilter
 from aiogram.filters.callback_data import CallbackData
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import InaccessibleMessage, InlineKeyboardButton, InputMediaPhoto, Message, FSInputFile, BufferedInputFile
+from aiogram.types import InaccessibleMessage, InlineKeyboardButton, InlineKeyboardMarkup, InputMediaPhoto, Message, FSInputFile, BufferedInputFile, ReplyKeyboardMarkup
 from attr import dataclass
-from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 
 from python.logger import logger
 from python.storage import services_repository
@@ -67,7 +68,7 @@ async def parse_folder_keyboard(path: str, offset=0) -> tuple[InlineKeyboardBuil
             text = get_string(
                 "services.service_button", 
                 service.name, service.cost, service.cost_per,
-                service.username
+                service.owner
             )
 
         if button_path is not None:
@@ -158,7 +159,7 @@ async def callbacks_num_change_fab(
             text=get_string("services.go_button.title"),
             url=get_string(
                 "services.go_button.url_placeholder", 
-                service.username, 
+                service.owner, 
                 urllib.parse.quote(service.name)
             )
         ))
@@ -263,6 +264,17 @@ class AddServiceStates(StatesGroup):
 
 @router.message(StateFilter(None), Command("addservice"))
 async def on_addservice(message: Message, state: FSMContext) -> None:
+    if message.chat.type != 'private':
+        await message.reply(
+            text=get_string('services.add_command.not_private').strip(),
+            reply_markup=InlineKeyboardBuilder().row(
+                InlineKeyboardButton(
+                    text=get_string('services.add_command.goto_pm'),
+                    url=get_string("services.add_button.url_placeholder", _bot_username)
+                )
+            ).as_markup()
+        )
+        return
     await message.reply(
         text=get_string('services.add_command.greeting')
     )
@@ -390,6 +402,26 @@ async def process_create_service(message: Message, state: FSMContext) -> None:
     else: 
         media = FSInputFile('./src/res/images/empty_service.jpg')
 
+    if not message.from_user:
+        return
+    
+    service = services_repository.Service(
+        id=None,
+        directory='/',
+        name=data['name'],
+        cost=data['cost'],
+        cost_per=data['cost_per'],
+        description=data['cost_per'],
+        owner=message.from_user.id,
+        image=data['image'],
+        published=False
+    )
+
+    service = replace(
+        service,
+        id=await services_repository.create_service(service)
+    )
+
     desc = data['description']
     caption = get_string(
         'services.add_command.preview',
@@ -398,8 +430,81 @@ async def process_create_service(message: Message, state: FSMContext) -> None:
         desc if desc else get_string('services.service_no_description')
     )
 
-    await message.reply_photo(
+    keyboard = InlineKeyboardBuilder().row(InlineKeyboardButton(
+        text='Изменить название',
+        callback_data='a'
+    )).row(InlineKeyboardButton(
+        text='Изменить цену',
+        callback_data='a'
+    )).row(InlineKeyboardButton(
+        text='Изменить ед. цены',
+        callback_data='a'
+    )).row(InlineKeyboardButton(
+        text='Изменить описание',
+        callback_data='a'
+    )).row(InlineKeyboardButton(
+        text='Изменить обложку',
+        callback_data='a'
+    )).row(InlineKeyboardButton(
+        text='Опубликовать',
+        callback_data='a'
+    )).as_markup()
+
+    reply = await message.reply_photo(
         photo=media,
-        caption=caption
+        caption=caption,
+        reply_markup=keyboard
     )
-    print(state)
+
+    update_keyboard = InlineKeyboardBuilder().row(InlineKeyboardButton(
+        text='Изменить название',
+        callback_data=EditServiceCallbackFactory(
+            original_msg=reply.message_id,
+            service_id=service.id or 0,
+            action='change_name'
+        ).pack()
+    )).row(InlineKeyboardButton(
+        text='Изменить цену',
+        callback_data=EditServiceCallbackFactory(
+            original_msg=reply.message_id,
+            service_id=service.id or 0,
+            action='change_cost'
+        ).pack()
+    )).row(InlineKeyboardButton(
+        text='Изменить ед. цены',
+        callback_data=EditServiceCallbackFactory(
+            original_msg=reply.message_id,
+            service_id=service.id or 0,
+            action='change_cost_per'
+        ).pack()
+    )).row(InlineKeyboardButton(
+        text='Изменить описание',
+        callback_data=EditServiceCallbackFactory(
+            original_msg=reply.message_id,
+            service_id=service.id or 0,
+            action='change_description'
+        ).pack()
+    )).row(InlineKeyboardButton(
+        text='Изменить обложку',
+        callback_data=EditServiceCallbackFactory(
+            original_msg=reply.message_id,
+            service_id=service.id or 0,
+            action='change_image'
+        ).pack()
+    )).row(InlineKeyboardButton(
+        text='Опубликовать',
+        callback_data=EditServiceCallbackFactory(
+            original_msg=reply.message_id,
+            service_id=service.id or 0,
+            action='publish'
+        ).pack()
+    ))
+    await reply.edit_reply_markup(
+        reply_markup=update_keyboard.as_markup() # type: ignore
+    )
+
+
+class EditServiceCallbackFactory(CallbackData, prefix="editsrvc"):
+    original_msg: int
+    service_id: int
+    action: str
