@@ -47,14 +47,12 @@ async def on_shutdown(bot: Bot) -> None:
     "начать", "помощь", "хелп", "команды", "комманды", "список", "помоги", "я долбаеб", "я долбоебка", "я долбаёб", "я долбоёбка", "я долбаебка", "я долбаёбка"
 ])
 async def command_help_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     await message.reply(get_string('echo_commands.help'))
 
 
 @dp.message(Command("index"))
 @dp.message(lambda message: message.text and message.text.lower() in ["индекс"])
 async def command_index_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     await message.reply(get_string('echo_commands.index'))
 
 
@@ -86,7 +84,6 @@ async def command_anecdote_handler(message: Message) -> None:
             message.from_user.full_name,
             30 - int(delta.total_seconds())
         ))
-        await asyncio.sleep(5)
         try:
             await message.delete()
         except Exception as e:
@@ -167,21 +164,18 @@ async def command_anecdote_handler(message: Message) -> None:
 @dp.message(Command("address"))
 @dp.message(lambda message: message.text and message.text.lower() in ["адрес", "адресс", "адресочек"])
 async def command_address_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     await message.reply(get_string('echo_commands.address'))
 
 
 @dp.message(Command("director"))
 @dp.message(lambda message: message.text and message.text.lower() in ["заведующий", "заведующая", "завед", "заведа"])
 async def command_director_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     await message.reply(get_string('echo_commands.director'))
 
 
 @dp.message(Command("commandant"))
 @dp.message(lambda message: message.text and message.text.lower() in ["коменда", "комендант", "командант", "командантка", "комменда", "коммендант", "коммандант", "коммандантка"])
 async def command_commandant_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     await message.reply(
         get_string('echo_commands.commandant')
     )
@@ -189,28 +183,24 @@ async def command_commandant_handler(message: Message) -> None:
 @dp.message(Command("jko"))
 @dp.message(lambda message: message.text and message.text.lower() in ["жко", "жк", "жилищно коммунальный", "жилищно коммунальный отдел", "жилищно-коммунальный отдел"])
 async def command_jko_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     await message.reply(get_string('echo_commands.jko'))
 
 
 @dp.message(Command("ed"))
 @dp.message(lambda message: message.text and message.text.lower() in ["ед", "единый деканат", "деканат"])
 async def command_ed_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     await message.reply(get_string('echo_commands.ed'))
 
 
 @dp.message(Command("hr"))
 @dp.message(lambda message: message.text and message.text.lower() in ["отдел кадров"])
 async def command_hr_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     await message.reply(get_string('echo_commands.hr'))
 
 
 @dp.message(Command("soft"))
 @dp.message(lambda message: message.text and message.text.lower() in ["софт", "программы", "программное обеспечение", "ПО"])
 async def command_soft_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     await message.reply(get_string('echo_commands.soft'))
 
 
@@ -223,7 +213,6 @@ async def command_sosat_handler(message: Message) -> None:
 @dp.message(Command("library"))
 @dp.message(lambda message: message.text and message.text.lower() in ["библиотека"])
 async def command_library_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     await message.reply(get_string('echo_commands.library'))
 
 cached_vost_file_id = None
@@ -231,7 +220,6 @@ cached_vost_file_id = None
 @dp.message(Command("vost"))
 @dp.message(lambda message: message.text and message.text.lower() in ["восточка"])
 async def command_vost_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     global cached_vost_file_id
 
     while True:
@@ -291,14 +279,12 @@ async def command_linen_handler(message: Message) -> None:
 @dp.message(Command("stolovka"))
 @dp.message(lambda message: message.text and message.text.lower() in ["столовка"])
 async def command_ulk_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     await message.reply(get_string('echo_commands.cafe_ulk'))
 
 
 @dp.message(Command("services"))
 @dp.message(lambda message: message.text and message.text.lower() in ["услуги"])
 async def command_services_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     await message.reply(
         get_string('echo_commands.uslugi_stub')
     )
@@ -307,7 +293,6 @@ async def command_services_handler(message: Message) -> None:
 @dp.message(Command("mei"))
 @dp.message(lambda message: message.text and message.text.lower() in ["мэи", "меи"])
 async def command_mei_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     await message.reply(
         random.choice(
             get_strings('echo_commands.mei')
@@ -318,7 +303,6 @@ async def command_mei_handler(message: Message) -> None:
 @dp.message(Command("meishniky"))
 @dp.message(lambda message: message.text and message.text.lower() in ["мэишники", "меишники"])
 async def command_meishniky_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     await message.reply(
         random.choice(
             get_strings('echo_commands.meishniky')
@@ -328,7 +312,6 @@ async def command_meishniky_handler(message: Message) -> None:
 @dp.message(Command("mai"))
 @dp.message(lambda message: message.text and message.text.lower() in ["маи"])
 async def command_mai_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     await message.reply(
         random.choice(
             get_strings('echo_commands.mai')
@@ -339,7 +322,6 @@ async def command_mai_handler(message: Message) -> None:
 @dp.message(Command("maishniki"))
 @dp.message(lambda message: message.text and message.text.lower() in ["маишники", "маёвцы"])
 async def command_maishniky_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     await message.reply(
         random.choice(
             get_strings('echo_commands.maishniky')
@@ -350,7 +332,6 @@ async def command_maishniky_handler(message: Message) -> None:
 @dp.message(Command("shower"))
 @dp.message(lambda message: message.text and message.text.lower() in ["душ"])
 async def command_shower_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     await message.reply(
         get_string('echo_commands.shower')
     )
@@ -359,7 +340,6 @@ async def command_shower_handler(message: Message) -> None:
 @dp.message(Command("kitchen"))
 @dp.message(lambda message: message.text and message.text.lower() in ["кухня"])
 async def command_kitchen_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     await message.reply(
         get_string('echo_commands.kitchen')
     )
@@ -375,7 +355,6 @@ async def command_laundress_handler(message: Message) -> None:
     Если изображения уже были отправлены ранее, то использует кэшированные file_id.
     """
 
-    await asyncio.sleep(1)
     global cached_laundress_files_id
 
     while True:
@@ -429,7 +408,6 @@ async def command_cards_handler(message: Message) -> None:
     Если изображения уже были отправлены ранее, то использует кэшированные file_id.
     """
 
-    await asyncio.sleep(1)
     global cached_cards_files_id
 
     while True:
@@ -465,7 +443,6 @@ async def command_cards_handler(message: Message) -> None:
 @dp.message(Command("week"))
 @dp.message(lambda message: message.text and message.text.lower() in ["неделя"])
 async def command_week_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     week_number = utils.get_week_number(datetime.datetime.now())
     await message.reply(
         get_string(
