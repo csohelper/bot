@@ -26,7 +26,6 @@ async def init(bot_username: str, bot: Bot):
     global _bot_username, _bot
     _bot_username = bot_username
     _bot = bot
-    await services_repository.init_database_module()
 
 
 router = Router()
@@ -329,7 +328,7 @@ async def callbacks_edit_service(
         case "publish":
             service = await services_repository.find_service(service_id=callback_data.service_id)
             await _bot.edit_message_caption(
-                chat_id=callback.message.chat_id,
+                chat_id=callback.message.chat.id,
                 message_id=callback_data.original_msg,
                 caption=get_string(
                     'services.add_command.sent_to_moderation',
@@ -338,7 +337,7 @@ async def callbacks_edit_service(
                     service.description if service.description else get_string('services.service_no_description')
                 )
             )
-            await moderate_service.send_to_moderation(service)
+            await moderate_service.send_to_moderation(service, callback.from_user.full_name)
 
     await callback.answer()
 

@@ -20,7 +20,6 @@ async def init(bot_username: str, bot: Bot):
     global _bot_username, _bot
     _bot_username = bot_username
     _bot = bot
-    await services_repository.init_database_module()
 
 
 router = Router()
