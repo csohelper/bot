@@ -22,6 +22,7 @@ class DatabaseConfig(BaseModel):
 #     shower_times = Field(default_factory=)
 
 class ChatConfig(BaseModel):
+    owner: int = Field(default=0)
     chat_id: int = Field(default=-1000000000000)
     admin_chat_id: int = Field(default=-1000000000000)
 
