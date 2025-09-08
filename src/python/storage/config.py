@@ -21,10 +21,13 @@ class DatabaseConfig(BaseModel):
 # class WorktimesConfig(BaseModel):
 #     shower_times = Field(default_factory=)
 
+class ChatConfig(BaseModel):
+    chat_id: int = Field(default=-1000000000000)
+    admin_chat_id: int = Field(default=-1000000000000)
+
 
 class TelegramConfig(BaseModel):
     token: str = Field(default="0000000000:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
-    chat_whitelist: list[int] = Field(default_factory=list)
     parse_mode: str = Field(default="HTML")
 
 

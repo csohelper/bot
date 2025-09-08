@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from aiogram.dispatcher.middlewares import data
 from python.storage import database
 
+
 async def init_database_module() -> None:
     async with database.get_db_connection() as conn:
         async with conn.cursor() as cur:
@@ -57,14 +58,13 @@ async def get_service_list(path: str = "/") -> list[ServiceItem]:
 
             # Construct the LIKE pattern and regex pattern in Python
             # This ensures psycopg handles placeholders correctly and avoids '%' issues
-            like_pattern = f"{path}%" # No need to add '/' if we use `LIKE`
+            like_pattern = f"{path}%"  # No need to add '/' if we use `LIKE`
             if path == "/":
                 regex_pattern_current_level = r'^/[^/]+(/.*)?$'
             else:
                 # Escape path for regex if it contains special characters, though '/' is fine
-                escaped_path = path.replace('.', r'\.') # Example: escape dot if your paths use it
+                escaped_path = path.replace('.', r'\.')  # Example: escape dot if your paths use it
                 regex_pattern_current_level = rf'^{escaped_path}/[^/]+(/.*)?$'
-
 
             # Get all unique immediate subfolders
             await cur.execute("""
@@ -78,7 +78,7 @@ async def get_service_list(path: str = "/") -> list[ServiceItem]:
                 WHERE s.directory LIKE %s -- Use the Python-constructed pattern
                   AND s.directory != %s
                   AND s.directory ~ %s -- Use the Python-constructed regex pattern
-            """, (path, path, like_pattern, path, regex_pattern_current_level)) # Parameters must match placeholders
+            """, (path, path, like_pattern, path, regex_pattern_current_level))  # Parameters must match placeholders
 
             folder_rows = await cur.fetchall()
 
@@ -98,7 +98,6 @@ async def get_service_list(path: str = "/") -> list[ServiceItem]:
 
             return folders + services
 
-        
 
 @dataclass(frozen=True)
 class Service:
@@ -137,6 +136,7 @@ async def find_service(service_id: int) -> Service | None:
                 image=row[7]
             )
 
+
 async def create_service(service: Service) -> int | None:
     async with database.get_db_connection() as conn:
         async with conn.cursor() as cur:
@@ -159,3 +159,53 @@ async def create_service(service: Service) -> int | None:
             new_id_row = await cur.fetchone()
             await conn.commit()
             return new_id_row[0] if new_id_row else None
+
+
+ALLOWED_FIELDS = {
+    "directory",
+    "name",
+    "cost",
+    "cost_per",
+    "description",
+    "owner",
+    "image",
+    "published",
+}
+
+
+async def update_service_fields(service_id: int, **fields) -> Service | None:
+    updates = {k: v for k, v in fields.items() if k in ALLOWED_FIELDS}
+    if not updates:
+        return None
+
+    set_clause = ", ".join([f"{key} = %s" for key in updates.keys()])
+    values = list(updates.values())
+    values.append(service_id)
+
+    query = f"""
+        UPDATE services
+        SET {set_clause}
+        WHERE id = %s
+        RETURNING id, directory, name, cost, cost_per,
+                  description, owner, image, published
+    """
+
+    async with database.get_db_connection() as conn:
+        async with conn.cursor() as cur:
+            await cur.execute(query, values)
+            row = await cur.fetchone()
+            await conn.commit()
+
+            if row:
+                return Service(
+                    id=row[0],
+                    directory=row[1],
+                    name=row[2],
+                    cost=float(row[3]),
+                    cost_per=row[4],
+                    description=row[5],
+                    owner=row[6],
+                    image=row[7],
+                    published=row[8]
+                )
+            return None

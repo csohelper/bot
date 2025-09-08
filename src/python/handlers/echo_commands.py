@@ -1,7 +1,7 @@
 import asyncio
 import datetime
 import random
-from aiogram import Router
+from aiogram import Router, F
 from ..storage.strings import get_string, get_strings
 from aiogram.types import Message
 from aiogram.filters import Command
@@ -77,8 +77,15 @@ async def command_soft_handler(message: Message) -> None:
     await message.reply(get_string('echo_commands.soft'))
 
 
-@router.message(Command("sosat"))
-@router.message(lambda message: message.text and message.text.lower() in ["сосать", "долбаёб", "шлюха", "мразь", "сука"])
+BAD_WORDS = ["сосать", "долбаёб", "шлюха", "мразь", "сука"]
+@router.message(
+    F.chat.type.in_(["group", "supergroup"]),   # только группы и супергруппы
+    Command("sosat")
+)
+@router.message(
+    F.chat.type.in_(["group", "supergroup"]),   # только группы и супергруппы
+    F.text.lower().in_(BAD_WORDS)
+)
 async def command_sosat_handler(message: Message) -> None:
     await message.reply(get_string('echo_commands.sosat'))
 
