@@ -4,15 +4,15 @@ from aiogram.types import BotCommand
 
 from python.handlers import services_commands
 from python.storage import services_repository
-from .handlers import echo_commands, images_echo_commands, kek_command, services_commands
-from .storage.config import config
-from .storage.strings import get_object
+from python.handlers import echo_commands, images_echo_commands, kek_command, services_commands
+from python.storage.config import config
+from python.storage.strings import get_object
 from aiogram.client.default import DefaultBotProperties
-from .storage.database import open_database_pool, close_database_pool
+from python.storage.database import open_database_pool, close_database_pool
 import platform
-from .logger import logger
+from python.logger import logger
 from aiogram.types.link_preview_options import LinkPreviewOptions
-from . import anecdote
+from python import anecdote
 
 bot: Bot
 dp = Dispatcher()
