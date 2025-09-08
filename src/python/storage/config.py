@@ -44,17 +44,20 @@ class AppConfig(BaseModel):
     telegram: TelegramConfig = Field(default_factory=TelegramConfig)
     database: DatabaseConfig = Field(default_factory=DatabaseConfig)
     anecdote: AnecdoteConfig = Field(default_factory=AnecdoteConfig)
+    chat_config: ChatConfig = Field(default_factory=ChatConfig)
 
 
 CONFIG_PATH = Path("storage/config.yaml")
 
 DEFAULT_CONFIG = AppConfig()
 
+
 def backup_corrupted_config():
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     backup_path = CONFIG_PATH.with_name(f"{CONFIG_PATH.stem}_backup_{timestamp}{CONFIG_PATH.suffix}")
     shutil.copy(CONFIG_PATH, backup_path)
     print(f"Backup created: {backup_path}")
+
 
 def load_config() -> AppConfig:
     if not CONFIG_PATH.exists():
@@ -78,8 +81,10 @@ def load_config() -> AppConfig:
         save_config(DEFAULT_CONFIG)
         return DEFAULT_CONFIG
 
+
 def save_config(config: AppConfig):
     with CONFIG_PATH.open("w", encoding="utf-8") as f:
         yaml.dump(config.model_dump(), f, allow_unicode=True, sort_keys=False)
+
 
 config = load_config()

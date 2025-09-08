@@ -2,9 +2,8 @@ import asyncio
 from aiogram import Bot, Dispatcher
 from aiogram.types import BotCommand
 
-from python.handlers import services_commands
-from python.storage import services_repository
-from python.handlers import echo_commands, images_echo_commands, kek_command, services_commands
+from python.handlers.services_handlers import add_service_commands, list_services_command, moderate_service
+from python.handlers import echo_commands, images_echo_commands, kek_command
 from python.storage.config import config
 from python.storage.strings import get_object
 from aiogram.client.default import DefaultBotProperties
@@ -17,6 +16,7 @@ from python import anecdote
 bot: Bot
 dp = Dispatcher()
 
+
 @dp.startup()
 async def on_startup(bot: Bot):
     logger.info("Aiogram: starting bot")
@@ -25,16 +25,17 @@ async def on_startup(bot: Bot):
     await kek_command.init(
         bot=bot
     )
-    await services_commands.init(
-        bot_username=str((await bot.get_me()).username),
-        bot=bot
-    )
+    bot_username = str((await bot.get_me()).username)
+    await add_service_commands.init(bot_username=bot_username, bot=bot)
+    await list_services_command.init(bot_username=bot_username, bot=bot)
+    await moderate_service.init(bot_username=bot_username, bot=bot)
 
     await bot.set_my_commands(
         [
             BotCommand(command=x['command'], description=x['description']) for x in get_object("commands")
         ]
     )
+
 
 @dp.shutdown()
 async def on_shutdown(bot: Bot) -> None:
@@ -49,8 +50,8 @@ async def main() -> None:
         token=config.telegram.token,
         default=DefaultBotProperties(
             parse_mode=config.telegram.parse_mode,
-            link_preview = LinkPreviewOptions(is_disabled = True),
-            disable_notification = True
+            link_preview=LinkPreviewOptions(is_disabled=True),
+            disable_notification=True
         )
     )
     if config.anecdote.enabled:
@@ -59,14 +60,18 @@ async def main() -> None:
         echo_commands.router,
         images_echo_commands.router,
         kek_command.router,
-        services_commands.router
+        add_service_commands.router,
+        list_services_command.router,
+        moderate_service.router
     )
     await dp.start_polling(bot)
+
 
 def entrypoint() -> None:
     if platform.system() == 'Windows':
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     asyncio.run(main())
+
 
 if __name__ == "__main__":
     entrypoint()
