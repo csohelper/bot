@@ -23,21 +23,18 @@ async def command_help_handler(message: Message) -> None:
         config.chat_config.owner = message.from_user.id
         save_config(config)
         return
-    await asyncio.sleep(1)
     await message.reply(get_string('echo_commands.help'))
 
 
 @router.message(Command("index"))
 @router.message(lambda message: message.text and message.text.lower() in ["индекс"])
 async def command_index_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     await message.reply(get_string('echo_commands.index'))
 
 
 @router.message(Command("address"))
 @router.message(lambda message: message.text and message.text.lower() in ["адрес", "адресс", "адресочек"])
 async def command_address_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     await message.reply(get_string('echo_commands.address'))
 
 
@@ -45,7 +42,6 @@ async def command_address_handler(message: Message) -> None:
 @router.message(
     lambda message: message.text and message.text.lower() in ["заведующий", "заведующая", "завед", "заведа"])
 async def command_director_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     await message.reply(get_string('echo_commands.director'))
 
 
@@ -54,7 +50,6 @@ async def command_director_handler(message: Message) -> None:
     lambda message: message.text and message.text.lower() in ["коменда", "комендант", "командант", "командантка",
                                                               "комменда", "коммендант", "коммандант", "коммандантка"])
 async def command_commandant_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     await message.reply(
         get_string('echo_commands.commandant')
     )
@@ -65,21 +60,18 @@ async def command_commandant_handler(message: Message) -> None:
                                                                           "жилищно коммунальный отдел",
                                                                           "жилищно-коммунальный отдел"])
 async def command_jko_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     await message.reply(get_string('echo_commands.jko'))
 
 
 @router.message(Command("ed"))
 @router.message(lambda message: message.text and message.text.lower() in ["ед", "единый деканат", "деканат"])
 async def command_ed_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     await message.reply(get_string('echo_commands.ed'))
 
 
 @router.message(Command("hr"))
 @router.message(lambda message: message.text and message.text.lower() in ["отдел кадров"])
 async def command_hr_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     await message.reply(get_string('echo_commands.hr'))
 
 
@@ -87,7 +79,6 @@ async def command_hr_handler(message: Message) -> None:
 @router.message(
     lambda message: message.text and message.text.lower() in ["софт", "программы", "программное обеспечение", "ПО"])
 async def command_soft_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     await message.reply(get_string('echo_commands.soft'))
 
 
@@ -109,21 +100,18 @@ async def command_sosat_handler(message: Message) -> None:
 @router.message(Command("library"))
 @router.message(lambda message: message.text and message.text.lower() in ["библиотека"])
 async def command_library_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     await message.reply(get_string('echo_commands.library'))
 
 
 @router.message(Command("stolovka"))
 @router.message(lambda message: message.text and message.text.lower() in ["столовка"])
 async def command_ulk_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     await message.reply(get_string('echo_commands.cafe_ulk'))
 
 
 @router.message(Command("mei"))
 @router.message(lambda message: message.text and message.text.lower() in ["мэи", "меи"])
 async def command_mei_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     await message.reply(
         random.choice(
             get_strings('echo_commands.mei')
@@ -134,7 +122,6 @@ async def command_mei_handler(message: Message) -> None:
 @router.message(Command("meishniky"))
 @router.message(lambda message: message.text and message.text.lower() in ["мэишники", "меишники"])
 async def command_meishniky_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     await message.reply(
         random.choice(
             get_strings('echo_commands.meishniky')
@@ -145,7 +132,6 @@ async def command_meishniky_handler(message: Message) -> None:
 @router.message(Command("mai"))
 @router.message(lambda message: message.text and message.text.lower() in ["маи"])
 async def command_mai_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     await message.reply(
         random.choice(
             get_strings('echo_commands.mai')
@@ -156,7 +142,6 @@ async def command_mai_handler(message: Message) -> None:
 @router.message(Command("maishniki"))
 @router.message(lambda message: message.text and message.text.lower() in ["маишники", "маёвцы"])
 async def command_maishniky_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     await message.reply(
         random.choice(
             get_strings('echo_commands.maishniky')
@@ -167,7 +152,6 @@ async def command_maishniky_handler(message: Message) -> None:
 @router.message(Command("shower"))
 @router.message(lambda message: message.text and message.text.lower() in ["душ"])
 async def command_shower_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     await message.reply(
         get_string('echo_commands.shower')
     )
@@ -176,7 +160,6 @@ async def command_shower_handler(message: Message) -> None:
 @router.message(Command("kitchen"))
 @router.message(lambda message: message.text and message.text.lower() in ["кухня"])
 async def command_kitchen_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     await message.reply(
         get_string('echo_commands.kitchen')
     )
@@ -185,7 +168,6 @@ async def command_kitchen_handler(message: Message) -> None:
 @router.message(Command("week"))
 @router.message(lambda message: message.text and message.text.lower() in ["неделя"])
 async def command_week_handler(message: Message) -> None:
-    await asyncio.sleep(1)
     week_number = utils.get_week_number(datetime.datetime.now())
     await message.reply(
         get_string(
