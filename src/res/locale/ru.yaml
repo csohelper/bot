@@ -332,7 +332,7 @@ commands:
   - command: help
     description: Помощь
   - command: kek
-    description: Yt df;yj
+    description: Не важно
   - command: index
     description: Индекс общежития
   - command: address
@@ -352,7 +352,7 @@ commands:
   - command: polyclinic
     description: Поликлиника
   - command: library
-    description: <b,kbjntrf
+    description: Библиотека
   # - command: stolovka
   #   description: Столовая в УЛК корпусе
   - command: week
