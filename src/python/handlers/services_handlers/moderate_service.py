@@ -80,13 +80,13 @@ def create_caption(service: Service, author_name: str) -> str:
     else:
         category_footer = ""
 
-    return "\n".join((get_string(
+    return (get_string(
         "services.moderation.preview",
         status,
         service.name, service.cost,
         service.cost_per, service.description,
         service.owner, author_name
-    ), category_footer)).strip()
+    ) + category_footer).strip()
 
 
 async def send_to_moderation(service: Service, sender_name: str) -> None:
@@ -236,12 +236,18 @@ async def on_reject_chosen(message: Message, state: FSMContext) -> None:
     if message.text == '🖼️Без описания':
         await _bot.send_message(
             update_service.owner,
-            get_string("services.moderation.refused_message")
+            get_string(
+                "services.moderation.refused_message",
+                update_service.name
+            )
         )
     else:
         await _bot.send_message(
             update_service.owner,
-            get_string("services.moderation.refused_message_text", message.text)
+            get_string(
+                "services.moderation.refused_message_text",
+                update_service.name, message.text
+            )
         )
     await message.reply(get_string("services.moderation.refuse_confirm"), reply_markup=ReplyKeyboardRemove())
     await state.clear()
@@ -282,7 +288,7 @@ async def on_accept_chosen(message: Message, state: FSMContext) -> None:
         )
         await _bot.send_message(
             update_service.owner,
-            get_string("services.moderation.service_approved")
+            get_string("services.moderation.service_approved", update_service.name)
         )
     else:
         await message.reply(
