@@ -7,7 +7,7 @@ from aiogram.filters.callback_data import CallbackData
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import FSInputFile, BufferedInputFile, InlineKeyboardButton, Message, InlineKeyboardMarkup, \
-    ReplyKeyboardMarkup, KeyboardButton
+    ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 
 from python.storage import services_repository
@@ -132,7 +132,10 @@ async def callbacks_moderate_buttons(
         return
     match callback_data.action:
         case 'set_category':
-            await callback.message.answer(get_string("services.moderation.setting_category"))
+            await callback.message.answer(
+                get_string("services.moderation.setting_category"),
+                reply_markup=category_markup()
+            )
             await state.update_data(callback_data=callback_data)
             await state.set_state(ModerateStates.choosing_category)
     match callback_data.action:
@@ -151,6 +154,12 @@ async def callbacks_moderate_buttons(
             )
             await state.update_data(callback_data=callback_data)
             await state.set_state(ModerateStates.accept)
+
+
+def category_markup() -> ReplyKeyboardMarkup:
+    return ReplyKeyboardBuilder().row(
+        KeyboardButton(text="🚫Отмена"),
+    ).as_markup(resize_keyboard=True, one_time_keyboard=False)
 
 
 def accept_markup() -> ReplyKeyboardMarkup:
@@ -175,10 +184,17 @@ async def on_category_chosen(message: Message, state: FSMContext) -> None:
     if message.text is None or len(message.text) == 0:
         await message.answer(get_string("services.moderation.empty_category"))
         return
+    if message.text == "🚫Отмена":
+        await message.reply(
+            get_string("services.moderation.category_cancel"),
+            reply_markup=ReplyKeyboardRemove()
+        )
+        await state.clear()
+        return
     update_service = await services_repository.update_service_fields(
         callback_data.service_id, directory=message.text
     )
-    await message.reply(get_string("services.moderation.category_set"), reply_markup=None)
+    await message.reply(get_string("services.moderation.category_set"), reply_markup=ReplyKeyboardRemove())
     await state.clear()
     await _bot.edit_message_caption(
         chat_id=message.chat.id,
@@ -207,7 +223,10 @@ async def on_reject_chosen(message: Message, state: FSMContext) -> None:
         )
         return
     if message.text == '🚫Отмена':
-        await message.reply(get_string("services.moderation.refuse_cancel"))
+        await message.reply(
+            get_string("services.moderation.refuse_cancel"),
+            reply_markup=ReplyKeyboardRemove()
+        )
         await state.clear()
         return
     update_service = await services_repository.update_service_fields(
@@ -223,7 +242,7 @@ async def on_reject_chosen(message: Message, state: FSMContext) -> None:
             update_service.owner,
             get_string("services.moderation.refused_message_text", message.text)
         )
-    await message.reply(get_string("services.moderation.refuse_confirm"), reply_markup=None)
+    await message.reply(get_string("services.moderation.refuse_confirm"), reply_markup=ReplyKeyboardRemove())
     await state.clear()
     await _bot.edit_message_caption(
         chat_id=message.chat.id,
@@ -254,7 +273,7 @@ async def on_accept_chosen(message: Message, state: FSMContext) -> None:
     if message.text == '🚫Отмена':
         await message.reply(
             get_string("services.moderation.accept_cancel"),
-            reply_markup=None
+            reply_markup=ReplyKeyboardRemove()
         )
         return
     elif message.text == '✅Подтвердить':
@@ -263,7 +282,7 @@ async def on_accept_chosen(message: Message, state: FSMContext) -> None:
         )
         await message.reply(
             get_string("services.moderation.accept_confirm"),
-            reply_markup=None
+            reply_markup=ReplyKeyboardRemove()
         )
         await _bot.send_message(
             update_service.owner,
