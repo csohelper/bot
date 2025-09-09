@@ -250,11 +250,6 @@ async def on_reject_chosen(message: Message, state: FSMContext) -> None:
         caption=create_caption(
             update_service,
             callback_data.author_name
-        ),
-        reply_markup=create_markup(
-            service_id=update_service.id,
-            author_name=callback_data.author_name,
-            original_msg=callback_data.original_msg
         )
     )
 
@@ -301,10 +296,5 @@ async def on_accept_chosen(message: Message, state: FSMContext) -> None:
         caption=create_caption(
             update_service,
             callback_data.author_name
-        ),
-        reply_markup=create_markup(
-            service_id=update_service.id,
-            author_name=callback_data.author_name,
-            original_msg=callback_data.original_msg
         )
     )
