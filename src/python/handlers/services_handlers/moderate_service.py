@@ -75,7 +75,7 @@ def create_caption(service: Service, author_name: str) -> str:
     if service.directory != "/":
         category_footer = get_string(
             "services.moderation.category",
-            service.directory.replace("/", " → ")
+            service.directory.strip("/").replace("/", " → ")
         )
     else:
         category_footer = ""
@@ -193,7 +193,7 @@ async def on_category_chosen(message: Message, state: FSMContext) -> None:
         await state.clear()
         return
     update_service = await services_repository.update_service_fields(
-        callback_data.service_id, directory=message.text
+        callback_data.service_id, directory="/" + message.text.strip().strip("/").strip()
     )
     await message.reply(get_string("services.moderation.category_set"), reply_markup=ReplyKeyboardRemove())
     await state.clear()
