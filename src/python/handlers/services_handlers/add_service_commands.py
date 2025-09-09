@@ -200,7 +200,7 @@ async def process_create_service(message: Message, state: FSMContext) -> None:
         description=data['cost_per'],
         owner=message.from_user.id,
         image=data['image'],
-        published=False
+        status='moderation'
     )
 
     service = replace(
