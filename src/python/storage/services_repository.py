@@ -40,7 +40,7 @@ async def get_service_list(path: str = "/") -> list[ServiceItem]:
             await cur.execute("""
                 SELECT id, name, cost, cost_per, owner
                 FROM services
-                WHERE directory = %s AND status = "published"
+                WHERE directory = %s AND status = 'published'
             """, (path,))
             service_rows = await cur.fetchall()
 
