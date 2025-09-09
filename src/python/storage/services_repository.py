@@ -16,7 +16,7 @@ async def init_database_module() -> None:
                     description TEXT DEFAULT NULL,
                     owner INTEGER NOT NULL,
                     image TEXT DEFAULT NULL,
-                    published BOOLEAN DEFAULT false NOT NULL
+                    status TEXT DEFAULT 'moderation'
                 )
             """)
             await conn.commit()
@@ -40,7 +40,7 @@ async def get_service_list(path: str = "/") -> list[ServiceItem]:
             await cur.execute("""
                 SELECT id, name, cost, cost_per, owner
                 FROM services
-                WHERE directory = %s AND published = true
+                WHERE directory = %s AND status = "published"
             """, (path,))
             service_rows = await cur.fetchall()
 
@@ -109,14 +109,14 @@ class Service:
     description: str | None
     owner: int
     image: str | None
-    published: bool = False
+    status: str
 
 
 async def find_service(service_id: int) -> Service | None:
     async with database.get_db_connection() as conn:
         async with conn.cursor() as cur:
             await cur.execute("""
-                SELECT id, directory, name, cost, cost_per, description, owner, image
+                SELECT id, directory, name, cost, cost_per, description, owner, image, status
                 FROM services
                 WHERE id = %s
             """, (service_id,))
@@ -133,7 +133,8 @@ async def find_service(service_id: int) -> Service | None:
                 cost_per=row[4],
                 description=row[5],
                 owner=row[6],
-                image=row[7]
+                image=row[7],
+                status=row[8],
             )
 
 
@@ -143,7 +144,7 @@ async def create_service(service: Service) -> int | None:
             await cur.execute("""
                 INSERT INTO services (
                     directory, name, cost, cost_per, 
-                    description, owner, image, published
+                    description, owner, image, status
                 ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING id
             """, (
@@ -154,7 +155,7 @@ async def create_service(service: Service) -> int | None:
                 service.description,
                 service.owner,
                 service.image,
-                service.published
+                service.status
             ))
             new_id_row = await cur.fetchone()
             await conn.commit()
@@ -169,7 +170,7 @@ ALLOWED_FIELDS = {
     "description",
     "owner",
     "image",
-    "published",
+    "status"
 }
 
 
@@ -187,7 +188,7 @@ async def update_service_fields(service_id: int, **fields) -> Service | None:
         SET {set_clause}
         WHERE id = %s
         RETURNING id, directory, name, cost, cost_per,
-                  description, owner, image, published
+                  description, owner, image, status
     """
 
     async with database.get_db_connection() as conn:
@@ -206,6 +207,6 @@ async def update_service_fields(service_id: int, **fields) -> Service | None:
                     description=row[5],
                     owner=row[6],
                     image=row[7],
-                    published=row[8]
+                    status=row[8]
                 )
             return None
