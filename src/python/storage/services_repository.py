@@ -14,7 +14,7 @@ async def init_database_module() -> None:
                     cost NUMERIC(10, 2) NOT NULL,
                     cost_per TEXT NOT NULL,
                     description TEXT DEFAULT NULL,
-                    owner INTEGER NOT NULL,
+                    owner BIGINT NOT NULL,
                     image TEXT DEFAULT NULL,
                     status TEXT DEFAULT 'moderation'
                 )
