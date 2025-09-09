@@ -70,7 +70,7 @@ def create_caption(service: Service, author_name: str) -> str:
             status = get_string("services.moderation.status.moderation")
         case "published":
             status = get_string("services.moderation.status.accept")
-        case "rejected":
+        case "refused":
             status = get_string("services.moderation.status.reject")
     if service.directory != "/":
         category_footer = get_string(
