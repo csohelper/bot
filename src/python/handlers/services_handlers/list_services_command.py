@@ -39,7 +39,7 @@ PAGE_SIZE = 5
 async def parse_folder_keyboard(path: str, offset=0) -> tuple[InlineKeyboardBuilder, int, int]:
     services = await services_repository.get_service_list(path)
     builder = InlineKeyboardBuilder()
-    logger.debug(f"{path}:", services)
+    logger.debug(f"{path}: {services}")
 
     if path == "/":
         builder.row(
