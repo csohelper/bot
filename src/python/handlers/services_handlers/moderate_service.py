@@ -154,6 +154,7 @@ async def callbacks_moderate_buttons(
             )
             await state.update_data(callback_data=callback_data)
             await state.set_state(ModerateStates.accept)
+    await callback.answer()
 
 
 def category_markup() -> ReplyKeyboardMarkup:
