@@ -167,6 +167,7 @@ echo_commands:
     prachka-express@mail.ru
     http://prachka-express.ru
     <a href="https://yandex.ru/maps/-/CHWdN8JD">ул. Лапина, 1</a>
+  incorrect_lang: https://market.yandex.ru/cc/7a4iZW
   # washing: |
   #   <b>Стиральная машина</b>
   #   <u>График работы:</u>
