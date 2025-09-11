@@ -3,8 +3,8 @@ from aiogram import Bot, Dispatcher
 from aiogram.types import BotCommand
 
 from python.handlers.services_handlers import add_service_commands, list_services_command, moderate_service
-from python.handlers import echo_commands, images_echo_commands, kek_command, admin_commands
-from python.storage import services_repository
+from python.handlers import echo_commands, images_echo_commands, kek_command, admin_commands, join_service
+from python.storage import services_repository, users_repository
 from python.storage.config import config
 from python.storage.strings import get_object
 from aiogram.client.default import DefaultBotProperties
@@ -32,6 +32,7 @@ async def on_startup(bot: Bot):
     await moderate_service.init(bot_username=bot_username, bot=bot)
     await admin_commands.init(bot_username=bot_username, bot=bot)
     await services_repository.init_database_module()
+    await users_repository.init_database_module()
 
     await bot.set_my_commands(
         [
@@ -66,7 +67,8 @@ async def main() -> None:
         add_service_commands.router,
         list_services_command.router,
         moderate_service.router,
-        admin_commands.router
+        admin_commands.router,
+        join_service.router
     )
     await dp.start_polling(bot)
 

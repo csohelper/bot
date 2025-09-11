@@ -178,6 +178,21 @@ async def command_week_handler(message: Message) -> None:
         )
     )
 
+
+@router.message(lambda message: message.text and message.text.lower() in ["заведущий", "заведущая"])
+async def command_week_handler(message: Message) -> None:
+    await message.reply(get_string(
+        'echo_commands.incorrect_lang'
+    ))
+
+
+@router.message(Command("polyclinic"))
+@router.message(lambda message: message.text and message.text.lower() in ["поликлиника"])
+async def command_week_handler(message: Message) -> None:
+    await message.reply(get_string(
+        'echo_commands.polyclinic'
+    ))
+
 # @router.message(Command("washing"))
 # @router.message(lambda message: message.text and message.text.lower() in ["стиралка", "машинки"])
 # async def command_washing_handler(message: Message) -> None:
