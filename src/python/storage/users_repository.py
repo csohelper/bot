@@ -22,7 +22,7 @@ async def init_database_module() -> None:
             await cur.execute("""
                 CREATE TABLE IF NOT EXISTS users (
                     id SERIAL PRIMARY KEY,
-                    user_id INTEGER NOT NULL,
+                    user_id BIGINT NOT NULL,
                     username TEXT NOT NULL,
                     fullname TEXT NOT NULL,
                     name TEXT NOT NULL,
