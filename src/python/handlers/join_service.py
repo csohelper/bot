@@ -2,19 +2,18 @@ import base64
 import io
 
 from aiogram import Router, Bot, types
-from aiogram.filters import Command
 from aiogram.filters.callback_data import CallbackData
-from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
+from aiogram.fsm.storage.base import StorageKey
 from aiogram.types import ChatJoinRequest, Message, KeyboardButton, FSInputFile, BufferedInputFile, InlineKeyboardButton
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 
-from python.anecdote import await_and_run
 from python.logger import logger
 from python.storage import users_repository
-from python.storage.config import config, save_config
+from python.storage.config import config
 from python.storage.strings import get_string
-from python.utils import is_user_in_chat
+from aiogram.fsm.context import FSMContext
+from aiogram import Bot
 
 router = Router()
 
@@ -37,15 +36,28 @@ class JoinStatuses(StatesGroup):
 
 
 @router.chat_join_request()
-async def join_request(update: ChatJoinRequest, state: FSMContext) -> None:
-    await _bot.send_message(
-        update.from_user.id, get_string("user_service.greeting_start"),
+async def join_request(update: ChatJoinRequest, bot: Bot, state: FSMContext) -> None:
+    await bot.send_message(
+        update.from_user.id,
+        get_string("user_service.greeting_start"),
         reply_markup=ReplyKeyboardBuilder().row(
             KeyboardButton(text="✅Начать"),
             KeyboardButton(text="❌Отмена")
         ).as_markup(resize_keyboard=True, one_time_keyboard=True)
     )
-    await state.set_state(JoinStatuses.waiting_start)
+
+    key = StorageKey(
+        bot_id=bot.id,
+        chat_id=update.from_user.id,
+        user_id=update.from_user.id
+    )
+
+    user_state = FSMContext(
+        storage=state.storage,
+        key=key
+    )
+
+    await user_state.set_state(JoinStatuses.waiting_start)
 
 
 @router.message(
@@ -198,9 +210,9 @@ async def on_picture_chosen(message: Message, state: FSMContext) -> None:
         photo=largest_photo.file_id,
         caption=get_string(
             "user_service.confirm",
-            state.get_value("name"),
-            state.get_value("surname"),
-            state.get_value("room")
+            await state.get_value("name"),
+            await state.get_value("surname"),
+            await state.get_value("room")
         ),
         reply_markup=ReplyKeyboardBuilder().row(
             KeyboardButton(text="✅Отправить"),
@@ -241,9 +253,9 @@ async def on_send_chosen(message: Message, state: FSMContext) -> None:
             caption=get_string(
                 "user_service.moderation.new_request",
                 get_string("user_service.moderation.request_status_on_moderation"),
-                state.get_value("name"),
-                state.get_value("surname"),
-                state.get_value("room")
+                await state.get_value("name"),
+                await state.get_value("surname"),
+                await state.get_value("room")
             ),
             reply_markup=InlineKeyboardBuilder().row(InlineKeyboardButton(
                 text='🚫Отклонить',
@@ -306,6 +318,11 @@ async def callbacks_moderate_buttons(
                 ),
                 reply_markup=None
             )
+            await _bot.send_message(
+                database_user.user_id,
+                get_string("user_service.moderation.accepted")
+            )
+            await users_repository.update_user_fields(callback_data.database_id, status="accept")
         case "refuse":
             await _bot.decline_chat_join_request(
                 config.chat_config.chat_id,
@@ -322,4 +339,9 @@ async def callbacks_moderate_buttons(
                     database_user.room
                 ),
                 reply_markup=None
+            )
+            await users_repository.update_user_fields(callback_data.database_id, status="refuse")
+            await _bot.send_message(
+                database_user.user_id,
+                get_string("user_service.moderation.refused")
             )

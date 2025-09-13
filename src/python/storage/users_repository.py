@@ -62,13 +62,6 @@ async def add_user(
                 """
                 INSERT INTO users (user_id, username, fullname, name, surname, room, status)
                 VALUES (%s, %s, %s, %s, %s, %s, %s)
-                ON CONFLICT (user_id) DO UPDATE
-                SET username = EXCLUDED.username,
-                    fullname = EXCLUDED.fullname,
-                    name = EXCLUDED.name,
-                    surname = EXCLUDED.surname,
-                    room = EXCLUDED.room,
-                    status = EXCLUDED.status
                 RETURNING id
                 """,
                 (user_id, username, fullname, name, surname, room, status)
@@ -110,3 +103,47 @@ async def get_user_by_id(user_id: int) -> User | None:
                 room=row[6],
                 status=row[7],
             )
+
+
+ALLOWED_USER_FIELDS = {"username", "fullname", "name", "surname", "room", "status"}
+
+async def update_user_fields(user_id: int, **fields) -> Optional[User]:
+    """
+    Обновляет указанные поля пользователя в таблице users.
+    Возвращает объект User после обновления или None, если запись не найдена
+    """
+    # Оставляем только разрешённые поля
+    updates = {k: v for k, v in fields.items() if k in ALLOWED_USER_FIELDS}
+    if not updates:
+        return None
+
+    # Формируем SET часть SQL
+    set_clause = ", ".join([f"{key} = %s" for key in updates.keys()])
+    values = list(updates.values())
+    values.append(user_id)
+
+    query = f"""
+        UPDATE users
+        SET {set_clause}
+        WHERE user_id = %s
+        RETURNING id, user_id, username, fullname, name, surname, room, status
+    """
+
+    async with database.get_db_connection() as conn:
+        async with conn.cursor() as cur:
+            await cur.execute(query, values)
+            row = await cur.fetchone()
+            await conn.commit()
+
+            if row:
+                return User(
+                    id=row[0],
+                    user_id=row[1],
+                    username=row[2],
+                    fullname=row[3],
+                    name=row[4],
+                    surname=row[5],
+                    room=row[6],
+                    status=row[7],
+                )
+            return None

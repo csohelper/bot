@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+from typing import Optional
+
 from aiogram.dispatcher.middlewares import data
 from python.storage import database
 
