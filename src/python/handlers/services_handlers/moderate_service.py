@@ -138,7 +138,6 @@ async def callbacks_moderate_buttons(
             )
             await state.update_data(callback_data=callback_data)
             await state.set_state(ModerateStates.choosing_category)
-    match callback_data.action:
         case 'refuse':
             await callback.message.answer(
                 text=get_string("services.moderation.refuse"),
@@ -146,7 +145,6 @@ async def callbacks_moderate_buttons(
             )
             await state.update_data(callback_data=callback_data)
             await state.set_state(ModerateStates.refusing)
-    match callback_data.action:
         case 'accept':
             await callback.message.answer(
                 text=get_string("services.moderation.accepting"),

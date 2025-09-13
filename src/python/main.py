@@ -31,6 +31,7 @@ async def on_startup(bot: Bot):
     await list_services_command.init(bot_username=bot_username, bot=bot)
     await moderate_service.init(bot_username=bot_username, bot=bot)
     await admin_commands.init(bot_username=bot_username, bot=bot)
+    await join_service.init(bot=bot)
     await services_repository.init_database_module()
     await users_repository.init_database_module()
 

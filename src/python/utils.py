@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+
 def get_week_number(current_date: datetime) -> int:
     """
     Определяет номер недели (начиная с 1), прошедшей с ближайшей стартовой даты —
@@ -15,8 +16,8 @@ def get_week_number(current_date: datetime) -> int:
     int: Номер недели, начиная с ближайшей стартовой даты. Если до стартовой даты — возвращает 0.
     """
     # Стартовые даты (мес, день)
-    ref_month_day_1 = (2, 1)   # 1 февраля
-    ref_month_day_2 = (9, 1)   # 1 сентября
+    ref_month_day_1 = (2, 1)  # 1 февраля
+    ref_month_day_2 = (9, 1)  # 1 сентября
 
     year = current_date.year
     start_feb = datetime(year, *ref_month_day_1)
@@ -53,28 +54,23 @@ def get_week_number(current_date: datetime) -> int:
 
     return week
 
-# if __name__ == "__main__":
-#     tests = [
-#         (datetime(2024, 2, 29), 5),
-#         (datetime(2024, 4, 8),  11),
-#         (datetime(2025, 3, 29), 9),
-#         (datetime(2025, 4, 22), 13),
-#         (datetime(2025, 4, 29), 14),
-#         (datetime(2025, 5, 4),  14),
-#         (datetime(2025, 6, 17), 21),
-#         (datetime(2025, 6, 28), 22),
-#     ]
 
-#     for date, expected in tests:
-#         result = get_week_number(date)
-#         print(f"{date.date():<10} → got {result}, expected {expected}")
+from aiogram import Bot
+from aiogram.types import ChatMember
 
-# print(get_week_number(datetime(2024, 2, 29)), "should be 5; четверг, 29 февраля 2024 года")
-# print(get_week_number(datetime(2024, 4, 8)), "should be 11; понедельник, 8 апреля 2024 года")
-# print(get_week_number(datetime(2025, 3, 29)), "should be 9; суббота, 29 марта 2025 года")
-# print(get_week_number(datetime(2025, 4, 22)), "should be 13; вторник, 22 апреля 2025 года")
-# print(get_week_number(datetime(2025, 4, 29)), "should be 14; вторник, 29 апреля 2025 года")
-# print(get_week_number(datetime(2025, 5, 4)), "should be 14; воскресенье, 4 мая 2025 года")
-# print(get_week_number(datetime(2025, 6, 17)), "should be 21; вторник, 17 июня 2025 года")
-# print(get_week_number(datetime(2025, 6, 28)), "should be 22; суббота, 28 июня 2025 года")
-# print(get_week_number(datetime.now()))
+
+async def is_user_in_chat(bot: Bot, chat_id: int | str, user_id: int) -> bool:
+    """
+    Проверяет, состоит ли пользователь в чате.
+
+    :param bot: Экземпляр aiogram.Bot
+    :param chat_id: ID чата или @username
+    :param user_id: ID пользователя
+    :return: True, если пользователь в чате, иначе False
+    """
+    try:
+        member: ChatMember = await bot.get_chat_member(chat_id, user_id)
+        return member.status not in ("left", "kicked")
+    except Exception:
+        # Например, если бот не состоит в чате или нет прав на просмотр
+        return False
