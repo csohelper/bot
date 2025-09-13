@@ -252,6 +252,8 @@ async def on_send_chosen(message: Message, state: FSMContext) -> None:
             photo=media,
             caption=get_string(
                 "user_service.moderation.new_request",
+                message.from_user.id,
+                message.from_user.full_name,
                 get_string("user_service.moderation.request_status_on_moderation"),
                 await state.get_value("name"),
                 await state.get_value("surname"),
@@ -311,6 +313,8 @@ async def callbacks_moderate_buttons(
                 message_id=callback_data.message,
                 caption=get_string(
                     "user_service.moderation.new_request",
+                    database_user.user_id,
+                    database_user.fullname,
                     get_string("user_service.moderation.request_status_approved"),
                     database_user.name,
                     database_user.surname,
@@ -333,6 +337,8 @@ async def callbacks_moderate_buttons(
                 message_id=callback_data.message,
                 caption=get_string(
                     "user_service.moderation.new_request",
+                    database_user.user_id,
+                    database_user.fullname,
                     get_string("user_service.moderation.request_status_refused"),
                     database_user.name,
                     database_user.surname,
