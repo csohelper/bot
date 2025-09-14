@@ -107,6 +107,7 @@ async def get_user_by_id(user_id: int) -> User | None:
 
 ALLOWED_USER_FIELDS = {"username", "fullname", "name", "surname", "room", "status"}
 
+
 async def update_user_fields(user_id: int, **fields) -> Optional[User]:
     """
     Обновляет указанные поля пользователя в таблице users.
@@ -163,3 +164,19 @@ async def delete_user_by_user_id(user_id: int) -> bool:
             row = await cur.fetchone()
             await conn.commit()
             return row is not None
+
+
+async def delete_users_by_user_id(user_id: int) -> int:
+    """
+    Удаляет все записи из таблицы users с указанным Telegram user_id.
+    Возвращает количество удалённых строк.
+    """
+    async with database.get_db_connection() as conn:
+        async with conn.cursor() as cur:
+            await cur.execute(
+                "DELETE FROM users WHERE user_id = %s",
+                (user_id,)
+            )
+            deleted_count = cur.rowcount  # количество удалённых строк
+            await conn.commit()
+            return deleted_count
