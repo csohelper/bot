@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
 
+from python.logger import logger
 from python.storage import database
 
 
@@ -19,7 +20,7 @@ class User:
 async def init_database_module() -> None:
     async with database.get_db_connection() as conn:
         async with conn.cursor() as cur:
-            await cur.execute("""
+            query = """
                 CREATE TABLE IF NOT EXISTS users (
                     id SERIAL PRIMARY KEY,
                     user_id BIGINT NOT NULL UNIQUE,
@@ -30,7 +31,9 @@ async def init_database_module() -> None:
                     room INTEGER,
                     status TEXT DEFAULT 'moderation'
                 )
-            """)
+            """
+            logger.debug((query,))
+            await cur.execute(query)
             await conn.commit()
 
 
@@ -58,14 +61,14 @@ async def add_user(
     """
     async with database.get_db_connection() as conn:
         async with conn.cursor() as cur:
-            await cur.execute(
-                """
+            query = """
                 INSERT INTO users (user_id, username, fullname, name, surname, room, status)
                 VALUES (%s, %s, %s, %s, %s, %s, %s)
                 RETURNING id
-                """,
-                (user_id, username, fullname, name, surname, room, status)
-            )
+                """
+            values = (user_id, username, fullname, name, surname, room, status)
+            logger.debug((query, values))
+            await cur.execute(query, values)
             row = await cur.fetchone()
             await conn.commit()
             return row[0]
@@ -80,12 +83,14 @@ async def get_user_by_id(user_id: int) -> User | None:
     """
     async with database.get_db_connection() as conn:
         async with conn.cursor() as cur:
-            await cur.execute(
-                """
+            query = """
                 SELECT id, user_id, username, fullname, name, surname, room, status
                 FROM users
                 WHERE id = %s
-                """,
+                """
+            logger.debug((query, (user_id,)))
+            await cur.execute(
+                query,
                 (user_id,)
             )
             row = await cur.fetchone()
@@ -108,7 +113,7 @@ async def get_user_by_id(user_id: int) -> User | None:
 ALLOWED_USER_FIELDS = {"username", "fullname", "name", "surname", "room", "status"}
 
 
-async def update_user_fields(user_id: int, **fields) -> Optional[User]:
+async def update_user_fields(id: int, **fields) -> Optional[User]:
     """
     Обновляет указанные поля пользователя в таблице users.
     Возвращает объект User после обновления или None, если запись не найдена
@@ -121,14 +126,16 @@ async def update_user_fields(user_id: int, **fields) -> Optional[User]:
     # Формируем SET часть SQL
     set_clause = ", ".join([f"{key} = %s" for key in updates.keys()])
     values = list(updates.values())
-    values.append(user_id)
+    values.append(id)
 
     query = f"""
         UPDATE users
         SET {set_clause}
-        WHERE user_id = %s
+        WHERE id = %s
         RETURNING id, user_id, username, fullname, name, surname, room, status
     """
+
+    logger.debug((query, values))
 
     async with database.get_db_connection() as conn:
         async with conn.cursor() as cur:
@@ -157,8 +164,10 @@ async def delete_user_by_user_id(user_id: int) -> bool:
     """
     async with database.get_db_connection() as conn:
         async with conn.cursor() as cur:
+            query = "DELETE FROM users WHERE user_id = %s RETURNING id"
+            logger.debug((query, (user_id,)))
             await cur.execute(
-                "DELETE FROM users WHERE user_id = %s RETURNING id",
+                query,
                 (user_id,)
             )
             row = await cur.fetchone()
@@ -173,8 +182,10 @@ async def delete_users_by_user_id(user_id: int) -> int:
     """
     async with database.get_db_connection() as conn:
         async with conn.cursor() as cur:
+            query = "DELETE FROM users WHERE user_id = %s"
+            logger.debug((query, (user_id,)))
             await cur.execute(
-                "DELETE FROM users WHERE user_id = %s",
+                query,
                 (user_id,)
             )
             deleted_count = cur.rowcount  # количество удалённых строк

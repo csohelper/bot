@@ -2,13 +2,15 @@ from dataclasses import dataclass
 from typing import Optional
 
 from aiogram.dispatcher.middlewares import data
+
+from python.logger import logger
 from python.storage import database
 
 
 async def init_database_module() -> None:
     async with database.get_db_connection() as conn:
         async with conn.cursor() as cur:
-            await cur.execute("""
+            query = """
                 CREATE TABLE IF NOT EXISTS services (
                     id SERIAL PRIMARY KEY,
                     directory TEXT NOT NULL DEFAULT '/',
@@ -20,7 +22,9 @@ async def init_database_module() -> None:
                     image TEXT DEFAULT NULL,
                     status TEXT DEFAULT 'moderation'
                 )
-            """)
+            """
+            logger.debug((query, ))
+            await cur.execute(query)
             await conn.commit()
 
 
@@ -39,11 +43,14 @@ async def get_service_list(path: str = "/") -> list[ServiceItem]:
     async with database.get_db_connection() as conn:
         async with conn.cursor() as cur:
             # Get all services directly in the current path
-            await cur.execute("""
+            query = """
                 SELECT id, name, cost, cost_per, owner
                 FROM services
                 WHERE directory = %s AND status = 'published'
-            """, (path,))
+            """
+            values = (path,)
+            logger.debug((query, values))
+            await cur.execute(query, values)
             service_rows = await cur.fetchall()
 
             services = [
@@ -69,7 +76,7 @@ async def get_service_list(path: str = "/") -> list[ServiceItem]:
                 regex_pattern_current_level = rf'^{escaped_path}/[^/]+(/.*)?$'
 
             # Get all unique immediate subfolders
-            await cur.execute("""
+            query = """
                 SELECT DISTINCT
                     SPLIT_PART(
                         SUBSTRING(s.directory, LENGTH(%s) + CASE WHEN %s = '/' THEN 1 ELSE 2 END),
@@ -80,7 +87,12 @@ async def get_service_list(path: str = "/") -> list[ServiceItem]:
                 WHERE s.directory LIKE %s -- Use the Python-constructed pattern
                   AND s.directory != %s
                   AND s.directory ~ %s -- Use the Python-constructed regex pattern
-            """, (path, path, like_pattern, path, regex_pattern_current_level))  # Parameters must match placeholders
+            """ # Parameters must match placeholders
+            values = (path, path, like_pattern, path, regex_pattern_current_level)
+
+            logger.debug((query, values))
+
+            await cur.execute(query, values)
 
             folder_rows = await cur.fetchall()
 
@@ -117,11 +129,14 @@ class Service:
 async def find_service(service_id: int) -> Service | None:
     async with database.get_db_connection() as conn:
         async with conn.cursor() as cur:
-            await cur.execute("""
+            query = """
                 SELECT id, directory, name, cost, cost_per, description, owner, image, status
                 FROM services
                 WHERE id = %s
-            """, (service_id,))
+            """
+            values = (service_id,)
+            logger.debug((query, values))
+            await cur.execute(query, values)
             row = await cur.fetchone()
 
             if row is None:
@@ -143,13 +158,14 @@ async def find_service(service_id: int) -> Service | None:
 async def create_service(service: Service) -> int | None:
     async with database.get_db_connection() as conn:
         async with conn.cursor() as cur:
-            await cur.execute("""
+            query = """
                 INSERT INTO services (
                     directory, name, cost, cost_per, 
                     description, owner, image, status
                 ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING id
-            """, (
+            """
+            values = (
                 service.directory,
                 service.name,
                 service.cost,
@@ -158,7 +174,9 @@ async def create_service(service: Service) -> int | None:
                 service.owner,
                 service.image,
                 service.status
-            ))
+            )
+            logger.debug((query, values))
+            await cur.execute(query, values)
             new_id_row = await cur.fetchone()
             await conn.commit()
             return new_id_row[0] if new_id_row else None
@@ -192,6 +210,7 @@ async def update_service_fields(service_id: int, **fields) -> Service | None:
         RETURNING id, directory, name, cost, cost_per,
                   description, owner, image, status
     """
+    logger.debug((query, values))
 
     async with database.get_db_connection() as conn:
         async with conn.cursor() as cur:
