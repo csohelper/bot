@@ -18,9 +18,6 @@ class DatabaseConfig(BaseModel):
     max_pool_size: int = Field(default=10)
 
 
-# class WorktimesConfig(BaseModel):
-#     shower_times = Field(default_factory=)
-
 class ChatConfig(BaseModel):
     owner: int = Field(default=0)
     chat_id: int = Field(default=-1000000000000)
@@ -39,6 +36,12 @@ class AnecdoteConfig(BaseModel):
     buffer_check_time: int = Field(default=30)
 
 
+class RedisConfig(BaseModel):
+    enabled: bool = Field(default=False)
+    url: str = Field(default="redis://redis:6379")
+    decode_responses: bool = Field(default=True)
+
+
 class AppConfig(BaseModel):
     lang: str = Field(default="ru")
     log_level: str = Field(default="info")
@@ -46,6 +49,7 @@ class AppConfig(BaseModel):
     database: DatabaseConfig = Field(default_factory=DatabaseConfig)
     anecdote: AnecdoteConfig = Field(default_factory=AnecdoteConfig)
     chat_config: ChatConfig = Field(default_factory=ChatConfig)
+    redis_config: RedisConfig = Field(default_factory=RedisConfig)
 
 
 CONFIG_PATH = Path("storage/config.yaml")

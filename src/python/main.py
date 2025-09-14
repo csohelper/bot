@@ -1,6 +1,9 @@
 import asyncio
 from aiogram import Bot, Dispatcher
+from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.fsm.storage.redis import RedisStorage
 from aiogram.types import BotCommand
+from redis.asyncio import from_url
 
 from python.handlers.services_handlers import add_service_commands, list_services_command, moderate_service
 from python.handlers import echo_commands, images_echo_commands, kek_command, admin_commands, join_service
@@ -15,42 +18,11 @@ from aiogram.types.link_preview_options import LinkPreviewOptions
 from python import anecdote
 
 bot: Bot
-dp = Dispatcher()
-
-
-@dp.startup()
-async def on_startup(bot: Bot):
-    logger.info("Aiogram: starting bot")
-    await open_database_pool()
-    logger.info("Aiogram: bot started")
-    await kek_command.init(
-        bot=bot
-    )
-    bot_username = str((await bot.get_me()).username)
-    await add_service_commands.init(bot_username=bot_username, bot=bot)
-    await list_services_command.init(bot_username=bot_username, bot=bot)
-    await moderate_service.init(bot_username=bot_username, bot=bot)
-    await admin_commands.init(bot_username=bot_username, bot=bot)
-    await join_service.init(bot=bot)
-    await services_repository.init_database_module()
-    await users_repository.init_database_module()
-
-    await bot.set_my_commands(
-        [
-            BotCommand(command=x['command'], description=x['description']) for x in get_object("commands")
-        ]
-    )
-
-
-@dp.shutdown()
-async def on_shutdown(bot: Bot) -> None:
-    logger.info("Closing DB pool")
-    await close_database_pool()
-    logger.info("Aiogram: Bot shutdown")
+dp: Dispatcher
 
 
 async def main() -> None:
-    global bot
+    global bot, dp
     bot = Bot(
         token=config.telegram.token,
         default=DefaultBotProperties(
@@ -59,6 +31,12 @@ async def main() -> None:
             disable_notification=True
         )
     )
+    if config.redis_config.enabled:
+        redis = from_url(config.redis_config.url, decode_responses=config.redis_config.decode_responses)
+        storage = RedisStorage(redis=redis)
+    else:
+        storage = MemoryStorage()
+    dp = Dispatcher(storage=storage)
     if config.anecdote.enabled:
         asyncio.create_task(anecdote.loop_check())
     dp.include_routers(
@@ -71,6 +49,36 @@ async def main() -> None:
         admin_commands.router,
         join_service.router
     )
+
+    @dp.startup()
+    async def on_startup():
+        logger.info("Aiogram: starting bot")
+        await open_database_pool()
+        logger.info("Aiogram: bot started")
+        await kek_command.init(
+            bot=bot
+        )
+        bot_username = str((await bot.get_me()).username)
+        await add_service_commands.init(bot_username=bot_username, bot=bot)
+        await list_services_command.init(bot_username=bot_username, bot=bot)
+        await moderate_service.init(bot_username=bot_username, bot=bot)
+        await admin_commands.init(bot_username=bot_username, bot=bot)
+        await join_service.init(bot=bot)
+        await services_repository.init_database_module()
+        await users_repository.init_database_module()
+
+        await bot.set_my_commands(
+            [
+                BotCommand(command=x['command'], description=x['description']) for x in get_object("commands")
+            ]
+        )
+
+    @dp.shutdown()
+    async def on_shutdown() -> None:
+        logger.info("Closing DB pool")
+        await close_database_pool()
+        logger.info("Aiogram: Bot shutdown")
+
     await dp.start_polling(bot)
 
 
