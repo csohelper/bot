@@ -5,7 +5,8 @@ from aiogram import Router, Bot, types
 from aiogram.filters.callback_data import CallbackData
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.storage.base import StorageKey
-from aiogram.types import ChatJoinRequest, Message, KeyboardButton, FSInputFile, BufferedInputFile, InlineKeyboardButton
+from aiogram.types import ChatJoinRequest, Message, KeyboardButton, FSInputFile, BufferedInputFile, \
+    InlineKeyboardButton, ReplyKeyboardRemove
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 
 from python.logger import logger
@@ -43,7 +44,7 @@ async def join_request(update: ChatJoinRequest, bot: Bot, state: FSMContext) -> 
         reply_markup=ReplyKeyboardBuilder().row(
             KeyboardButton(text="✅Начать"),
             KeyboardButton(text="❌Отмена")
-        ).as_markup(resize_keyboard=True, one_time_keyboard=True)
+        ).as_markup(resize_keyboard=True)
     )
 
     key = StorageKey(
@@ -65,8 +66,15 @@ async def join_request(update: ChatJoinRequest, bot: Bot, state: FSMContext) -> 
 )
 async def on_start(message: Message, state: FSMContext) -> None:
     if message.text == "❌Отмена":
-        await message.reply(get_string("user_service.on_cancel"))
+        await message.reply(
+            get_string("user_service.on_cancel"),
+            reply_markup=ReplyKeyboardRemove()
+        )
         await state.clear()
+        await _bot.decline_chat_join_request(
+            config.chat_config.chat_id,
+            message.from_user.id
+        )
     elif message.text == "✅Начать":
         await message.reply(
             get_string("user_service.select_room"),
@@ -90,8 +98,15 @@ async def on_start(message: Message, state: FSMContext) -> None:
 )
 async def on_room_chosen(message: Message, state: FSMContext) -> None:
     if message.text == "❌Отмена":
-        await message.reply(get_string("user_service.on_cancel"))
+        await message.reply(
+            get_string("user_service.on_cancel"),
+            reply_markup=ReplyKeyboardRemove()
+        )
         await state.clear()
+        await _bot.decline_chat_join_request(
+            config.chat_config.chat_id,
+            message.from_user.id
+        )
     elif not message.text or len(message.text) != 3 or not message.text.isdigit() or int(message.text) < 0:
         await message.reply(
             get_string("user_service.select_room_unknown"),
@@ -115,8 +130,15 @@ async def on_room_chosen(message: Message, state: FSMContext) -> None:
 )
 async def on_name_chosen(message: Message, state: FSMContext) -> None:
     if message.text == "❌Отмена":
-        await message.reply(get_string("user_service.on_cancel"))
+        await message.reply(
+            get_string("user_service.on_cancel"),
+            reply_markup=ReplyKeyboardRemove()
+        )
         await state.clear()
+        await _bot.decline_chat_join_request(
+            config.chat_config.chat_id,
+            message.from_user.id
+        )
     else:
         await state.update_data(name=message.text)
         await message.reply(
@@ -136,8 +158,15 @@ cached_confirm_sample_file_id = None
 )
 async def on_surname_chosen(message: Message, state: FSMContext) -> None:
     if message.text == "❌Отмена":
-        await message.reply(get_string("user_service.on_cancel"))
+        await message.reply(
+            get_string("user_service.on_cancel"),
+            reply_markup=ReplyKeyboardRemove()
+        )
         await state.clear()
+        await _bot.decline_chat_join_request(
+            config.chat_config.chat_id,
+            message.from_user.id
+        )
     else:
         await state.update_data(surname=message.text)
 
@@ -180,9 +209,16 @@ async def on_surname_chosen(message: Message, state: FSMContext) -> None:
 )
 async def on_picture_chosen(message: Message, state: FSMContext) -> None:
     if message.text == "❌Отмена":
-        await message.reply(get_string("user_service.on_cancel"))
+        await message.reply(
+            get_string("user_service.on_cancel"),
+            reply_markup=ReplyKeyboardRemove()
+        )
         await state.clear()
-
+        await _bot.decline_chat_join_request(
+            config.chat_config.chat_id,
+            message.from_user.id
+        )
+        return
     if not message.photo:
         await message.reply(
             get_string("user_service.not_photo_and_empty"),
@@ -233,8 +269,15 @@ class ModerateUserCallbackFactory(CallbackData, prefix="moderateuser"):
 )
 async def on_send_chosen(message: Message, state: FSMContext) -> None:
     if message.text == "❌Отмена":
-        await message.reply(get_string("user_service.on_cancel"))
+        await message.reply(
+            get_string("user_service.on_cancel"),
+            reply_markup=ReplyKeyboardRemove()
+        )
         await state.clear()
+        await _bot.decline_chat_join_request(
+            config.chat_config.chat_id,
+            message.from_user.id
+        )
     elif message.text == "✅Отправить":
         id = await users_repository.add_user(
             message.from_user.id,
@@ -250,11 +293,11 @@ async def on_send_chosen(message: Message, state: FSMContext) -> None:
         send = await _bot.send_photo(
             chat_id=config.chat_config.admin_chat_id,
             photo=media,
-            caption=get_string(
-                "user_service.moderation.new_request",
-                message.from_user.id,
+            caption=new_request_message(
                 message.from_user.full_name,
-                get_string("user_service.moderation.request_status_on_moderation"),
+                message.from_user.username,
+                message.from_user.id,
+                get_string("user_service.moderation.request_status_refused"),
                 await state.get_value("name"),
                 await state.get_value("surname"),
                 await state.get_value("room")
@@ -282,7 +325,7 @@ async def on_send_chosen(message: Message, state: FSMContext) -> None:
                 message=send.message_id
             ).pack()
         )).as_markup())
-        await message.reply(get_string("user_service.confirm_sent"))
+        await message.reply(get_string("user_service.confirm_sent"), reply_markup=ReplyKeyboardRemove())
         await state.clear()
     else:
         await message.reply(
@@ -311,10 +354,10 @@ async def callbacks_moderate_buttons(
             await _bot.edit_message_caption(
                 chat_id=config.chat_config.admin_chat_id,
                 message_id=callback_data.message,
-                caption=get_string(
-                    "user_service.moderation.new_request",
-                    database_user.user_id,
+                caption=new_request_message(
                     database_user.fullname,
+                    database_user.username,
+                    database_user.user_id,
                     get_string("user_service.moderation.request_status_approved"),
                     database_user.name,
                     database_user.surname,
@@ -335,10 +378,10 @@ async def callbacks_moderate_buttons(
             await _bot.edit_message_caption(
                 chat_id=config.chat_config.admin_chat_id,
                 message_id=callback_data.message,
-                caption=get_string(
-                    "user_service.moderation.new_request",
-                    database_user.user_id,
+                caption=new_request_message(
                     database_user.fullname,
+                    database_user.username,
+                    database_user.user_id,
                     get_string("user_service.moderation.request_status_refused"),
                     database_user.name,
                     database_user.surname,
@@ -351,3 +394,18 @@ async def callbacks_moderate_buttons(
                 database_user.user_id,
                 get_string("user_service.moderation.refused")
             )
+
+
+def new_request_message(
+        fullname: str, username: str, user_id: int, status: str, first_name: str, last_name: str, room: int
+) -> str:
+    return get_string(
+        "user_service.moderation.new_request",
+        fullname,
+        username,
+        user_id,
+        status,
+        first_name,
+        last_name,
+        room
+    )
