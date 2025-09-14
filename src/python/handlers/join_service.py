@@ -279,6 +279,7 @@ async def on_send_chosen(message: Message, state: FSMContext) -> None:
             message.from_user.id
         )
     elif message.text == "✅Отправить":
+        await users_repository.delete_user_by_user_id(message.from_user.id)
         id = await users_repository.add_user(
             message.from_user.id,
             message.from_user.username,

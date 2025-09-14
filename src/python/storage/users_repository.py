@@ -22,7 +22,7 @@ async def init_database_module() -> None:
             await cur.execute("""
                 CREATE TABLE IF NOT EXISTS users (
                     id SERIAL PRIMARY KEY,
-                    user_id BIGINT NOT NULL,
+                    user_id BIGINT NOT NULL UNIQUE,
                     username TEXT NOT NULL,
                     fullname TEXT NOT NULL,
                     name TEXT NOT NULL,
@@ -147,3 +147,19 @@ async def update_user_fields(user_id: int, **fields) -> Optional[User]:
                     status=row[7],
                 )
             return None
+
+
+async def delete_user_by_user_id(user_id: int) -> bool:
+    """
+    Удаляет пользователя из таблицы users по Telegram user_id.
+    Возвращает True, если запись существовала и была удалена, иначе False.
+    """
+    async with database.get_db_connection() as conn:
+        async with conn.cursor() as cur:
+            await cur.execute(
+                "DELETE FROM users WHERE user_id = %s RETURNING id",
+                (user_id,)
+            )
+            row = await cur.fetchone()
+            await conn.commit()
+            return row is not None
