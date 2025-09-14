@@ -298,7 +298,7 @@ async def on_send_chosen(message: Message, state: FSMContext) -> None:
                 message.from_user.full_name,
                 message.from_user.username,
                 message.from_user.id,
-                get_string("user_service.moderation.request_status_refused"),
+                get_string("user_service.moderation.request_status_on_moderation"),
                 await state.get_value("name"),
                 await state.get_value("surname"),
                 await state.get_value("room")
