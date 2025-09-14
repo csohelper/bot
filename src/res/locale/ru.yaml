@@ -15,6 +15,7 @@ echo_commands:
     <b>Библиотека</b> - вся информация о ней (или /library)
     <b>Услуги</b> - список услуг от проживающих (или /services)
     <b>Восточка</b> - график работы и меню кафе (или /vost)
+    <b>Буфет</b> - Буфет (А) и столовая (УЛК) (или /bufet)
     <b>Неделя</b> - информация о текущей учебной неделе (или /week)
     <b>Софт</b> - полезные программы для учебы (или /soft)
     <b>Душ</b> - график работы (или /shower)
@@ -22,7 +23,6 @@ echo_commands:
     <b>Прачка</b> - информация о ней (или /laundress)
     <b>Обмен белья</b> - график работы (или /linen)
     <b>Команды / Помощь</b> - для вызова данного списка (или /help)
-    <b>Буфет</b> - Буфет (А) и столовая (УЛК) (или /bufet)
   cards: |
     <b>Скидочные карты всех популярных сетей:</b>
 
@@ -159,12 +159,6 @@ echo_commands:
     http://prachka-express.ru
     <a href="https://yandex.ru/maps/-/CHWdN8JD">ул. Лапина, 1</a>
   incorrect_lang: https://market.yandex.ru/cc/7a4iZW
-  # washing: |
-  #   <b>Стиральная машина</b>
-  #   <u>График работы:</u>
-  #   ПН-ПТ 10:00 - 21:00
-  #   СБ-ВС 00:00 - 00:00
-  #   <a href="https://yandex.ru/maps/-/CHWdN8JD">ул. Лапина, 1</a>
   mai:
     - норм вуз вроде
     - не гоните на МАИ
@@ -345,8 +339,8 @@ commands:
     description: Поликлиника
   - command: library
     description: Библиотека
-  # - command: stolovka
-  #   description: Столовая в УЛК корпусе
+  - command: bufet
+    description: Буфет (А) и столовая (УЛК)
   - command: week
     description: Информация о текущей учебной неделе
   - command: soft
