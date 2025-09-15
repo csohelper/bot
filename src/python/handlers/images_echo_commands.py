@@ -1,9 +1,9 @@
 import asyncio
 import os
-from aiogram import Router
-from ..storage.strings import get_string
+from aiogram import Router, F
+from ..storage.strings import get_string, get_object
 from aiogram.types import Message
-from aiogram.filters import Command
+from aiogram.filters import Command, BaseFilter
 from ..logger import logger
 from aiogram.types import  FSInputFile, InputMediaPhoto, Message
 
@@ -173,7 +173,7 @@ async def command_cards_handler(message: Message) -> None:
             media=[
                 InputMediaPhoto(
                     media=FSInputFile(os.path.join(cards_dir, x))
-                ) for x in os.listdir(cards_dir)
+                ) for x in sorted(os.listdir(cards_dir))
             ]
             media[-1].caption = get_string('echo_commands.cards')
             sent = await message.reply_media_group(media=media) # type: ignore[arg-type]
@@ -194,5 +194,52 @@ async def command_cards_handler(message: Message) -> None:
             except Exception as e:
                 logger.error(f"{e}")
                 cached_cards_files_id = []
+                continue
+        break
+
+
+bad_words = get_object("bad_words")
+
+def normalize_text(text: str) -> str:
+    text = text.lower()
+    text = text.replace("ё", "е")
+    # убираем лишние символы, типа *, ., -, _
+    clean = "".join(ch for ch in text if ch.isalnum() or ch.isspace())
+    return clean
+
+class BadWordFilter(BaseFilter):
+    async def __call__(self, message: Message) -> bool:
+        if not message.text:
+            return False
+
+        text = normalize_text(message.text)
+
+        for word in bad_words:
+            if word in text:
+                return True
+        return False
+
+
+cached_bad_words_file_id = None
+
+@router.message(
+    F.chat.type.in_(["group", "supergroup"]),
+    BadWordFilter()
+)
+async def command_bad_words_handler(message: Message) -> None:
+    global cached_bad_words_file_id
+
+    while True:
+        if cached_bad_words_file_id is None:
+            image_path = "./src/res/images/bad_words.jpg"
+            sent: Message = await message.reply_photo(photo=FSInputFile(image_path))
+            if sent.photo:
+                cached_bad_words_file_id = sent.photo[-1].file_id
+        else:
+            try:
+                await message.reply_photo(photo=cached_bad_words_file_id)
+            except Exception as e:
+                logger.error(f"{e}")
+                cached_bad_words_file_id = None
                 continue
         break

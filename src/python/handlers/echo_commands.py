@@ -82,21 +82,6 @@ async def command_soft_handler(message: Message) -> None:
     await message.reply(get_string('echo_commands.soft'))
 
 
-BAD_WORDS = ["сосать", "долбаёб", "шлюха", "мразь", "сука"]
-
-
-@router.message(
-    F.chat.type.in_(["group", "supergroup"]),  # только группы и супергруппы
-    Command("sosat")
-)
-@router.message(
-    F.chat.type.in_(["group", "supergroup"]),  # только группы и супергруппы
-    F.text.lower().in_(BAD_WORDS)
-)
-async def command_sosat_handler(message: Message) -> None:
-    await message.reply(get_string('echo_commands.sosat'))
-
-
 @router.message(Command("library"))
 @router.message(lambda message: message.text and message.text.lower() in ["библиотека"])
 async def command_library_handler(message: Message) -> None:

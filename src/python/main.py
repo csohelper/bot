@@ -1,15 +1,15 @@
 import asyncio
-from aiogram import Bot, Dispatcher
+from aiogram import Bot, Dispatcher, F, Router
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.storage.redis import RedisStorage
-from aiogram.types import BotCommand
+from aiogram.types import BotCommand, Message
 from redis.asyncio import from_url
 
 from python.handlers.services_handlers import add_service_commands, list_services_command, moderate_service
 from python.handlers import echo_commands, images_echo_commands, kek_command, admin_commands, join_service
 from python.storage import services_repository, users_repository
 from python.storage.config import config
-from python.storage.strings import get_object
+from python.storage.strings import get_object, get_string
 from aiogram.client.default import DefaultBotProperties
 from python.storage.database import open_database_pool, close_database_pool
 import platform
@@ -19,6 +19,12 @@ from python import anecdote
 
 bot: Bot
 dp: Dispatcher
+
+default_router = Router()
+
+@default_router.message(F.chat.type == "private")
+async def default_private_handler(message: Message):
+    await message.answer(get_string("echo_commands.unknown"))
 
 
 async def main() -> None:
@@ -47,7 +53,8 @@ async def main() -> None:
         list_services_command.router,
         moderate_service.router,
         admin_commands.router,
-        join_service.router
+        join_service.router,
+        default_router # Must be in ending
     )
 
     @dp.startup()
