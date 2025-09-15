@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Optional
 
 from python.logger import logger
@@ -15,6 +16,11 @@ class User:
     surname: str
     room: Optional[int]
     status: str
+    processed_by: Optional[int]
+    processed_by_fullname: Optional[str]
+    processed_by_username: Optional[str]
+    refuse_reason: Optional[str]
+    created_at: datetime
 
 
 async def init_database_module() -> None:
@@ -29,7 +35,12 @@ async def init_database_module() -> None:
                     name TEXT NOT NULL,
                     surname TEXT NOT NULL,
                     room INTEGER,
-                    status TEXT DEFAULT 'moderation'
+                    status TEXT DEFAULT 'moderation',
+                    processed_by BIGINT,
+                    processed_by_fullname TEXT,
+                    processed_by_username TEXT,
+                    refuse_reason TEXT,
+                    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
                 )
             """
             logger.debug((query,))
@@ -65,7 +76,7 @@ async def add_user(
                 INSERT INTO users (user_id, username, fullname, name, surname, room, status)
                 VALUES (%s, %s, %s, %s, %s, %s, %s)
                 RETURNING id
-                """
+            """
             values = (user_id, username, fullname, name, surname, room, status)
             logger.debug((query, values))
             await cur.execute(query, values)
@@ -84,10 +95,12 @@ async def get_user_by_id(user_id: int) -> User | None:
     async with database.get_db_connection() as conn:
         async with conn.cursor() as cur:
             query = """
-                SELECT id, user_id, username, fullname, name, surname, room, status
+                SELECT id, user_id, username, fullname, name, surname, room, status,
+                       processed_by, processed_by_fullname, processed_by_username,
+                       refuse_reason, created_at
                 FROM users
                 WHERE id = %s
-                """
+            """
             logger.debug((query, (user_id,)))
             await cur.execute(
                 query,
@@ -107,11 +120,19 @@ async def get_user_by_id(user_id: int) -> User | None:
                 surname=row[5],
                 room=row[6],
                 status=row[7],
+                processed_by=row[8],
+                processed_by_fullname=row[9],
+                processed_by_username=row[10],
+                refuse_reason=row[11],
+                created_at=row[12],
             )
 
 
-ALLOWED_USER_FIELDS = {"username", "fullname", "name", "surname", "room", "status"}
-
+ALLOWED_USER_FIELDS = {
+    "username", "fullname", "name", "surname", "room", "status",
+    "processed_by", "processed_by_fullname", "processed_by_username",
+    "refuse_reason"
+}
 
 async def update_user_fields(id: int, **fields) -> Optional[User]:
     """
@@ -132,7 +153,9 @@ async def update_user_fields(id: int, **fields) -> Optional[User]:
         UPDATE users
         SET {set_clause}
         WHERE id = %s
-        RETURNING id, user_id, username, fullname, name, surname, room, status
+        RETURNING id, user_id, username, fullname, name, surname, room, status,
+                  processed_by, processed_by_fullname, processed_by_username,
+                  refuse_reason, created_at
     """
 
     logger.debug((query, values))
@@ -153,6 +176,11 @@ async def update_user_fields(id: int, **fields) -> Optional[User]:
                     surname=row[5],
                     room=row[6],
                     status=row[7],
+                    processed_by=row[8],
+                    processed_by_fullname=row[9],
+                    processed_by_username=row[10],
+                    refuse_reason=row[11],
+                    created_at=row[12],
                 )
             return None
 
