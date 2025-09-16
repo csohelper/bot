@@ -209,6 +209,7 @@ def normalize_text(text: str) -> str:
 
 class BadWordFilter(BaseFilter):
     async def __call__(self, message: Message) -> bool:
+        return False
         if not message.text:
             return False
 
