@@ -215,7 +215,7 @@ class BadWordFilter(BaseFilter):
         text = normalize_text(message.text)
 
         for word in bad_words:
-            if word in text:
+            if text == word:
                 return True
         return False
 
