@@ -1,6 +1,8 @@
 import asyncio
 import datetime
 import random
+from dataclasses import dataclass
+
 from aiogram import Router, F
 
 from ..storage.config import config, save_config
@@ -10,6 +12,56 @@ from aiogram.filters import Command
 from .. import utils
 
 router = Router()
+
+
+@dataclass(frozen=True)
+class EchoCommand:
+    command: str
+    text: list[str]
+    response: str
+
+
+commands = [
+    EchoCommand("index", ["индекс"], 'echo_commands.index'),
+    EchoCommand("address", ["адрес", "адресс", "адресочек"], 'echo_commands.address'),
+    EchoCommand("director", ["заведующий", "заведующая", "завед", "заведа"], 'echo_commands.director'),
+    EchoCommand(
+        "commandant",
+        ["коменда", "комендант", "командант", "командантка", "комменда", "коммендант", "коммандант", "коммандантка"],
+        'echo_commands.commandant'
+    ),
+    EchoCommand(
+        "jko",
+        ["жко", "жк", "жилищно коммунальный", "жилищно коммунальный отдел", "жилищно-коммунальный отдел"],
+        'echo_commands.jko'
+    ),
+    EchoCommand("ed", ["ед", "единый деканат", "деканат"], 'echo_commands.ed'),
+    EchoCommand("hr", ["отдел кадров"], 'echo_commands.hr'),
+    EchoCommand("soft", ["софт", "программы", "программное обеспечение", "ПО"], 'echo_commands.soft'),
+    EchoCommand("library", ["библиотека"], 'echo_commands.library'),
+    EchoCommand("shower", ["душ"], 'echo_commands.shower'),
+    EchoCommand("kitchen", ["кухня"], 'echo_commands.kitchen'),
+    EchoCommand("polyclinic", ["поликлиника"], 'echo_commands.polyclinic'),
+    EchoCommand("accounting", ["бухгалтерия"], 'echo_commands.accounting'),
+    EchoCommand("deanit", ["деканат ит"], 'echo_commands.deanery.it'),
+    EchoCommand("deanrit", ["деканат рит"], 'echo_commands.deanery.rit'),
+    EchoCommand("deannacs", ["деканат сисс"], 'echo_commands.deanery.nacs'),
+    EchoCommand("deancais", ["деканат кииб"], 'echo_commands.deanery.cais'),
+    EchoCommand("deandeamc", ["деканат цэимк"], 'echo_commands.deanery.deamc'),
+]
+
+
+def make_handler(command: EchoCommand):
+    @router.message(Command(command.command))
+    @router.message(lambda message, cmd=command: message.text and message.text.lower() in cmd.text)
+    async def echo_command_handler(message: Message) -> None:
+        await message.reply(get_string(command.response))
+
+    return echo_command_handler
+
+
+for command in commands:
+    make_handler(command)
 
 
 @router.message(Command("start", "help", "commands", "comands"))
@@ -24,74 +76,6 @@ async def command_help_handler(message: Message) -> None:
         save_config(config)
         return
     await message.reply(get_string('echo_commands.help'))
-
-
-@router.message(Command("index"))
-@router.message(lambda message: message.text and message.text.lower() in ["индекс"])
-async def command_index_handler(message: Message) -> None:
-    await message.reply(get_string('echo_commands.index'))
-
-
-@router.message(Command("address"))
-@router.message(lambda message: message.text and message.text.lower() in ["адрес", "адресс", "адресочек"])
-async def command_address_handler(message: Message) -> None:
-    await message.reply(get_string('echo_commands.address'))
-
-
-@router.message(Command("director"))
-@router.message(
-    lambda message: message.text and message.text.lower() in ["заведующий", "заведующая", "завед", "заведа"])
-async def command_director_handler(message: Message) -> None:
-    await message.reply(get_string('echo_commands.director'))
-
-
-@router.message(Command("commandant"))
-@router.message(
-    lambda message: message.text and message.text.lower() in ["коменда", "комендант", "командант", "командантка",
-                                                              "комменда", "коммендант", "коммандант", "коммандантка"])
-async def command_commandant_handler(message: Message) -> None:
-    await message.reply(
-        get_string('echo_commands.commandant')
-    )
-
-
-@router.message(Command("jko"))
-@router.message(lambda message: message.text and message.text.lower() in ["жко", "жк", "жилищно коммунальный",
-                                                                          "жилищно коммунальный отдел",
-                                                                          "жилищно-коммунальный отдел"])
-async def command_jko_handler(message: Message) -> None:
-    await message.reply(get_string('echo_commands.jko'))
-
-
-@router.message(Command("ed"))
-@router.message(lambda message: message.text and message.text.lower() in ["ед", "единый деканат", "деканат"])
-async def command_ed_handler(message: Message) -> None:
-    await message.reply(get_string('echo_commands.ed'))
-
-
-@router.message(Command("hr"))
-@router.message(lambda message: message.text and message.text.lower() in ["отдел кадров"])
-async def command_hr_handler(message: Message) -> None:
-    await message.reply(get_string('echo_commands.hr'))
-
-
-@router.message(Command("soft"))
-@router.message(
-    lambda message: message.text and message.text.lower() in ["софт", "программы", "программное обеспечение", "ПО"])
-async def command_soft_handler(message: Message) -> None:
-    await message.reply(get_string('echo_commands.soft'))
-
-
-@router.message(Command("library"))
-@router.message(lambda message: message.text and message.text.lower() in ["библиотека"])
-async def command_library_handler(message: Message) -> None:
-    await message.reply(get_string('echo_commands.library'))
-
-
-@router.message(Command("stolovka"))
-@router.message(lambda message: message.text and message.text.lower() in ["столовка"])
-async def command_ulk_handler(message: Message) -> None:
-    await message.reply(get_string('echo_commands.cafe_ulk'))
 
 
 @router.message(Command("mei"))
@@ -134,22 +118,6 @@ async def command_maishniky_handler(message: Message) -> None:
     )
 
 
-@router.message(Command("shower"))
-@router.message(lambda message: message.text and message.text.lower() in ["душ"])
-async def command_shower_handler(message: Message) -> None:
-    await message.reply(
-        get_string('echo_commands.shower')
-    )
-
-
-@router.message(Command("kitchen"))
-@router.message(lambda message: message.text and message.text.lower() in ["кухня"])
-async def command_kitchen_handler(message: Message) -> None:
-    await message.reply(
-        get_string('echo_commands.kitchen')
-    )
-
-
 @router.message(Command("week"))
 @router.message(lambda message: message.text and message.text.lower() in ["неделя"])
 async def command_week_handler(message: Message) -> None:
@@ -169,59 +137,3 @@ async def command_week_handler(message: Message) -> None:
     await message.reply(get_string(
         'echo_commands.incorrect_lang'
     ))
-
-
-@router.message(Command("polyclinic"))
-@router.message(lambda message: message.text and message.text.lower() in ["поликлиника"])
-async def command_week_handler(message: Message) -> None:
-    await message.reply(get_string(
-        'echo_commands.polyclinic'
-    ))
-
-
-@router.message(Command("accounting"))
-@router.message(lambda message: message.text and message.text.lower() in ["бухгалтерия"])
-async def command_washing_handler(message: Message) -> None:
-    await message.reply(
-        get_string('echo_commands.accounting')
-    )
-
-
-@router.message(Command("deanit"))
-@router.message(lambda message: message.text and message.text.lower() in ["деканат ит"])
-async def command_washing_handler(message: Message) -> None:
-    await message.reply(
-        get_string('echo_commands.deanery.it')
-    )
-
-
-@router.message(Command("deanrit"))
-@router.message(lambda message: message.text and message.text.lower() in ["деканат рит"])
-async def command_washing_handler(message: Message) -> None:
-    await message.reply(
-        get_string('echo_commands.deanery.rit')
-    )
-
-
-@router.message(Command("deannacs"))
-@router.message(lambda message: message.text and message.text.lower() in ["деканат сисс"])
-async def command_washing_handler(message: Message) -> None:
-    await message.reply(
-        get_string('echo_commands.deanery.nacs')
-    )
-
-
-@router.message(Command("deancais"))
-@router.message(lambda message: message.text and message.text.lower() in ["деканат кииб"])
-async def command_washing_handler(message: Message) -> None:
-    await message.reply(
-        get_string('echo_commands.deanery.cais')
-    )
-
-
-@router.message(Command("deandeamc"))
-@router.message(lambda message: message.text and message.text.lower() in ["деканат цэимк"])
-async def command_washing_handler(message: Message) -> None:
-    await message.reply(
-        get_string('echo_commands.deanery.deamc')
-    )
