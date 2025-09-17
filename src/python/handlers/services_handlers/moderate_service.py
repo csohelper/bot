@@ -135,21 +135,21 @@ async def callbacks_moderate_buttons(
                 get_string("services.moderation.setting_category"),
                 reply_markup=category_markup()
             )
-            await state.update_data(callback_data=callback_data)
+            await state.update_data(callback_data=callback_data.pack())
             await state.set_state(ModerateStates.choosing_category)
         case 'refuse':
             await callback.message.answer(
                 text=get_string("services.moderation.refuse"),
                 reply_markup=reject_markup()
             )
-            await state.update_data(callback_data=callback_data)
+            await state.update_data(callback_data=callback_data.pack())
             await state.set_state(ModerateStates.refusing)
         case 'accept':
             await callback.message.answer(
                 text=get_string("services.moderation.accepting"),
                 reply_markup=accept_markup()
             )
-            await state.update_data(callback_data=callback_data)
+            await state.update_data(callback_data=callback_data.pack())
             await state.set_state(ModerateStates.accept)
     await callback.answer()
 
@@ -178,7 +178,9 @@ def reject_markup() -> ReplyKeyboardMarkup:
     ModerateStates.choosing_category
 )
 async def on_category_chosen(message: Message, state: FSMContext) -> None:
-    callback_data: ModerateCallbackFactory = await state.get_value("callback_data")
+    callback_data: ModerateCallbackFactory = ModerateCallbackFactory.unpack(
+        await state.get_value("callback_data")
+    )
     if message.text is None or len(message.text) == 0:
         await message.answer(get_string("services.moderation.empty_category"))
         return
@@ -213,7 +215,9 @@ async def on_category_chosen(message: Message, state: FSMContext) -> None:
     ModerateStates.refusing
 )
 async def on_reject_chosen(message: Message, state: FSMContext) -> None:
-    callback_data: ModerateCallbackFactory = await state.get_value("callback_data")
+    callback_data: ModerateCallbackFactory = ModerateCallbackFactory.unpack(
+        await state.get_value("callback_data")
+    )
     if message.text is None or len(message.text) == 0:
         await message.answer(
             get_string("services.moderation.empty_refuse"),
@@ -262,7 +266,9 @@ async def on_reject_chosen(message: Message, state: FSMContext) -> None:
     ModerateStates.accept
 )
 async def on_accept_chosen(message: Message, state: FSMContext) -> None:
-    callback_data: ModerateCallbackFactory = await state.get_value("callback_data")
+    callback_data: ModerateCallbackFactory = ModerateCallbackFactory.unpack(
+        await state.get_value("callback_data")
+    )
     if message.text is None or len(message.text) == 0:
         await message.answer(
             get_string("services.moderation.empty_accept"),

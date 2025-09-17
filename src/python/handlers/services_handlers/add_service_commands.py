@@ -308,23 +308,23 @@ async def callbacks_edit_service(
         case 'change_name':
             await state.set_state(EditServiceStates.edit_name_state)
             reply = await callback.message.reply(text=get_string("services.add_command.edit_name"))
-            await state.update_data(callback_data=callback_data, reply=reply.message_id)
+            await state.update_data(callback_data=callback_data.pack(), reply=reply.message_id)
         case 'change_description':
             await state.set_state(EditServiceStates.edit_description_state)
             reply = await callback.message.reply(text=get_string("services.add_command.edit_description"))
-            await state.update_data(callback_data=callback_data, reply=reply.message_id)
+            await state.update_data(callback_data=callback_data.pack(), reply=reply.message_id)
         case 'change_cost':
             await state.set_state(EditServiceStates.edit_cost_state)
             reply = await callback.message.reply(text=get_string("services.add_command.edit_cost"))
-            await state.update_data(callback_data=callback_data, reply=reply.message_id)
+            await state.update_data(callback_data=callback_data.pack(), reply=reply.message_id)
         case 'change_cost_per':
             await state.set_state(EditServiceStates.edit_cost_per_state)
             reply = await callback.message.reply(text=get_string("services.add_command.edit_cost_per"))
-            await state.update_data(callback_data=callback_data, reply=reply.message_id)
+            await state.update_data(callback_data=callback_data.pack(), reply=reply.message_id)
         case "change_image":
             await state.set_state(EditServiceStates.edit_picture_state)
             reply = await callback.message.reply(text=get_string("services.add_command.edit_picture"))
-            await state.update_data(callback_data=callback_data, reply=reply.message_id)
+            await state.update_data(callback_data=callback_data.pack(), reply=reply.message_id)
         case "publish":
             service = await services_repository.find_service(service_id=callback_data.service_id)
             await _bot.edit_message_caption(
@@ -442,7 +442,9 @@ async def on_name_edit(message: Message, state: FSMContext) -> None:
         await reply.delete()
         await message.delete()
         return
-    callback_data: EditServiceCallbackFactory = await state.get_value("callback_data")
+    callback_data: EditServiceCallbackFactory = EditServiceCallbackFactory.unpack(
+        await state.get_value("callback_data")
+    )
     reply_message: int = await state.get_value("reply")
     await _bot.delete_message(message.chat.id, reply_message)
     await _bot.delete_message(message.chat.id, message.message_id)
@@ -467,7 +469,9 @@ async def on_description_edit(message: Message, state: FSMContext) -> None:
     else:
         description = message.text.strip()
 
-    callback_data: EditServiceCallbackFactory = await state.get_value("callback_data")
+    callback_data: EditServiceCallbackFactory = EditServiceCallbackFactory.unpack(
+        await state.get_value("callback_data")
+    )
     reply_message: int = await state.get_value("reply")
     await _bot.delete_message(message.chat.id, reply_message)
     await _bot.delete_message(message.chat.id, message.message_id)
@@ -498,7 +502,9 @@ async def on_cost_edit(message: Message, state: FSMContext) -> None:
         await message.delete()
         return
 
-    callback_data: EditServiceCallbackFactory = await state.get_value("callback_data")
+    callback_data: EditServiceCallbackFactory = EditServiceCallbackFactory.unpack(
+        await state.get_value("callback_data")
+    )
     reply_message: int = await state.get_value("reply")
     await _bot.delete_message(message.chat.id, reply_message)
     await _bot.delete_message(message.chat.id, message.message_id)
@@ -521,7 +527,9 @@ async def on_cost_per_edit(message: Message, state: FSMContext) -> None:
         await message.delete()
         return
 
-    callback_data: EditServiceCallbackFactory = await state.get_value("callback_data")
+    callback_data: EditServiceCallbackFactory = EditServiceCallbackFactory.unpack(
+        await state.get_value("callback_data")
+    )
     reply_message: int = await state.get_value("reply")
     await _bot.delete_message(message.chat.id, reply_message)
     await _bot.delete_message(message.chat.id, message.message_id)
@@ -562,7 +570,9 @@ async def on_picture_edit(message: Message, state: FSMContext) -> None:
     photo_bytes = photo_buffer.read()
     photo_base64 = base64.b64encode(photo_bytes).decode('utf-8')
 
-    callback_data: EditServiceCallbackFactory = await state.get_value("callback_data")
+    callback_data: EditServiceCallbackFactory = EditServiceCallbackFactory.unpack(
+        await state.get_value("callback_data")
+    )
     reply_message: int = await state.get_value("reply")
     service = await services_repository.update_service_fields(callback_data.service_id, image=photo_base64)
     if service:
