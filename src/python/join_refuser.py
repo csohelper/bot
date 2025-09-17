@@ -1,6 +1,7 @@
 import asyncio
 
 from aiogram import Bot
+from aiogram.exceptions import TelegramForbiddenError
 from aiogram.types import ReplyKeyboardMarkup, ReplyKeyboardRemove
 
 from python.logger import logger
@@ -26,14 +27,20 @@ async def refuser_loop_check() -> None:
         logger.debug(f"Refuser: {requests} old requests")
     for request in requests:
         logger.debug(f"Refuser: {request.user_id} {request.created_at} refused")
-        await _bot.send_message(
-            request.user_id,
-            get_string(
-                'user_service.moderation.auto_refused',
-                config.refuser.request_life_hours
-            ),
-            reply_markup=ReplyKeyboardRemove()
-        )
-        await _bot.decline_chat_join_request(config.chat_config.chat_id, request.user_id)
+        try:
+            await _bot.decline_chat_join_request(config.chat_config.chat_id, request.user_id)
+        except Exception as e:
+            logger.error(f"Refuser: {str(e)}")
+        try:
+            await _bot.send_message(
+                request.user_id,
+                get_string(
+                    'user_service.moderation.auto_refused',
+                    config.refuser.request_life_hours
+                ),
+                reply_markup=ReplyKeyboardRemove()
+            )
+        except TelegramForbiddenError as e:
+            logger.debug(f"Refuser: {e.message}")
 
     asyncio.create_task(await_and_run(config.refuser.refuser_check_time, refuser_loop_check))
