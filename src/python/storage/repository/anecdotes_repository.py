@@ -16,7 +16,7 @@ async def init_database_module() -> None:
                     used BOOLEAN NOT NULL DEFAULT FALSE
                 )
             """
-            logger.debug((query,))
+            logger.debug(query)
             await cur.execute(query)
             await conn.commit()
 
@@ -81,6 +81,7 @@ async def insert_anecdote(anecdote_id: int, original: str, text: str) -> None:
                     used = FALSE
             """
             values = (anecdote_id, original, text)
-            logger.debug((query, values))
+            logger.debug(query)
+            logger.debug(values)
             await cur.execute(query, values)
             await conn.commit()

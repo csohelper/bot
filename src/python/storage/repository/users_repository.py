@@ -43,7 +43,7 @@ async def init_database_module() -> None:
                     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
                 )
             """
-            logger.debug((query,))
+            logger.debug(query)
             await cur.execute(query)
             await conn.commit()
 
@@ -78,7 +78,8 @@ async def add_user(
                 RETURNING id
             """
             values = (user_id, username, fullname, name, surname, room, status)
-            logger.debug((query, values))
+            logger.debug(query)
+            logger.debug(values)
             await cur.execute(query, values)
             row = await cur.fetchone()
             await conn.commit()
@@ -101,7 +102,8 @@ async def get_user_by_id(user_id: int) -> User | None:
                 FROM users
                 WHERE id = %s
             """
-            logger.debug((query, (user_id,)))
+            logger.debug(query)
+            logger.debug((user_id,))
             await cur.execute(
                 query,
                 (user_id,)
@@ -134,6 +136,7 @@ ALLOWED_USER_FIELDS = {
     "refuse_reason"
 }
 
+
 async def update_user_fields(id: int, **fields) -> Optional[User]:
     """
     Обновляет указанные поля пользователя в таблице users.
@@ -158,7 +161,8 @@ async def update_user_fields(id: int, **fields) -> Optional[User]:
                   refuse_reason, created_at
     """
 
-    logger.debug((query, values))
+    logger.debug(query)
+    logger.debug(values)
 
     async with database.get_db_connection() as conn:
         async with conn.cursor() as cur:
@@ -193,7 +197,8 @@ async def delete_user_by_user_id(user_id: int) -> bool:
     async with database.get_db_connection() as conn:
         async with conn.cursor() as cur:
             query = "DELETE FROM users WHERE user_id = %s RETURNING id"
-            logger.debug((query, (user_id,)))
+            logger.debug(query)
+            logger.debug(user_id)
             await cur.execute(
                 query,
                 (user_id,)
@@ -211,7 +216,8 @@ async def delete_users_by_user_id(user_id: int) -> int:
     async with database.get_db_connection() as conn:
         async with conn.cursor() as cur:
             query = "DELETE FROM users WHERE user_id = %s"
-            logger.debug((query, (user_id,)))
+            logger.debug(query)
+            logger.debug((user_id,))
             await cur.execute(
                 query,
                 (user_id,)
