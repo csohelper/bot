@@ -42,11 +42,14 @@ async def command_anecdote_handler(message: Message) -> None:
         return
 
     delta: datetime.timedelta = datetime.datetime.now() - last_use_chat
-    if delta < datetime.timedelta(seconds=30):
+    antiflood_time = config.anecdote.antiflood_time
+    remain = antiflood_time - int(delta.total_seconds())
+    if delta < datetime.timedelta(seconds=antiflood_time):
         reply = await message.reply(get_string(
             'echo_commands.kek.too_many',
             message.from_user.full_name,
-            30 - int(delta.total_seconds())
+            antiflood_time,
+            remain
         ))
         await asyncio.sleep(5)
         try:

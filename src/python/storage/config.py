@@ -34,6 +34,7 @@ class AnecdoteConfig(BaseModel):
     gemini_token: str = Field(default="your_gemini_token_here")
     buffer_size: int = Field(default=30)
     buffer_check_time: int = Field(default=30)
+    antiflood_time: int = Field(default=30)
 
 
 class RedisConfig(BaseModel):
