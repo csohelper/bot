@@ -43,14 +43,21 @@ class RedisConfig(BaseModel):
     decode_responses: bool = Field(default=True)
 
 
+class RefuserConfig(BaseModel):
+    enabled: bool = Field(default=False)
+    request_life_hours: int = Field(default=48)
+    refuser_check_time: int = Field(default=10 * 60)
+
+
 class AppConfig(BaseModel):
     lang: str = Field(default="ru")
     log_level: str = Field(default="info")
     telegram: TelegramConfig = Field(default_factory=TelegramConfig)
     database: DatabaseConfig = Field(default_factory=DatabaseConfig)
+    redis_config: RedisConfig = Field(default_factory=RedisConfig)
     anecdote: AnecdoteConfig = Field(default_factory=AnecdoteConfig)
     chat_config: ChatConfig = Field(default_factory=ChatConfig)
-    redis_config: RedisConfig = Field(default_factory=RedisConfig)
+    refuser: RefuserConfig = Field(default_factory=RefuserConfig)
 
 
 CONFIG_PATH = Path("storage/config.yaml")

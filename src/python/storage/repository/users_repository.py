@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
+from typing import Optional, FrozenSet
 
 from python.logger import logger
 from python.storage import database
@@ -41,6 +41,16 @@ async def init_database_module() -> None:
                     processed_by_username TEXT,
                     refuse_reason TEXT,
                     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                )
+            """
+            logger.debug(query)
+            await cur.execute(query)
+            query = """
+                CREATE TABLE IF NOT EXISTS requests (
+                    id SERIAL PRIMARY KEY,
+                    user_id BIGINT NOT NULL UNIQUE,
+                    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    processed BOOLEAN NOT NULL DEFAULT FALSE
                 )
             """
             logger.debug(query)
@@ -225,3 +235,78 @@ async def delete_users_by_user_id(user_id: int) -> int:
             deleted_count = cur.rowcount  # количество удалённых строк
             await conn.commit()
             return deleted_count
+
+
+async def create_or_replace_request(user_id: int) -> None:
+    """
+    Создаёт запись в таблице requests для указанного user_id.
+    Если запись уже есть — удаляет её и вставляет заново с дефолтными значениями.
+    """
+    async with database.get_db_connection() as conn:
+        async with conn.cursor() as cur:
+            # Сначала удаляем, если есть
+            delete_query = "DELETE FROM requests WHERE user_id = %s"
+            logger.debug(delete_query)
+            logger.debug((user_id,))
+            await cur.execute(delete_query, (user_id,))
+
+            # Теперь вставляем новую запись
+            insert_query = """
+                INSERT INTO requests (user_id)
+                VALUES (%s)
+            """
+            logger.debug(insert_query)
+            logger.debug((user_id,))
+            await cur.execute(insert_query, (user_id,))
+            await conn.commit()
+
+
+@dataclass(frozen=True)
+class RequestInfo:
+    user_id: int
+    created_at: datetime
+
+
+async def pop_unprocessed_requests_older_than(hours: int) -> FrozenSet[RequestInfo]:
+    """
+    Удаляет и возвращает множество RequestInfo для пользователей,
+    у которых processed = FALSE и created_at старше указанного количества часов.
+    """
+    async with database.get_db_connection() as conn:
+        async with conn.cursor() as cur:
+            query = """
+                DELETE FROM requests
+                WHERE processed = FALSE
+                  AND created_at <= NOW() - (%s * INTERVAL '1 hour')
+                RETURNING user_id, created_at
+            """
+            logger.debug(query)
+            logger.debug((hours,))
+            await cur.execute(query, (hours,))
+            rows = await cur.fetchall()
+
+            await conn.commit()
+
+            return frozenset(
+                RequestInfo(user_id=row[0], created_at=row[1]) for row in rows
+            )
+
+
+async def mark_request_processed(user_id: int) -> int:
+    """
+    Обновляет processed = TRUE у записи по user_id.
+    Возвращает количество обновлённых строк.
+    """
+    async with database.get_db_connection() as conn:
+        async with conn.cursor() as cur:
+            query = """
+                UPDATE requests
+                SET processed = TRUE
+                WHERE user_id = %s
+            """
+            logger.debug(query)
+            logger.debug((user_id,))
+            await cur.execute(query, (user_id,))
+            updated_count = cur.rowcount
+            await conn.commit()
+            return updated_count

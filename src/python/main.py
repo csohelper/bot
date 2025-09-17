@@ -2,11 +2,12 @@ import asyncio
 from aiogram import Bot, Dispatcher, F, Router
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.storage.redis import RedisStorage
-from aiogram.types import BotCommand, Message
+from aiogram.types import BotCommand, Message, ReplyKeyboardRemove
 from redis.asyncio import from_url
 
-from python.handlers.services_handlers import add_service_commands, list_services_command, moderate_service
-from python.handlers import echo_commands, images_echo_commands, kek_command, admin_commands, join_service
+from python.handlers.services_handlers import add_service_commands, list_services_command, moderate_service, \
+    join_service
+from python.handlers import echo_commands, images_echo_commands, kek_command, admin_commands
 from python.storage.repository import services_repository, users_repository, anecdotes_repository
 from python.storage.config import config
 from python.storage.strings import get_object, get_string
@@ -15,16 +16,17 @@ from python.storage.database import open_database_pool, close_database_pool
 import platform
 from python.logger import logger
 from aiogram.types.link_preview_options import LinkPreviewOptions
-from python import anecdote_poller
+from python import anecdote_poller, join_refuser
 
 bot: Bot
 dp: Dispatcher
 
 default_router = Router()
 
+
 @default_router.message(F.chat.type == "private")
 async def default_private_handler(message: Message):
-    await message.answer(get_string("echo_commands.unknown"))
+    await message.answer(get_string("echo_commands.unknown"), reply_markup=ReplyKeyboardRemove())
 
 
 async def main() -> None:
@@ -52,7 +54,7 @@ async def main() -> None:
         moderate_service.router,
         admin_commands.router,
         join_service.router,
-        default_router # Must be in ending
+        default_router  # Must be in ending
     )
 
     @dp.startup()
@@ -66,12 +68,15 @@ async def main() -> None:
         await list_services_command.init(bot_username=bot_username, bot=bot)
         await moderate_service.init(bot_username=bot_username, bot=bot)
         await admin_commands.init(bot_username=bot_username, bot=bot)
+        await join_refuser.init(bot=bot)
         await join_service.init(bot=bot)
         await services_repository.init_database_module()
         await anecdotes_repository.init_database_module()
         await users_repository.init_database_module()
         if config.anecdote.enabled:
-            asyncio.create_task(anecdote_poller.loop_check())
+            asyncio.create_task(anecdote_poller.anecdote_loop_check())
+        if config.refuser.enabled:
+            asyncio.create_task(join_refuser.refuser_loop_check())
 
         await bot.set_my_commands(
             [

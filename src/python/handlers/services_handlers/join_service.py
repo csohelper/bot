@@ -38,9 +38,14 @@ class JoinStatuses(StatesGroup):
 
 @router.chat_join_request()
 async def join_request(update: ChatJoinRequest, bot: Bot, state: FSMContext) -> None:
+    await users_repository.create_or_replace_request(update.from_user.id)
+
     await bot.send_message(
         update.from_user.id,
-        get_string("user_service.greeting_start"),
+        get_string(
+            "user_service.greeting_start",
+            config.refuser.request_life_hours
+        ),
         reply_markup=ReplyKeyboardBuilder().row(
             KeyboardButton(text="✅Начать"),
             KeyboardButton(text="❌Отмена")
@@ -280,6 +285,7 @@ async def on_send_chosen(message: Message, state: FSMContext) -> None:
         )
     elif message.text == "✅Отправить":
         await users_repository.delete_users_by_user_id(message.from_user.id)
+        await users_repository.mark_request_processed(message.from_user.id)
         id = await users_repository.add_user(
             message.from_user.id,
             message.from_user.username,
