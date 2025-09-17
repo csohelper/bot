@@ -45,6 +45,7 @@ async def poll_anecdote() -> AnecdoteItem | None:
                 )
                 RETURNING id, anecdote_id, original, text, used;
             """
+            logger.debug(query)
             await cur.execute(query)
             row = await cur.fetchone()
             if row:
@@ -64,6 +65,7 @@ async def count_unused_anecdotes() -> int:
             query = """
                 SELECT COUNT(*) FROM anecdotes WHERE used IS FALSE;
             """
+            logger.debug(query)
             await cur.execute(query)
             (count,) = await cur.fetchone()
             return count
