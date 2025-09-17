@@ -135,8 +135,6 @@ async def get_original() -> tuple[int, str] | None:
 
 
 async def loop_check() -> None:
-    asyncio.create_task(await_and_run(config.anecdote.buffer_check_time, loop_check))
-
     logger.debug("Anecdote poller: Check loop")
     need = config.anecdote.buffer_size - (await anecdotes_repository.count_unused_anecdotes())
     if need > 0:
@@ -169,3 +167,5 @@ async def loop_check() -> None:
             await asyncio.sleep(5)
             i += 1
         logger.info("Anecdote poller: Load complete")
+
+    asyncio.create_task(await_and_run(config.anecdote.buffer_check_time, loop_check))
