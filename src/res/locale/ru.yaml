@@ -276,6 +276,81 @@ echo_commands:
         <b>И.О. Заведующего Кафедрой</b>
         Мосева Марина Сергеевна
         m.s.moseva@mtuci.ru
+    rit:
+      res: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/582/">Кафедра «Радиотехнические Системы (РТС)»</a></b>
+        (Radio Engineering Systems)
+        Ауд.: Л-600, Л-602
+        +7(495) 957-77-10
+
+        <b>Заведующий Кафедрой</b>
+        Чиров Денис Сергеевич
+        d.s.chirov@mtuci.ru
+      reac: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/167/">Кафедра «Радиооборудование и Схемотехника (РОС)»</a></b>
+        (Radio Equipment and Circuitry)
+        Ауд.: Л-503
+
+        <b>Заведующий Кафедрой</b>
+        Пестряков Александр Валентинович
+        +7 (495) 957-79-27
+        a.v.pestriakov@mtuci.ru
+      electronics: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/1213/">Кафедра «Электроника»</a></b>
+        (Electronics)
+        Ауд.: Л-512, Н-532
+        +7(499)192-85-08 (Н)
+        elektronika@mtuci.ru
+
+        <b>Заведующий Кафедрой</b>
+        Кирик Дмитрий Игоревич
+      tasb: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/584/">Кафедра «Телевидение и Звуковое Вещание (ТиЗВ)»</a></b>
+        (Television and Sound Broadcasting)
+        УЛК-1004...УЛК-1006, Л-105, Л-107
+
+        <b>И.О. Заведующего Кафедрой</b>
+        Литвин Семен Анатольевич
+        s.a.litvin@mtuci.ru
+      ratsan: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/583/">Системы и сети радиосвязи и телерадиовещания (СиСРТ)»</a></b>
+        (Radio and Television Systems and Networks)
+        +7(495)957-77-85
+        sisrt.dep@mtuci.ru
+
+        <b>Заведующая Кафедрой</b>
+        Косичкина Татьяна Павловна
+        +7(495)957-77-85
+        t.p.kosichkina@mtuci.ru
+        Ауд.: А-354
+      tec: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/1280/">Кафедра «Теория Электрических Цепей (ТЭЦ)»</a></b>
+        (Theory of Electrical Circuits)
+        Ауд.: Н-135
+        +7(499)192-85-87
+
+        <b>Заведующий Кафедрой</b>
+        Крейнделин Виталий Борисович
+        +7(499)192-85-87
+        v.b.kreindelin@mtuci.ru
+      physics: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/573/">Кафедра «Физика»</a></b>
+        (Physics)
+        Ауд.: Н-345б
+
+        <b>Заведующий Кафедрой</b>
+        Носков Антон Валерьевич
+        a.v.noskov@mtuci.ru
+      teaa: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/585/">Кафедра «Техническая электродинамика и антенны (ТЭДиА)»</a></b>
+        (Technical Electrodynamics and Antennas)
+        Ауд.: Л-700, Л-709
+        +7(495)957-77-99 (доб. 490)
+        tedia@mtuci.ru
+
+        <b>Заведующий Кафедрой</b>
+        Николаев Алексей Владимирович
+        a.w.nikolaev@mtuci.ru
   jko: |
     <b>Жилищно-Коммунальный Отдел</b>
     График: с ПН по ПТ (10:00 - 18:00)
