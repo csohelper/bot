@@ -1,7 +1,7 @@
 import base64
 import io
 
-from aiogram import Router, Bot, types
+from aiogram import Router, types
 from aiogram.filters.callback_data import CallbackData
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.storage.base import StorageKey
@@ -10,7 +10,7 @@ from aiogram.types import ChatJoinRequest, Message, KeyboardButton, FSInputFile,
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 
 from python.logger import logger
-from python.storage import users_repository
+from python.storage.repository import users_repository
 from python.storage.config import config
 from python.storage.strings import get_string
 from aiogram.fsm.context import FSMContext

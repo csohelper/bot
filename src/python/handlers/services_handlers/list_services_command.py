@@ -10,7 +10,7 @@ from aiogram.types import InaccessibleMessage, InlineKeyboardButton, InputMediaP
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from python.logger import logger
-from python.storage import services_repository
+from python.storage.repository import services_repository
 from python.storage.strings import get_string
 
 _bot_username: str

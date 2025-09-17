@@ -103,23 +103,28 @@ async def proccess_anecdote(original: str) -> str | None:
 
 
 anecdotes_url = 'https://baneks.ru/random'
-async def get_original() -> str | None:
+async def get_original() -> tuple[int, str] | None:
     for _ in range(10):
         async with aiohttp.ClientSession() as session:
             try:
                 async with session.get(anecdotes_url) as response:
-                    response.raise_for_status()  # Вызовет исключение для статусов 4xx/5xx
-                    html_content = await response.text()
+                    response.raise_for_status()
 
-                    # Используем BeautifulSoup для парсинга HTML
+                    # конечный URL после редиректа
+                    final_url = str(response.url)
+                    # ID — это последняя часть пути
+                    anecdote_id = int(final_url.rsplit('/', 1)[-1])
+
+                    html_content = await response.text()
                     soup = BeautifulSoup(html_content, 'html.parser')
 
-                    # Анекдот находится внутри тега <p> в секции <article>
-                    anekdot_tag = soup.find('article').find('p') # type: ignore
+                    # Анекдот находится внутри <article><p>
+                    anecdote_tag = soup.find('article').find('p') # type: ignore
 
-                    if anekdot_tag:
-                        anekdot_text = anekdot_tag.get_text(strip=True) # type: ignore
-                        return anekdot_text
+                    if anecdote_tag:
+                        anekdot_text = anecdote_tag.get_text(strip=True) # type: ignore
+                        return anecdote_id, anekdot_text
+
             except aiohttp.ClientError as e:
                 logger.error(f"Anecdote poller: Error access page: {e}")
                 await asyncio.sleep(5)
@@ -139,10 +144,11 @@ async def loop_check() -> None:
 
         while config.anecdote.buffer_size > len(anecdote_buffer):
             logger.debug("Proccessing...")
-            original = await get_original()
-            if original is None:
+            resp = await get_original()
+            if resp is None:
                 logger.debug("Anecdote poller: Anecdote is None")
                 continue
+            id, original = resp
             l = len(original)
             if l < 200:
                 logger.debug(f"Anecdote poller: Anecdote l={l} is too small")
@@ -150,9 +156,9 @@ async def loop_check() -> None:
             if l > 1000:
                 logger.debug(f"Anecdote poller: Anecdote l={l} is too big")
                 continue
-            proccessed = await proccess_anecdote(original)
-            if proccessed is not None:
-                anecdote_buffer.append(proccessed)
+            processed = await proccess_anecdote(original)
+            if processed is not None:
+                anecdote_buffer.append(processed)
 
             await asyncio.sleep(5)
         logger.info("Anecdote poller: Load complete")

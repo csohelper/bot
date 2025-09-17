@@ -7,7 +7,7 @@ from redis.asyncio import from_url
 
 from python.handlers.services_handlers import add_service_commands, list_services_command, moderate_service
 from python.handlers import echo_commands, images_echo_commands, kek_command, admin_commands, join_service
-from python.storage import services_repository, users_repository
+from python.storage.repository import services_repository, users_repository
 from python.storage.config import config
 from python.storage.strings import get_object, get_string
 from aiogram.client.default import DefaultBotProperties

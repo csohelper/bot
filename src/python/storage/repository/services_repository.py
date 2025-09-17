@@ -11,16 +11,11 @@ async def init_database_module() -> None:
     async with database.get_db_connection() as conn:
         async with conn.cursor() as cur:
             query = """
-                CREATE TABLE IF NOT EXISTS services (
+                CREATE TABLE IF NOT EXISTS anecdotes (
                     id SERIAL PRIMARY KEY,
-                    directory TEXT NOT NULL DEFAULT '/',
-                    name TEXT NOT NULL,
-                    cost NUMERIC(10, 2) NOT NULL,
-                    cost_per TEXT NOT NULL,
-                    description TEXT DEFAULT NULL,
-                    owner BIGINT NOT NULL,
-                    image TEXT DEFAULT NULL,
-                    status TEXT DEFAULT 'moderation'
+                    original TEXT,
+                    text TEXT,
+                    used BOOLEAN
                 )
             """
             logger.debug((query, ))

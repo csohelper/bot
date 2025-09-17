@@ -14,8 +14,8 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, InputMedia
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from python.handlers.services_handlers import moderate_service
-from python.storage import services_repository
-from python.storage.services_repository import Service
+from python.storage.repository import services_repository
+from python.storage.repository.services_repository import Service
 from python.storage.strings import get_string
 
 _bot_username: str

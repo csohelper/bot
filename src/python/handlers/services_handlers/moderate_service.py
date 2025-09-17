@@ -1,6 +1,5 @@
 import base64
 import io
-from unittest import case
 
 from aiogram import Bot, Router, types
 from aiogram.filters.callback_data import CallbackData
@@ -10,9 +9,9 @@ from aiogram.types import FSInputFile, BufferedInputFile, InlineKeyboardButton, 
     ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 
-from python.storage import services_repository
+from python.storage.repository import services_repository
 from python.storage.config import config
-from python.storage.services_repository import Service
+from python.storage.repository.services_repository import Service
 from python.storage.strings import get_string
 
 _bot_username: str
