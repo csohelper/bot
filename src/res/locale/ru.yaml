@@ -197,6 +197,85 @@ echo_commands:
       +7(499)192-86-57
       +7(499)192-85-00
       e.v.vahovskiy@mtuci.ru
+  departments:
+    it:
+      mcait: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/1211/">Кафедра «Математическая кибернетика и информационные технологии»</a></b>
+        (Mathematical Cybernetics and Information Technology)
+        ул. Авиамоторная, д. 8А, Л-502
+        mkiit.dep@mtuci.ru
+
+        <b>Заведующий Кафедрой</b>
+        Городничев Михаил Геннадьевич
+        m.g.gorodnichev@mtuci.ru
+      cis: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/566/">Кафедра «Корпоративные информационные системы»</a></b>
+        (Corporate Information Systems)
+        ул. Авиамоторная, д. 8А, Л-308
+        +7(495)957-77-99 (доб. 469)
+        kafedra1c@mtuci.ru
+
+        <b>И.О. Заведующего Кафедрой</b>
+        Андреев Илья Александрович
+        i.a.andreev@mtuci.ru
+      nitas: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/770/">Кафедра «Сетевые Информационные Технологии и Сервисы»</a></b>
+        (Network Information Technologies and Services)
+        ул. Авиамоторная, д. 8А, Л-211
+        +7(495)957-79-71
+        +7(495)957-77-74
+        aud211@mail.ru
+
+        <b>Заведующий Кафедрой</b>
+        Докучаев Владимир Анатольевич
+        v.a.dokuchaev@mtuci.ru
+      ma: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/161/">Кафедра «Математический Анализ»</a></b>
+        (Mathematical Analysis)
+        +7(495)957-77-99 (доб. 2075)
+        dma@mtuci.ru
+
+        <b>Заведующая Кафедрой</b>
+        Добрынина Ирина Васильевна
+        i.v.dobrynina@mtuci.ru
+      informatics: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/529/">Кафедра «Информатика»</a></b>
+        (Informatics)
+        Ауд.: Н-125
+        +7(499)192-71-43
+        +7(499)192-85-43
+        infokaf@mtuci.ru
+
+        <b>И.О. Заведующего Кафедрой</b>
+        Халабия Рустам Фарук
+        r.f.halabiya@mtuci.ru
+      pe: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/574/">Кафедра «Физическое Воспитание»</a></b>
+        (Physical Education)
+        Ауд.: А-137, Н-129
+        +7(495)957-79-70
+
+        <b>Заведующий Кафедрой</b>
+        Саблин Андрей Борисович
+        a.b.sablin@mtuci.ru
+      aai: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/6902/">Кафедра «Прикладной Искусственный Интеллект»</a></b>
+        Ауд.: Л-206
+
+        <b>Заведующий Кафедрой</b>
+        Соловьёв Владимир Игоревич
+      sp: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/6352/">Кафедра «Системное Программирование»</a></b>
+        Ауд.: Л-212
+
+        <b>Заведующий Кафедрой</b>
+        Полищук Юрий Владимирович
+        y.v.polishchuk@mtuci.ru
+      pre: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/12250/">Кафедра «Программная Инженерия»</a></b>
+        <b>И.О. Заведующего Кафедрой</b>
+        Мосева Марина Сергеевна
+        m.s.moseva@mtuci.ru
   jko: |
     <b>Жилищно-Коммунальный Отдел</b>
     График: с ПН по ПТ (10:00 - 18:00)
