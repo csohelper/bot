@@ -1,3 +1,56 @@
+commands:
+  - command: cards
+    description: Cкидочные карты всех популярных сетей
+  - command: services
+    description: Список услуг от проживающих
+  - command: help
+    description: Помощь
+  - command: kek
+    description: Не важно
+  - command: index
+    description: Индекс общежития
+  - command: address
+    description: Адрес общежития
+  - command: commandant
+    description: Номер и почта дежурного комменданта
+  - command: director
+    description: Информация о заведующем
+  - command: vost
+    description: График работы и меню кафе
+  - command: jko
+    description: Информация о ЖКО
+  - command: hr
+    description: Информация об Отделе Кадров
+  - command: ed
+    description: Информация о Едином Деканате
+  - command: polyclinic
+    description: Поликлиника
+  - command: library
+    description: Библиотека
+  - command: bufet
+    description: Буфет (А) и столовая (УЛК)
+  - command: week
+    description: Информация о текущей учебной неделе
+  - command: soft
+    description: Полезные программы для учебы
+  - command: shower
+    description: График работы душа
+  - command: kitchen
+    description: График работы кухни
+  - command: laundress
+    description: Прачка МЭИ
+  - command: linen
+    description: Информация об обмене белья
+  - command: deanit
+    description: Деканат Информационные Технологии
+  - command: deanrit
+    description: Деканат Радио и Телевидение
+  - command: deannasc
+    description: Деканат Сети и Системы Связи
+  - command: deancais
+    description: Деканат Кибернетика и Информационная Безопасность
+  - command: deandeamc
+    description: Деканат Цифровая Экономика и Массовые Коммуникации
 echo_commands:
   first_start: |
     Привет!
@@ -24,6 +77,9 @@ echo_commands:
     <b>Обмен белья</b> - график работы (или /linen)
     <b>Бухгалтерия</b> - расположение, номера и график (или /accounting)
     <b>Команды / Помощь</b> - для вызова данного списка (или /help)
+    Остальные команды:
+    <b>Деканат ИТ</b> (или /deanit), <b>Деканат РиТ</b> (или /deanrit), <b>Деканат СиСС</b> (или /deannasc), 
+    <b>Деканат КиИБ</b> (или /deancais), <b>Деканат ЦЭиМК</b> (или /deandeamc)
   cards: |
     <b>Скидочные карты всех популярных сетей:</b>
 
@@ -68,6 +124,78 @@ echo_commands:
     e.a.chernicyna@mtuci.ru
 
     Фактический адрес: 111024, г. Москва, ул. Авиамоторная, 8 стр. 6, кабинет А-Л-201
+  deanery_it: |
+    <b><a href="https://mtuci.ru/dep/304/">Деканат «Информационные Технологии»</a></b>
+    (Information Technologies)
+    Ауд.: А-427
+    +7(495)957-77-99 (доб. 482)
+    it@mtuci.ru
+
+    ПН-ЧТ      09:00 - 18:00
+    ПТ             09:00 - 16:45
+    Перерыв 13:00 - 14:00
+
+    <b>Декан</b>
+    Городничев Михаил Геннадьевич
+    А-315
+    +7(495)925-10-67
+    m.g.gorodnichev@mtuci.ru
+  deanery_nacs: |
+    <b><a href="https://mtuci.ru/dep/306/">Деканат «Сети и Системы Связи»</a></b>
+    (Networks and Communication Systems)
+    Ауд.: А-347
+    +7(495)957-77-99 (доб. 199)
+    mes@mtuci.ru
+
+    ПН-ЧТ      09:00 - 18:00
+    ПТ             09:00 - 16:45
+    Перерыв 13:00 - 14:00
+
+    <b>Декан</b>
+    Колесников Олег Вячеславович
+    +7(495)957-79-22
+    o.v.kolesnikov@mtuci.ru
+  deanery_rit: |
+    <b><a href="https://mtuci.ru/dep/305/">Деканат «Радио и Телевидение»</a></b>
+    (Radio and Television)
+    Ауд.: А-416
+    +7(495)957-77-99 (доб. 436)
+    rit@mtuci.ru
+
+    ПН-ЧТ      09:00 - 18:00
+    ПТ             09:00 - 16:45
+    Перерыв 13:00 - 14:00
+
+    <b>Декан</b>
+    Бен Режеб Тауфик Бен Камель
+    +7(495)957-79-27
+    t.benrejeb@mtuci.ru
+  deanery_cais: |
+    <b><a href="https://mtuci.ru/dep/2444/">Деканат «Кибернетика и Информационная Безопасность»</a></b>
+    (Cybernetics and Information Security)
+    Ауд.: А-403
+    +7(495)957-77-99 (доб. 149)
+    kiib@mtuci.ru
+
+    ПН-ЧТ      09:00 - 18:00
+    ПТ             09:00 - 16:45
+    Перерыв 13:00 - 14:00
+
+    <b>Декан</b>
+    Иевлев Олег Павлович
+    +7(495)957-77-99 (доб. 405)
+    ievlev@mtuci.ru
+  deanery_deamc: |
+    <b><a href="https://mtuci.ru/dep/307">Деканат «Цифровая Экономика и Массовые Коммуникации»</a></b>
+    (Digital Economy and Mass Communications)
+    Ауд.: Н-417
+    +7(495)957-77-99 (доб. 2099)
+
+    <b>Декан</b>
+    Ваховский Евгений Вячеславович
+    +7(499)192-86-57
+    +7(499)192-85-00
+    e.v.vahovskiy@mtuci.ru
   jko: |
     <b>Жилищно-Коммунальный Отдел</b>
     График: с ПН по ПТ (10:00 - 18:00)
@@ -324,49 +452,6 @@ echo_commands:
       <span class="tg-spoiler">(Алгоритм подбора сделан для работы на картошке, не оббесудьте)</span>
     only_group: |
       <b>Команда предназначена для использования в группе</b>
-commands:
-  - command: cards
-    description: Cкидочные карты всех популярных сетей
-  - command: services
-    description: Список услуг от проживающих
-  - command: help
-    description: Помощь
-  - command: kek
-    description: Не важно
-  - command: index
-    description: Индекс общежития
-  - command: address
-    description: Адрес общежития
-  - command: commandant
-    description: Номер и почта дежурного комменданта
-  - command: director
-    description: Информация о заведующем
-  - command: vost
-    description: График работы и меню кафе
-  - command: jko
-    description: Информация о ЖКО
-  - command: hr
-    description: Информация об Отделе Кадров
-  - command: ed
-    description: Информация о Едином Деканате
-  - command: polyclinic
-    description: Поликлиника
-  - command: library
-    description: Библиотека
-  - command: bufet
-    description: Буфет (А) и столовая (УЛК)
-  - command: week
-    description: Информация о текущей учебной неделе
-  - command: soft
-    description: Полезные программы для учебы
-  - command: shower
-    description: График работы душа 
-  - command: kitchen
-    description: График работы кухни
-  - command: laundress
-    description: Прачка МЭИ
-  - command: linen
-    description: Информация об обмене белья
 bad_words:
   - хуй
   - хуи

@@ -178,9 +178,50 @@ async def command_week_handler(message: Message) -> None:
         'echo_commands.polyclinic'
     ))
 
-# @router.message(Command("washing"))
-# @router.message(lambda message: message.text and message.text.lower() in ["стиралка", "машинки"])
-# async def command_washing_handler(message: Message) -> None:
-#     await message.reply(
-#         get_string('echo_commands.washing')
-#     )
+
+@router.message(Command("accounting"))
+@router.message(lambda message: message.text and message.text.lower() in ["бухгалтерия"])
+async def command_washing_handler(message: Message) -> None:
+    await message.reply(
+        get_string('echo_commands.accounting')
+    )
+
+
+@router.message(Command("deanit"))
+@router.message(lambda message: message.text and message.text.lower() in ["деканат ит"])
+async def command_washing_handler(message: Message) -> None:
+    await message.reply(
+        get_string('echo_commands.deanery_it')
+    )
+
+
+@router.message(Command("deanrit"))
+@router.message(lambda message: message.text and message.text.lower() in ["деканат рит"])
+async def command_washing_handler(message: Message) -> None:
+    await message.reply(
+        get_string('echo_commands.deanery_rit')
+    )
+
+
+@router.message(Command("deannasc"))
+@router.message(lambda message: message.text and message.text.lower() in ["деканат сисс"])
+async def command_washing_handler(message: Message) -> None:
+    await message.reply(
+        get_string('echo_commands.deanery_nasc')
+    )
+
+
+@router.message(Command("deancais"))
+@router.message(lambda message: message.text and message.text.lower() in ["деканат кииб"])
+async def command_washing_handler(message: Message) -> None:
+    await message.reply(
+        get_string('echo_commands.deanery_cais')
+    )
+
+
+@router.message(Command("deandeamc"))
+@router.message(lambda message: message.text and message.text.lower() in ["деканат цэимк"])
+async def command_washing_handler(message: Message) -> None:
+    await message.reply(
+        get_string('echo_commands.deanery_deamc')
+    )
