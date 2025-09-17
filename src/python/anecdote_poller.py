@@ -1,6 +1,8 @@
 import json
 import aiohttp
 import asyncio
+
+import yaml
 from bs4 import BeautifulSoup
 import pymorphy2
 import random
@@ -10,7 +12,11 @@ from .logger import logger
 from .storage.repository import anecdotes_repository
 from .storage.repository.anecdotes_repository import AnecdoteItem
 
-prompt = strings.get_object("anecdote_prompt")
+
+with open(
+    f'src/res/locale/anecdote_prompt.yaml', 'r', encoding='utf-8'
+) as f:
+    prompt = yaml.safe_load(f)
 
 
 async def get_anecdote() -> AnecdoteItem:
