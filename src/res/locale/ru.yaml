@@ -45,7 +45,7 @@ commands:
     description: Деканат Информационные Технологии
   - command: deanrit
     description: Деканат Радио и Телевидение
-  - command: deannasc
+  - command: deannacs
     description: Деканат Сети и Системы Связи
   - command: deancais
     description: Деканат Кибернетика и Информационная Безопасность
@@ -78,7 +78,7 @@ echo_commands:
     <b>Бухгалтерия</b> - расположение, номера и график (или /accounting)
     <b>Команды / Помощь</b> - для вызова данного списка (или /help)
     Остальные команды:
-    <b>Деканат ИТ</b> (или /deanit), <b>Деканат РиТ</b> (или /deanrit), <b>Деканат СиСС</b> (или /deannasc), 
+    <b>Деканат ИТ</b> (или /deanit), <b>Деканат РиТ</b> (или /deanrit), <b>Деканат СиСС</b> (или /deannacs), 
     <b>Деканат КиИБ</b> (или /deancais), <b>Деканат ЦЭиМК</b> (или /deandeamc)
   cards: |
     <b>Скидочные карты всех популярных сетей:</b>

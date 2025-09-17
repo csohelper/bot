@@ -203,11 +203,11 @@ async def command_washing_handler(message: Message) -> None:
     )
 
 
-@router.message(Command("deannasc"))
+@router.message(Command("deannacs"))
 @router.message(lambda message: message.text and message.text.lower() in ["деканат сисс"])
 async def command_washing_handler(message: Message) -> None:
     await message.reply(
-        get_string('echo_commands.deanery_nasc')
+        get_string('echo_commands.deanery_nacs')
     )
 
 
