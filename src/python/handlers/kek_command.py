@@ -10,8 +10,7 @@ from aiogram.enums import ChatMemberStatus
 from aiogram.exceptions import TelegramBadRequest, TelegramRetryAfter
 from aiogram.types import ChatPermissions, Message
 from ..storage.config import config
-from .. import anecdote
-
+from .. import anecdote_poller
 
 router = Router()
 _bot: Bot
@@ -45,7 +44,7 @@ async def command_anecdote_handler(message: Message) -> None:
     delta: datetime.timedelta = datetime.datetime.now() - last_use_chat
     if delta < datetime.timedelta(seconds=30):
         reply = await message.reply(get_string(
-            'echo_commands.kek.too_many', 
+            'echo_commands.kek.too_many',
             message.from_user.full_name,
             30 - int(delta.total_seconds())
         ))
@@ -91,7 +90,8 @@ async def command_anecdote_handler(message: Message) -> None:
                         message.from_user.full_name,
                         ban_time
                     ))
-                    logger.error(f"Failed to restrict user {message.from_user.id} in chat {message.chat.id}. User not admin and bot has rights\n{e}")
+                    logger.error(
+                        f"Failed to restrict user {message.from_user.id} in chat {message.chat.id}. User not admin and bot has rights\n{e}")
         else:
             await message.reply(get_string(
                 'echo_commands.kek.ban_no_rights',
@@ -113,13 +113,14 @@ async def command_anecdote_handler(message: Message) -> None:
                 except TelegramRetryAfter:
                     logger.warning("Telegram action type status restricted by flood control")
             try:
-                text = await anecdote.get_anecdote()
-                if text:
+                anecdote = await anecdote_poller.get_anecdote()
+                if anecdote:
                     await message.reply(get_string(
                         'echo_commands.kek.anecdote',
-                        text
+                        anecdote.text,
+                        anecdote.anecdote_id
                     ))
-                    return                
+                    return
             except Exception as e:
                 logger.error(f"Failed to generate anecdote with exc {e}. Retrying...")
     await message.reply(get_string(

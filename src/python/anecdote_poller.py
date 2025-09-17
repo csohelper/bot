@@ -7,19 +7,14 @@ import random
 from .storage import strings
 from .storage.config import config
 from .logger import logger
+from .storage.repository import anecdotes_repository
+from .storage.repository.anecdotes_repository import AnecdoteItem
 
 prompt = strings.get_object("anecdote_prompt")
 
-anecdote_buffer = []
 
-
-async def get_anecdote() -> str | None:
-    global anecdote_buffer
-    l = '\",\n    \"'.join(anecdote_buffer)
-    logger.debug(f"Anecdotes buffer: [\n     \"{l}\"\n]")
-    if len(anecdote_buffer) > 0:
-        return anecdote_buffer.pop()
-    return None
+async def get_anecdote() -> AnecdoteItem:
+    return await anecdotes_repository.poll_anecdote()
 
 
 async def await_and_run(delay_time: float, task) -> None:
@@ -67,7 +62,9 @@ def parse_payload(original_text: str) -> dict:
 
 
 gemini_url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
-async def proccess_anecdote(original: str) -> str | None:
+
+
+async def process_anecdote(original: str) -> str | None:
     payload: dict = parse_payload(original)
     headers: dict = {
         'x-goog-api-key': config.anecdote.gemini_token,
@@ -83,14 +80,15 @@ async def proccess_anecdote(original: str) -> str | None:
 
                     response.raise_for_status()  # Вызовет исключение для статусов 4xx/5xx
                     content = await response.json()
-                    logger.debug(f"Anecdote poller: Response content: {content}") # Log the full content
+                    logger.debug(f"Anecdote poller: Response content: {content}")  # Log the full content
 
                     text = content['candidates'][0]['content']['parts'][0]['text']
 
                     if len(text) < 100:
-                        logger.info(f"Anecdote poller: Result text is too small (l={len(text)}). Perhabs proccess error. Input:\n{original}\nOutput:\n{text}")
+                        logger.info(
+                            f"Anecdote poller: Result text is too small (l={len(text)}). Perhabs proccess error. Input: {original} Output: {text}")
                         return None
-                    
+
                     return text
 
             except aiohttp.ClientError as e:
@@ -103,6 +101,8 @@ async def proccess_anecdote(original: str) -> str | None:
 
 
 anecdotes_url = 'https://baneks.ru/random'
+
+
 async def get_original() -> tuple[int, str] | None:
     for _ in range(10):
         async with aiohttp.ClientSession() as session:
@@ -119,10 +119,10 @@ async def get_original() -> tuple[int, str] | None:
                     soup = BeautifulSoup(html_content, 'html.parser')
 
                     # Анекдот находится внутри <article><p>
-                    anecdote_tag = soup.find('article').find('p') # type: ignore
+                    anecdote_tag = soup.find('article').find('p')  # type: ignore
 
                     if anecdote_tag:
-                        anekdot_text = anecdote_tag.get_text(strip=True) # type: ignore
+                        anekdot_text = anecdote_tag.get_text(strip=True)  # type: ignore
                         return anecdote_id, anekdot_text
 
             except aiohttp.ClientError as e:
@@ -138,27 +138,28 @@ async def loop_check() -> None:
     asyncio.create_task(await_and_run(config.anecdote.buffer_check_time, loop_check))
 
     logger.debug("Anecdote poller: Check loop")
-    need = config.anecdote.buffer_size - len(anecdote_buffer)
+    need = config.anecdote.buffer_size - (await anecdotes_repository.count_unused_anecdotes())
     if need > 0:
         logger.info(f"Anecdote poller: Need {need} anecdotes, loading")
 
-        while config.anecdote.buffer_size > len(anecdote_buffer):
+        while config.anecdote.buffer_size > (await anecdotes_repository.count_unused_anecdotes()):
             logger.debug("Proccessing...")
             resp = await get_original()
             if resp is None:
                 logger.debug("Anecdote poller: Anecdote is None")
                 continue
-            id, original = resp
-            l = len(original)
+            anecdote_id, original_text = resp
+            l = len(original_text)
             if l < 200:
                 logger.debug(f"Anecdote poller: Anecdote l={l} is too small")
                 continue
             if l > 1000:
                 logger.debug(f"Anecdote poller: Anecdote l={l} is too big")
                 continue
-            processed = await proccess_anecdote(original)
-            if processed is not None:
-                anecdote_buffer.append(processed)
+            processed_text = await process_anecdote(original_text)
+
+            if processed_text is not None:
+                await anecdotes_repository.insert_anecdote(anecdote_id, original_text, processed_text)
 
             await asyncio.sleep(5)
         logger.info("Anecdote poller: Load complete")

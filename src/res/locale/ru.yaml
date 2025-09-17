@@ -434,7 +434,8 @@ echo_commands:
     anecdote: |
       {0}
 
-      <span class="tg-spoiler">Все текста взяты с сайта baneks.ru с небольшой лексической обработкой на Gemini</span>
+      <span class="tg-spoiler">Все текста взяты с сайта baneks.ru с небольшой лексической обработкой на Gemini
+      <a href="https://baneks.ru/{1}">Оригинал</a></span>
     ban: |
       <b>{0}</b>, так вышло, что твой «kek» замутил тебя на <b>{1} мин</b>
     ban_admin: |

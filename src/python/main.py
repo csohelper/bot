@@ -7,7 +7,7 @@ from redis.asyncio import from_url
 
 from python.handlers.services_handlers import add_service_commands, list_services_command, moderate_service
 from python.handlers import echo_commands, images_echo_commands, kek_command, admin_commands, join_service
-from python.storage.repository import services_repository, users_repository
+from python.storage.repository import services_repository, users_repository, anecdotes_repository
 from python.storage.config import config
 from python.storage.strings import get_object, get_string
 from aiogram.client.default import DefaultBotProperties
@@ -15,7 +15,7 @@ from python.storage.database import open_database_pool, close_database_pool
 import platform
 from python.logger import logger
 from aiogram.types.link_preview_options import LinkPreviewOptions
-from python import anecdote
+from python import anecdote_poller
 
 bot: Bot
 dp: Dispatcher
@@ -44,7 +44,7 @@ async def main() -> None:
         storage = MemoryStorage()
     dp = Dispatcher(storage=storage)
     if config.anecdote.enabled:
-        asyncio.create_task(anecdote.loop_check())
+        asyncio.create_task(anecdote_poller.loop_check())
     dp.include_routers(
         echo_commands.router,
         images_echo_commands.router,
@@ -72,6 +72,7 @@ async def main() -> None:
         await admin_commands.init(bot_username=bot_username, bot=bot)
         await join_service.init(bot=bot)
         await services_repository.init_database_module()
+        await anecdotes_repository.init_database_module()
         await users_repository.init_database_module()
 
         await bot.set_my_commands(

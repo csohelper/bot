@@ -32,7 +32,7 @@ class TelegramConfig(BaseModel):
 class AnecdoteConfig(BaseModel):
     enabled: bool = Field(default=False)
     gemini_token: str = Field(default="your_gemini_token_here")
-    buffer_size: int = Field(default=5)
+    buffer_size: int = Field(default=30)
     buffer_check_time: int = Field(default=30)
 
 
