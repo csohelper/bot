@@ -191,7 +191,7 @@ async def command_washing_handler(message: Message) -> None:
 @router.message(lambda message: message.text and message.text.lower() in ["деканат ит"])
 async def command_washing_handler(message: Message) -> None:
     await message.reply(
-        get_string('echo_commands.deanery_it')
+        get_string('echo_commands.deanery.it')
     )
 
 
@@ -199,7 +199,7 @@ async def command_washing_handler(message: Message) -> None:
 @router.message(lambda message: message.text and message.text.lower() in ["деканат рит"])
 async def command_washing_handler(message: Message) -> None:
     await message.reply(
-        get_string('echo_commands.deanery_rit')
+        get_string('echo_commands.deanery.rit')
     )
 
 
@@ -207,7 +207,7 @@ async def command_washing_handler(message: Message) -> None:
 @router.message(lambda message: message.text and message.text.lower() in ["деканат сисс"])
 async def command_washing_handler(message: Message) -> None:
     await message.reply(
-        get_string('echo_commands.deanery_nacs')
+        get_string('echo_commands.deanery.nacs')
     )
 
 
@@ -215,7 +215,7 @@ async def command_washing_handler(message: Message) -> None:
 @router.message(lambda message: message.text and message.text.lower() in ["деканат кииб"])
 async def command_washing_handler(message: Message) -> None:
     await message.reply(
-        get_string('echo_commands.deanery_cais')
+        get_string('echo_commands.deanery.cais')
     )
 
 
@@ -223,5 +223,5 @@ async def command_washing_handler(message: Message) -> None:
 @router.message(lambda message: message.text and message.text.lower() in ["деканат цэимк"])
 async def command_washing_handler(message: Message) -> None:
     await message.reply(
-        get_string('echo_commands.deanery_deamc')
+        get_string('echo_commands.deanery.deamc')
     )
