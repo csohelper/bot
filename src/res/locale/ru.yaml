@@ -141,6 +141,16 @@ echo_commands:
       А-315
       +7(495)925-10-67
       m.g.gorodnichev@mtuci.ru
+      
+      <b>Кафедра МКиИТ</b> (или /depitmcait)
+      <b>Кафедра КИС</b> (или /depitmcis)
+      <b>Кафедра СИТиС</b> (или /depitnitas)
+      <b>Кафедра МатАнализ</b> (или /depitma)
+      <b>Кафедра Информатика</b> (или /depitinf)
+      <b>Кафедра ФизВосп</b> (или /depitpe)
+      <b>Кафедра ПИИ</b> (или /depitaai)
+      <b>Кафедра СП</b> (или /depitsp)
+      <b>Кафедра ПИ</b> (или /depitpre)
     nacs: |
       <b><a href="https://mtuci.ru/dep/306/">Деканат «Сети и Системы Связи»</a></b>
       (Networks and Communication Systems)
@@ -171,6 +181,15 @@ echo_commands:
       Бен Режеб Тауфик Бен Камель
       +7(495)957-79-27
       t.benrejeb@mtuci.ru
+      
+      <b>Кафедра РТС</b> (или /depritres)
+      <b>Кафедра РОС</b> (или /depritreac)
+      <b>Кафедра Электроники</b> (или /depritelect)
+      <b>Кафедра ТиЗВ</b> (или /deprittasb)
+      <b>Кафедра СиСРТ</b> (или /depritratsan)
+      <b>Кафедра ТЭЦ</b> (или /deprittec)
+      <b>Кафедра Физики</b> (или /depritphys)
+      <b>Кафедра ТЭДиА</b> (или /depritteaa)
     cais: |
       <b><a href="https://mtuci.ru/dep/2444/">Деканат «Кибернетика и Информационная Безопасность»</a></b>
       (Cybernetics and Information Security)
@@ -342,7 +361,7 @@ echo_commands:
         Носков Антон Валерьевич
         a.v.noskov@mtuci.ru
       teaa: |
-        <b><a href="https://mtuci.ru/about_the_university/structure/585/">Кафедра «Техническая электродинамика и антенны (ТЭДиА)»</a></b>
+        <b><a href="https://mtuci.ru/about_the_university/structure/585/">Кафедра «Техническая Электродинамика и Антенны (ТЭДиА)»</a></b>
         (Technical Electrodynamics and Antennas)
         Ауд.: Л-700, Л-709
         +7(495)957-77-99 (доб. 490)
