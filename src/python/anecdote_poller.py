@@ -142,8 +142,8 @@ async def loop_check() -> None:
     if need > 0:
         logger.info(f"Anecdote poller: Need {need} anecdotes, loading")
 
-        while config.anecdote.buffer_size > (await anecdotes_repository.count_unused_anecdotes()):
-            logger.debug("Proccessing...")
+        for i in range(need):
+            logger.debug(f"Anecdote poller: Proccessing {i}")
             resp = await get_original()
             if resp is None:
                 logger.debug("Anecdote poller: Anecdote is None")
@@ -158,7 +158,10 @@ async def loop_check() -> None:
                 continue
             processed_text = await process_anecdote(original_text)
 
-            if processed_text is not None:
+            if processed_text is None:
+                logger.debug("Anecdote poller: Anecdote is None")
+            else:
+                logger.debug(f"Anecdote poller: {original_text}\nProcessed: {processed_text}")
                 await anecdotes_repository.insert_anecdote(anecdote_id, original_text, processed_text)
 
             await asyncio.sleep(5)
