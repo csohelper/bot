@@ -1,20 +1,16 @@
-import json
-import aiohttp
 import asyncio
 
+import aiohttp
 import yaml
 from bs4 import BeautifulSoup
-import pymorphy2
-import random
-from .storage import strings
-from .storage.config import config
+
 from .logger import logger
+from .storage.config import config
 from .storage.repository import anecdotes_repository
 from .storage.repository.anecdotes_repository import AnecdoteItem
 
-
 with open(
-    f'src/res/locale/anecdote_prompt.yaml', 'r', encoding='utf-8'
+        f'src/res/locale/anecdote_prompt.yaml', 'r', encoding='utf-8'
 ) as f:
     prompt = yaml.safe_load(f)
 
