@@ -8,6 +8,7 @@ from .logger import logger
 from .storage.config import config
 from .storage.repository import anecdotes_repository
 from .storage.repository.anecdotes_repository import AnecdoteItem
+from .utils import await_and_run
 
 with open(
         f'src/res/locale/anecdote_prompt.yaml', 'r', encoding='utf-8'
@@ -17,11 +18,6 @@ with open(
 
 async def get_anecdote() -> AnecdoteItem:
     return await anecdotes_repository.poll_anecdote()
-
-
-async def await_and_run(delay_time: float, task) -> None:
-    await asyncio.sleep(delay_time)
-    await task()
 
 
 def parse_payload(original_text: str) -> dict:

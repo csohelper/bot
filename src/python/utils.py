@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime, timedelta
 
 
@@ -74,3 +75,8 @@ async def is_user_in_chat(bot: Bot, chat_id: int | str, user_id: int) -> bool:
     except Exception:
         # Например, если бот не состоит в чате или нет прав на просмотр
         return False
+
+
+async def await_and_run(delay_time: float, task) -> None:
+    await asyncio.sleep(delay_time)
+    await task()
