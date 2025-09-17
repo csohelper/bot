@@ -43,8 +43,6 @@ async def main() -> None:
     else:
         storage = MemoryStorage()
     dp = Dispatcher(storage=storage)
-    if config.anecdote.enabled:
-        asyncio.create_task(anecdote_poller.loop_check())
     dp.include_routers(
         echo_commands.router,
         images_echo_commands.router,
@@ -62,9 +60,7 @@ async def main() -> None:
         logger.info("Aiogram: starting bot")
         await open_database_pool()
         logger.info("Aiogram: bot started")
-        await kek_command.init(
-            bot=bot
-        )
+        await kek_command.init(bot=bot)
         bot_username = str((await bot.get_me()).username)
         await add_service_commands.init(bot_username=bot_username, bot=bot)
         await list_services_command.init(bot_username=bot_username, bot=bot)
@@ -74,6 +70,8 @@ async def main() -> None:
         await services_repository.init_database_module()
         await anecdotes_repository.init_database_module()
         await users_repository.init_database_module()
+        if config.anecdote.enabled:
+            asyncio.create_task(anecdote_poller.loop_check())
 
         await bot.set_my_commands(
             [
