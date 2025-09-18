@@ -50,7 +50,8 @@ async def init_database_module() -> None:
                     id SERIAL PRIMARY KEY,
                     user_id BIGINT NOT NULL UNIQUE,
                     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    processed BOOLEAN NOT NULL DEFAULT FALSE
+                    processed BOOLEAN NOT NULL DEFAULT FALSE,
+                    greeting_msg INTEGER
                 )
             """
             logger.debug(query)
@@ -237,7 +238,7 @@ async def delete_users_by_user_id(user_id: int) -> int:
             return deleted_count
 
 
-async def create_or_replace_request(user_id: int) -> None:
+async def create_or_replace_request(user_id: int, greeting_msg: int) -> None:
     """
     Создаёт запись в таблице requests для указанного user_id.
     Если запись уже есть — удаляет её и вставляет заново с дефолтными значениями.
@@ -246,18 +247,20 @@ async def create_or_replace_request(user_id: int) -> None:
         async with conn.cursor() as cur:
             # Сначала удаляем, если есть
             delete_query = "DELETE FROM requests WHERE user_id = %s"
+            values = (user_id,)
             logger.debug(delete_query)
-            logger.debug((user_id,))
-            await cur.execute(delete_query, (user_id,))
+            logger.debug(values)
+            await cur.execute(delete_query, values)
 
             # Теперь вставляем новую запись
             insert_query = """
-                INSERT INTO requests (user_id)
-                VALUES (%s)
+                INSERT INTO requests (user_id, greeting_msg)
+                VALUES (%s, %s)
             """
+            values = (user_id, greeting_msg)
             logger.debug(insert_query)
-            logger.debug((user_id,))
-            await cur.execute(insert_query, (user_id,))
+            logger.debug(values)
+            await cur.execute(insert_query, values)
             await conn.commit()
 
 
@@ -265,30 +268,33 @@ async def create_or_replace_request(user_id: int) -> None:
 class RequestInfo:
     user_id: int
     created_at: datetime
+    greeting_msg: int
 
 
 async def pop_unprocessed_requests_older_than(hours: int) -> FrozenSet[RequestInfo]:
     """
-    Удаляет и возвращает множество RequestInfo для пользователей,
-    у которых processed = FALSE и created_at старше указанного количества часов.
+    Находит все записи, у которых processed = FALSE и created_at старше указанного количества часов.
+    Помечает их processed = TRUE и возвращает список в виде множества RequestInfo.
     """
     async with database.get_db_connection() as conn:
         async with conn.cursor() as cur:
             query = """
-                DELETE FROM requests
+                UPDATE requests
+                SET processed = TRUE
                 WHERE processed = FALSE
                   AND created_at <= NOW() - (%s * INTERVAL '1 hour')
-                RETURNING user_id, created_at
+                RETURNING user_id, created_at, greeting_msg
             """
+            values = (hours,)
             logger.debug(query)
-            logger.debug((hours,))
-            await cur.execute(query, (hours,))
+            logger.debug(values)
+            await cur.execute(query, values)
             rows = await cur.fetchall()
 
             await conn.commit()
 
             return frozenset(
-                RequestInfo(user_id=row[0], created_at=row[1]) for row in rows
+                RequestInfo(user_id=row[0], created_at=row[1], greeting_msg=row[2]) for row in rows
             )
 
 

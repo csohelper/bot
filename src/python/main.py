@@ -17,13 +17,14 @@ import platform
 from python.logger import logger
 from aiogram.types.link_preview_options import LinkPreviewOptions
 from python import anecdote_poller, join_refuser
+from python.utils import await_and_run
 
 bot: Bot
 dp: Dispatcher
 
 default_router = Router()
 
-dp.storage
+
 @default_router.message(F.chat.type == "private")
 async def default_private_handler(message: Message):
     await message.answer(get_string("echo_commands.unknown"), reply_markup=ReplyKeyboardRemove())
@@ -68,15 +69,15 @@ async def main() -> None:
         await list_services_command.init(bot_username=bot_username, bot=bot)
         await moderate_service.init(bot_username=bot_username, bot=bot)
         await admin_commands.init(bot_username=bot_username, bot=bot)
-        await join_refuser.init(bot=bot)
+        await join_refuser.init(bot=bot, storage=dp.storage)
         await join_service.init(bot=bot)
         await services_repository.init_database_module()
         await anecdotes_repository.init_database_module()
         await users_repository.init_database_module()
         if config.anecdote.enabled:
-            asyncio.create_task(anecdote_poller.anecdote_loop_check())
+            asyncio.create_task(await_and_run(10, anecdote_poller.anecdote_loop_check))
         if config.refuser.enabled:
-            asyncio.create_task(join_refuser.refuser_loop_check())
+            asyncio.create_task(await_and_run(10, join_refuser.refuser_loop_check))
 
         await bot.set_my_commands(
             [

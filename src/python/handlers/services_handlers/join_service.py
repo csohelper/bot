@@ -38,9 +38,7 @@ class JoinStatuses(StatesGroup):
 
 @router.chat_join_request()
 async def join_request(update: ChatJoinRequest, bot: Bot, state: FSMContext) -> None:
-    await users_repository.create_or_replace_request(update.from_user.id)
-
-    await bot.send_message(
+    send = await bot.send_message(
         update.from_user.id,
         get_string(
             "user_service.greeting_start",
@@ -51,6 +49,8 @@ async def join_request(update: ChatJoinRequest, bot: Bot, state: FSMContext) -> 
             KeyboardButton(text="❌Отмена")
         ).as_markup(resize_keyboard=True)
     )
+
+    await users_repository.create_or_replace_request(update.from_user.id, send.message_id)
 
     key = StorageKey(
         bot_id=bot.id,

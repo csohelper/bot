@@ -49,9 +49,15 @@ class RefuserConfig(BaseModel):
     refuser_check_time: int = Field(default=10 * 60)
 
 
+class LoggerConfig(BaseModel):
+    console_level: str = Field(default='info')
+    file_level: str = Field(default='debug')
+    aiogram_level: str = Field(default='info')
+
+
 class AppConfig(BaseModel):
     lang: str = Field(default="ru")
-    log_level: str = Field(default="info")
+    logger: LoggerConfig = Field(default_factory=LoggerConfig)
     telegram: TelegramConfig = Field(default_factory=TelegramConfig)
     database: DatabaseConfig = Field(default_factory=DatabaseConfig)
     redis_config: RedisConfig = Field(default_factory=RedisConfig)
