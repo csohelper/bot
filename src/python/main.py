@@ -23,7 +23,7 @@ dp: Dispatcher
 
 default_router = Router()
 
-
+dp.storage
 @default_router.message(F.chat.type == "private")
 async def default_private_handler(message: Message):
     await message.answer(get_string("echo_commands.unknown"), reply_markup=ReplyKeyboardRemove())
