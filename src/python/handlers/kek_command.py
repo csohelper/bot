@@ -74,7 +74,7 @@ async def command_anecdote_handler(message: Message) -> None:
                 ban_time
             ))
             user_member = await _bot.get_chat_member(chat_id=message.chat.id, user_id=message.from_user.id)
-            if user_member.status == ChatMemberStatus.ADMINISTRATOR:
+            if user_member.status != ChatMemberStatus.MEMBER:
                 await reply.edit_text(get_string(
                     'echo_commands.kek.ban_admin',
                     message.from_user.full_name
