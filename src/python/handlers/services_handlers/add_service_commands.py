@@ -43,7 +43,7 @@ class AddServiceStates(StatesGroup):
 @router.message(StateFilter(None), Command("addservice"))
 async def on_addservice(message: Message, state: FSMContext) -> None:
     if message.chat.type != 'private':
-        await message.reply(
+        await message.answer(
             text=get_string('services.add_command.not_private').strip(),
             reply_markup=InlineKeyboardBuilder().row(
                 InlineKeyboardButton(

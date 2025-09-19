@@ -5,16 +5,20 @@ import urllib.parse
 from aiogram import Bot, Router
 from aiogram import types
 from aiogram.filters import Command
+from aiogram.fsm.context import FSMContext
 from aiogram.types import InaccessibleMessage, InlineKeyboardButton, InputMediaPhoto, Message, \
     FSInputFile, BufferedInputFile
+from aiogram.utils.deep_linking import create_start_link
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
+from python.handlers.services_handlers import add_service_commands
 from python.logger import logger
 from python.storage.repository import services_repository
 from python.storage.strings import get_string
 
 _bot_username: str
 _bot: Bot
+
 
 async def init(bot_username: str, bot: Bot):
     global _bot_username, _bot
@@ -27,6 +31,10 @@ router = Router()
 from aiogram.filters.callback_data import CallbackData
 
 
+class AddServiceHandlerFactory(CallbackData, prefix="addserive"):
+    pass
+
+
 class ServicesCallbackFactory(CallbackData, prefix="services"):
     path: str
     is_service: bool = False
@@ -36,18 +44,26 @@ class ServicesCallbackFactory(CallbackData, prefix="services"):
 PAGE_SIZE = 5
 
 
-async def parse_folder_keyboard(path: str, offset=0) -> tuple[InlineKeyboardBuilder, int, int]:
+async def parse_folder_keyboard(path: str, offset=0, is_pm=False) -> tuple[InlineKeyboardBuilder, int, int]:
     services = await services_repository.get_service_list(path)
     builder = InlineKeyboardBuilder()
     logger.debug(f"{path}: {services}")
 
     if path == "/":
-        builder.row(
-            InlineKeyboardButton(
-                text=get_string("services.add_button.title"),
-                url=get_string("services.add_button.url_placeholder", _bot_username)
+        if is_pm:
+            builder.row(
+                InlineKeyboardButton(
+                    text=get_string("services.add_button.title"),
+                    callback_data=AddServiceHandlerFactory().pack()
+                )
             )
-        )
+        else:
+            builder.row(
+                InlineKeyboardButton(
+                    text=get_string("services.add_button.title"),
+                    url=await create_start_link(_bot, 'addservice', encode=True)
+                )
+            )
 
     if len(services) > PAGE_SIZE:
         l = services[offset:offset + PAGE_SIZE]
@@ -116,10 +132,17 @@ async def parse_folder_keyboard(path: str, offset=0) -> tuple[InlineKeyboardBuil
     return builder, offset // PAGE_SIZE + 1, len(services) // PAGE_SIZE + 1
 
 
+@router.callback_query(AddServiceHandlerFactory.filter())
+async def add_service_button(callback: types.CallbackQuery, state: FSMContext):
+    if callback.message:
+        await callback.answer()
+        await add_service_commands.on_addservice(callback.message, state)
+
+
 @router.message(Command("services"))
 @router.message(lambda message: message.text and message.text.lower() in ["услуги"])
 async def command_services_handler(message: Message) -> None:
-    builder, page, pages = await parse_folder_keyboard("/")
+    builder, page, pages = await parse_folder_keyboard("/", is_pm=message.chat.type == 'private')
 
     caption_lines = [get_string("services.folder_caption.header").strip()]
     if pages > 1:
@@ -211,7 +234,8 @@ async def callbacks_num_change_fab(
             return
         new_keyboard, page, pages = await parse_folder_keyboard(
             callback_data.path,
-            callback_data.offset
+            callback_data.offset,
+            callback.message.chat.type == 'private'
         )
 
         caption_lines = [get_string("services.folder_caption.header").strip()]

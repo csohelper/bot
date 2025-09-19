@@ -4,11 +4,15 @@ import random
 from dataclasses import dataclass
 
 from aiogram import Router, F
+from aiogram.fsm.context import FSMContext
+from aiogram.utils.payload import decode_payload
 
+from .services_handlers.add_service_commands import on_addservice
+from ..logger import logger
 from ..storage.config import config, save_config
 from ..storage.strings import get_string, get_strings
 from aiogram.types import Message
-from aiogram.filters import Command
+from aiogram.filters import Command, CommandStart, CommandObject
 from .. import utils
 
 router = Router()
@@ -84,17 +88,36 @@ for command in commands:
     make_handler(command)
 
 
-@router.message(Command("start", "help", "commands", "comands"))
+@router.message(CommandStart(deep_link=True))
+async def command_start_handler(message: Message, command: CommandObject, state: FSMContext) -> None:
+    args = command.args
+    payload = decode_payload(args)
+    logger.debug(payload)
+
+    match payload:
+        case 'addservice':
+            await on_addservice(message, state)
+        case _:
+            logger.error(f"Can't handle start payload - Args: {args}, Payload: {payload}")
+
+
+@router.message(CommandStart())
+async def command_start_handler(message: Message) -> None:
+    await message.reply(get_string('echo_commands.start'))
+
+    if message.chat.type == "private" and config.chat_config.owner == 0:
+        await message.answer(get_string('echo_commands.first_start'))
+        config.chat_config.owner = message.from_user.id
+        save_config(config)
+        return
+
+
+@router.message(Command("help", "commands", "comands"))
 @router.message(lambda message: message.text and message.text.lower() in [
     "начать", "помощь", "хелп", "команды", "комманды", "список", "помоги", "я долбаеб", "я долбоебка", "я долбаёб",
     "я долбоёбка", "я долбаебка", "я долбаёбка"
 ])
 async def command_help_handler(message: Message) -> None:
-    if message.text == "/start" and message.chat.type == "private" and config.chat_config.owner == 0:
-        await message.reply(get_string('echo_commands.first_start'))
-        config.chat_config.owner = message.from_user.id
-        save_config(config)
-        return
     await message.reply(get_string('echo_commands.help'))
 
 
