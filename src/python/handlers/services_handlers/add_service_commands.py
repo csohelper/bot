@@ -11,6 +11,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, InputMediaPhoto, Message, \
     FSInputFile, BufferedInputFile
+from aiogram.utils.deep_linking import create_start_link
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from python.handlers.services_handlers import moderate_service
@@ -48,7 +49,7 @@ async def on_addservice(message: Message, state: FSMContext) -> None:
             reply_markup=InlineKeyboardBuilder().row(
                 InlineKeyboardButton(
                     text=get_string('services.add_command.goto_pm'),
-                    url=get_string("services.add_button.url_placeholder", _bot_username)
+                    url=await create_start_link(_bot, 'addservice', encode=True)
                 )
             ).as_markup()
         )
