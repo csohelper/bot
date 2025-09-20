@@ -10,9 +10,9 @@ from aiogram.filters.callback_data import CallbackData
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, InputMediaPhoto, Message, \
-    FSInputFile, BufferedInputFile
+    FSInputFile, BufferedInputFile, ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 from aiogram.utils.deep_linking import create_start_link
-from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 
 from python.handlers.services_handlers import moderate_service
 from python.storage.repository import services_repository
@@ -30,7 +30,6 @@ async def init(bot_username: str, bot: Bot):
 
 
 router = Router()
-
 
 
 class AddServiceStates(StatesGroup):
@@ -55,7 +54,10 @@ async def on_addservice(message: Message, state: FSMContext) -> None:
         )
         return
     await message.reply(
-        text=get_string('services.add_command.greeting')
+        text=get_string('services.add_command.greeting'),
+        reply_markup=ReplyKeyboardBuilder().row(
+            KeyboardButton(text=get_string('services.add_command.cancel_button'))
+        ).as_markup(resize_keyboard=True, one_time_keyboard=False)
     )
     await state.set_state(AddServiceStates.choosing_name_state)
 
@@ -64,6 +66,13 @@ async def on_addservice(message: Message, state: FSMContext) -> None:
     AddServiceStates.choosing_name_state
 )
 async def on_name_chosen(message: Message, state: FSMContext) -> None:
+    if message.text == get_string('services.add_command.cancel_button'):
+        await message.reply(
+            text=get_string('services.add_command.cancel_message'),
+            reply_markup=ReplyKeyboardRemove()
+        )
+        await state.clear()
+        return
     if not message.text or not 4 <= len(message.text) <= 25:
         await message.reply(
             text=get_string('services.add_command.incorrect_name')
@@ -74,7 +83,11 @@ async def on_name_chosen(message: Message, state: FSMContext) -> None:
         name=message.text
     )
     await message.reply(
-        text=get_string('services.add_command.choose_description')
+        text=get_string('services.add_command.choose_description'),
+        reply_markup=ReplyKeyboardBuilder().row(
+            KeyboardButton(text=get_string('services.add_command.without_description')),
+            KeyboardButton(text=get_string('services.add_command.cancel_button'))
+        ).as_markup(resize_keyboard=True, one_time_keyboard=False)
     )
     await state.set_state(AddServiceStates.choosing_description_state)
 
@@ -83,10 +96,17 @@ async def on_name_chosen(message: Message, state: FSMContext) -> None:
     AddServiceStates.choosing_description_state
 )
 async def on_description_chosen(message: Message, state: FSMContext) -> None:
-    if message.text is None or message.text.strip() == '':
-        await message.reply('Incorrect description. Send /empty or some text')
+    if message.text == get_string('services.add_command.cancel_button'):
+        await message.reply(
+            text=get_string('services.add_command.cancel_message'),
+            reply_markup=ReplyKeyboardRemove()
+        )
+        await state.clear()
         return
-    elif message.text == '/empty':
+    if message.text is None or message.text.strip() == '':
+        await message.reply(get_string('services.add_command.empty_description'))
+        return
+    elif message.text == get_string('services.add_command.without_description'):
         await state.update_data(
             description=None
         )
@@ -95,7 +115,10 @@ async def on_description_chosen(message: Message, state: FSMContext) -> None:
             description=message.text
         )
     await message.reply(
-        text=get_string('services.add_command.choose_cost')
+        text=get_string('services.add_command.choose_cost'),
+        reply_markup=ReplyKeyboardBuilder().row(
+            KeyboardButton(text=get_string('services.add_command.cancel_button'))
+        ).as_markup(resize_keyboard=True, one_time_keyboard=False)
     )
     await state.set_state(AddServiceStates.choosing_cost_state)
 
@@ -104,6 +127,14 @@ async def on_description_chosen(message: Message, state: FSMContext) -> None:
     AddServiceStates.choosing_cost_state
 )
 async def on_cost_chosen(message: Message, state: FSMContext) -> None:
+    if message.text == get_string('services.add_command.cancel_button'):
+        await message.reply(
+            text=get_string('services.add_command.cancel_message'),
+            reply_markup=ReplyKeyboardRemove()
+        )
+        await state.clear()
+        return
+
     if not message.text or not message.text.isdigit() or int(message.text) <= 0:
         await message.reply(
             text=get_string('services.add_command.cost_not_int')
@@ -120,7 +151,10 @@ async def on_cost_chosen(message: Message, state: FSMContext) -> None:
         cost=int(message.text)
     )
     await message.reply(
-        text=get_string('services.add_command.choose_cost_per')
+        text=get_string('services.add_command.choose_cost_per'),
+        reply_markup=ReplyKeyboardBuilder().row(
+            KeyboardButton(text=get_string('services.add_command.cancel_button'))
+        ).as_markup(resize_keyboard=True, one_time_keyboard=False)
     )
     await state.set_state(AddServiceStates.choosing_cost_per_state)
 
@@ -129,6 +163,14 @@ async def on_cost_chosen(message: Message, state: FSMContext) -> None:
     AddServiceStates.choosing_cost_per_state
 )
 async def on_cost_per_chosen(message: Message, state: FSMContext) -> None:
+    if message.text == get_string('services.add_command.cancel_button'):
+        await message.reply(
+            text=get_string('services.add_command.cancel_message'),
+            reply_markup=ReplyKeyboardRemove()
+        )
+        await state.clear()
+        return
+
     if not message.text or not (1 <= len(message.text) <= 6):
         await message.reply(
             text=get_string('services.add_command.cost_per_incorrect')
@@ -139,7 +181,11 @@ async def on_cost_per_chosen(message: Message, state: FSMContext) -> None:
         cost_per=message.text
     )
     await message.reply(
-        text=get_string('services.add_command.choose_picture')
+        text=get_string('services.add_command.choose_picture'),
+        reply_markup=ReplyKeyboardBuilder().row(
+            KeyboardButton(text=get_string('services.add_command.without_picture')),
+            KeyboardButton(text=get_string('services.add_command.cancel_button'))
+        ).as_markup(resize_keyboard=True, one_time_keyboard=False)
     )
     await state.set_state(AddServiceStates.choosing_picture_state)
 
@@ -148,7 +194,15 @@ async def on_cost_per_chosen(message: Message, state: FSMContext) -> None:
     AddServiceStates.choosing_picture_state
 )
 async def on_picture_chosen(message: Message, state: FSMContext) -> None:
-    if message.text == '/empty':
+    if message.text == get_string('services.add_command.cancel_button'):
+        await message.reply(
+            text=get_string('services.add_command.cancel_message'),
+            reply_markup=ReplyKeyboardRemove()
+        )
+        await state.clear()
+        return
+
+    if message.text == get_string('services.add_command.without_picture'):
         await state.update_data(
             image=None
         )
