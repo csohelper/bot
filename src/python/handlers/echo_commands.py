@@ -8,6 +8,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.utils.payload import decode_payload
 
 from .services_handlers.add_service_commands import on_addservice
+from .services_handlers.join_service import on_accept_join_process
 from ..logger import logger
 from ..storage.config import config, save_config
 from ..storage.strings import get_string, get_strings
@@ -97,6 +98,8 @@ async def command_start_handler(message: Message, command: CommandObject, state:
     match payload:
         case 'addservice':
             await on_addservice(message, state)
+        case _ if payload == get_string("user_service.greeting_button_start_payload"):
+            await on_accept_join_process(message, state)
         case _:
             logger.error(f"Can't handle start payload - Args: {args}, Payload: {payload}")
 

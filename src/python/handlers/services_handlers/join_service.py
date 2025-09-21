@@ -1,5 +1,6 @@
 import base64
 import io
+from enum import Enum
 
 from aiogram import Router, types
 from aiogram.filters.callback_data import CallbackData
@@ -7,6 +8,7 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.storage.base import StorageKey
 from aiogram.types import ChatJoinRequest, Message, KeyboardButton, FSInputFile, BufferedInputFile, \
     InlineKeyboardButton, ReplyKeyboardRemove
+from aiogram.utils.deep_linking import create_start_link
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 
 from python.logger import logger
@@ -27,13 +29,20 @@ async def init(bot: Bot):
 
 
 class JoinStatuses(StatesGroup):
-    waiting_start = State()
     choosing_room = State()
     select_name = State()
     select_surname = State()
     send_picture = State()
     confirm = State()
     waiting_send = State()
+
+
+class JoinGreetingActions(Enum):
+    cancel = 'cancel'
+
+
+class JoinGreetingCallbackFactory(CallbackData, prefix="greeting_button"):
+    action: JoinGreetingActions
 
 
 @router.chat_join_request()
@@ -44,13 +53,24 @@ async def join_request(update: ChatJoinRequest, bot: Bot, state: FSMContext) -> 
             "user_service.greeting_start",
             config.refuser.request_life_hours
         ),
-        reply_markup=ReplyKeyboardBuilder().row(
-            KeyboardButton(text="✅Начать"),
-            KeyboardButton(text="❌Отмена")
-        ).as_markup(resize_keyboard=True)
+        reply_markup=InlineKeyboardBuilder().row(
+            InlineKeyboardButton(
+                text=get_string("user_service.greeting_button_start"),
+                url=await create_start_link(
+                    _bot,
+                    get_string("user_service.greeting_button_start_payload"),
+                    encode=True
+                )
+            )
+        ).row(
+            InlineKeyboardButton(
+                text=get_string("user_service.greeting_button_cancel"),
+                callback_data=JoinGreetingCallbackFactory(
+                    action=JoinGreetingActions.cancel
+                ).pack()
+            )
+        ).as_markup()
     )
-
-    await users_repository.create_or_replace_request(update.from_user.id, send.message_id)
 
     key = StorageKey(
         bot_id=bot.id,
@@ -63,39 +83,49 @@ async def join_request(update: ChatJoinRequest, bot: Bot, state: FSMContext) -> 
         key=key
     )
 
-    await user_state.set_state(JoinStatuses.waiting_start)
+    await user_state.update_data(greeting_message=send.message_id)
+
+    await users_repository.create_or_replace_request(update.from_user.id, send.message_id)
 
 
-@router.message(
-    JoinStatuses.waiting_start
-)
-async def on_start(message: Message, state: FSMContext) -> None:
-    if message.text == "❌Отмена":
-        await message.reply(
-            get_string("user_service.on_cancel"),
-            reply_markup=ReplyKeyboardRemove()
-        )
-        await state.clear()
-        await _bot.decline_chat_join_request(
-            config.chat_config.chat_id,
-            message.from_user.id
-        )
-    elif message.text == "✅Начать":
-        await message.reply(
-            get_string("user_service.select_room"),
-            reply_markup=ReplyKeyboardBuilder().row(
-                KeyboardButton(text="❌Отмена")
-            ).as_markup(resize_keyboard=True, one_time_keyboard=True)
-        )
-        await state.set_state(JoinStatuses.choosing_room)
-    else:
-        await message.reply(
-            get_string("user_service.greeting_unknown"),
-            reply_markup=ReplyKeyboardBuilder().row(
-                KeyboardButton(text="✅Начать"),
-                KeyboardButton(text="❌Отмена")
-            ).as_markup(resize_keyboard=True, one_time_keyboard=True)
-        )
+@router.callback_query(JoinGreetingCallbackFactory.filter())
+async def on_greeting_callback(
+        callback: types.CallbackQuery,
+        callback_data: JoinGreetingCallbackFactory,
+        state: FSMContext
+):
+    if not callback.message:
+        return
+
+    await callback.message.delete_reply_markup()
+    await state.clear()
+
+    match callback_data.action:
+        case JoinGreetingActions.cancel:
+            await users_repository.mark_request_processed(callback.from_user.id)
+            await callback.message.reply(
+                get_string("user_service.on_cancel"),
+                reply_markup=ReplyKeyboardRemove()
+            )
+            await _bot.decline_chat_join_request(
+                config.chat_config.chat_id,
+                callback.from_user.id
+            )
+
+
+async def on_accept_join_process(message: Message, state: FSMContext):
+    greeting_message_id: int = await state.get_value('greeting_message')
+    await _bot.edit_message_reply_markup(
+        chat_id=message.chat.id, message_id=greeting_message_id, reply_markup=None
+    )
+    await state.clear()
+    await message.reply(
+        get_string("user_service.select_room"),
+        reply_markup=ReplyKeyboardBuilder().row(
+            KeyboardButton(text="❌Отмена")
+        ).as_markup(resize_keyboard=True, one_time_keyboard=True)
+    )
+    await state.set_state(JoinStatuses.choosing_room)
 
 
 @router.message(
@@ -112,6 +142,7 @@ async def on_room_chosen(message: Message, state: FSMContext) -> None:
             config.chat_config.chat_id,
             message.from_user.id
         )
+        await users_repository.mark_request_processed(message.from_user.id)
     elif not message.text or len(message.text) != 3 or not message.text.isdigit() or int(message.text) < 0:
         await message.reply(
             get_string("user_service.select_room_unknown"),
@@ -144,6 +175,14 @@ async def on_name_chosen(message: Message, state: FSMContext) -> None:
             config.chat_config.chat_id,
             message.from_user.id
         )
+        await users_repository.mark_request_processed(message.from_user.id)
+    elif not message.text or len(message.text) == 0:
+        await message.reply(
+            get_string("user_service.name_empty"),
+            reply_markup=ReplyKeyboardBuilder().row(
+                KeyboardButton(text="❌Отмена")
+            ).as_markup(resize_keyboard=True, one_time_keyboard=True)
+        )
     else:
         await state.update_data(name=message.text)
         await message.reply(
@@ -171,6 +210,14 @@ async def on_surname_chosen(message: Message, state: FSMContext) -> None:
         await _bot.decline_chat_join_request(
             config.chat_config.chat_id,
             message.from_user.id
+        )
+        await users_repository.mark_request_processed(message.from_user.id)
+    elif not message.text or len(message.text) == 0:
+        await message.reply(
+            get_string("user_service.surname_empty"),
+            reply_markup=ReplyKeyboardBuilder().row(
+                KeyboardButton(text="❌Отмена")
+            ).as_markup(resize_keyboard=True, one_time_keyboard=True)
         )
     else:
         await state.update_data(surname=message.text)
@@ -223,6 +270,7 @@ async def on_picture_chosen(message: Message, state: FSMContext) -> None:
             config.chat_config.chat_id,
             message.from_user.id
         )
+        await users_repository.mark_request_processed(message.from_user.id)
         return
     if not message.photo:
         await message.reply(
@@ -283,6 +331,7 @@ async def on_send_chosen(message: Message, state: FSMContext) -> None:
             config.chat_config.chat_id,
             message.from_user.id
         )
+        await users_repository.mark_request_processed(message.from_user.id)
     elif message.text == "✅Отправить":
         await users_repository.delete_users_by_user_id(message.from_user.id)
         await users_repository.mark_request_processed(message.from_user.id)
