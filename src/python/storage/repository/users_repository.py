@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
+from tkinter import Image
 from typing import Optional, FrozenSet
 
 from python.logger import logger
@@ -21,6 +22,7 @@ class User:
     processed_by_username: Optional[str]
     refuse_reason: Optional[str]
     created_at: datetime
+    image: Optional[str]
 
 
 async def init_database_module() -> None:
@@ -30,11 +32,12 @@ async def init_database_module() -> None:
                 CREATE TABLE IF NOT EXISTS users (
                     id SERIAL PRIMARY KEY,
                     user_id BIGINT NOT NULL UNIQUE,
-                    username TEXT NOT NULL,
+                    username TEXT,
                     fullname TEXT NOT NULL,
                     name TEXT NOT NULL,
                     surname TEXT NOT NULL,
                     room INTEGER,
+                    image TEXT,
                     status TEXT DEFAULT 'moderation',
                     processed_by BIGINT,
                     processed_by_fullname TEXT,
@@ -61,11 +64,12 @@ async def init_database_module() -> None:
 
 async def add_user(
         user_id: int,
-        username: str,
+        username: str | None,
         fullname: str,
         name: str,
         surname: str,
         room: int | None = None,
+        image: str | None = None,
         status: str = "waiting"
 ) -> int:
     """
@@ -79,16 +83,17 @@ async def add_user(
     :param surname: Фамилия (из анкеты)
     :param room: Комната (может быть None)
     :param status: Статус (по умолчанию 'waiting')
+    :param image: Изображение подтверждения в base64 (JPG)
     :return: id записи в таблице users
     """
     async with database.get_db_connection() as conn:
         async with conn.cursor() as cur:
             query = """
-                INSERT INTO users (user_id, username, fullname, name, surname, room, status)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                INSERT INTO users (user_id, username, fullname, name, surname, room, status, image)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING id
             """
-            values = (user_id, username, fullname, name, surname, room, status)
+            values = (user_id, username, fullname, name, surname, room, status, image)
             logger.debug(query)
             logger.debug(values)
             await cur.execute(query, values)
@@ -109,7 +114,7 @@ async def get_user_by_id(user_id: int) -> User | None:
             query = """
                 SELECT id, user_id, username, fullname, name, surname, room, status,
                        processed_by, processed_by_fullname, processed_by_username,
-                       refuse_reason, created_at
+                       refuse_reason, created_at, image
                 FROM users
                 WHERE id = %s
             """
@@ -138,13 +143,14 @@ async def get_user_by_id(user_id: int) -> User | None:
                 processed_by_username=row[10],
                 refuse_reason=row[11],
                 created_at=row[12],
+                image=row[13]
             )
 
 
 ALLOWED_USER_FIELDS = {
     "username", "fullname", "name", "surname", "room", "status",
     "processed_by", "processed_by_fullname", "processed_by_username",
-    "refuse_reason"
+    "refuse_reason", "image"
 }
 
 
@@ -169,7 +175,7 @@ async def update_user_fields(id: int, **fields) -> Optional[User]:
         WHERE id = %s
         RETURNING id, user_id, username, fullname, name, surname, room, status,
                   processed_by, processed_by_fullname, processed_by_username,
-                  refuse_reason, created_at
+                  refuse_reason, created_at, image
     """
 
     logger.debug(query)
@@ -196,6 +202,7 @@ async def update_user_fields(id: int, **fields) -> Optional[User]:
                     processed_by_username=row[10],
                     refuse_reason=row[11],
                     created_at=row[12],
+                    image=row[13]
                 )
             return None
 

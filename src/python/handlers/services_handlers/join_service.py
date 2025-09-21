@@ -286,15 +286,17 @@ async def on_send_chosen(message: Message, state: FSMContext) -> None:
     elif message.text == "✅Отправить":
         await users_repository.delete_users_by_user_id(message.from_user.id)
         await users_repository.mark_request_processed(message.from_user.id)
-        id = await users_repository.add_user(
-            message.from_user.id,
-            message.from_user.username,
-            message.from_user.full_name,
-            await state.get_value("name"),
-            await state.get_value("surname"),
-            await state.get_value("room"),
+        image = await state.get_value("image")
+        insert_id = await users_repository.add_user(
+            user_id=message.from_user.id,
+            username=message.from_user.username,
+            fullname=message.from_user.full_name,
+            name=await state.get_value("name"),
+            surname=await state.get_value("surname"),
+            room=await state.get_value("room"),
+            image=image
         )
-        image_bytes = base64.b64decode(await state.get_value("image"))
+        image_bytes = base64.b64decode(image)
         image_stream = io.BytesIO(image_bytes)
         media = BufferedInputFile(image_stream.read(), filename=f"preview.jpg")
         send = await _bot.send_photo(
@@ -321,14 +323,14 @@ async def on_send_chosen(message: Message, state: FSMContext) -> None:
             text='🚫Отклонить',
             callback_data=ModerateUserCallbackFactory(
                 action="refuse",
-                database_id=id,
+                database_id=insert_id,
                 message=send.message_id
             ).pack()
         )).row(InlineKeyboardButton(
             text='✅Одобрить',
             callback_data=ModerateUserCallbackFactory(
                 action="accept",
-                database_id=id,
+                database_id=insert_id,
                 message=send.message_id
             ).pack()
         )).as_markup())
