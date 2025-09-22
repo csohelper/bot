@@ -355,7 +355,7 @@ async def on_send_chosen(message: Message, state: FSMContext) -> None:
                 message.from_user.full_name,
                 message.from_user.username,
                 message.from_user.id,
-                get_string("user_service.moderation.request_status_on_moderation"),
+                get_string("user_service.moderation.request_status.on_moderation"),
                 await state.get_value("name"),
                 await state.get_value("surname"),
                 await state.get_value("room"),
@@ -428,7 +428,7 @@ async def callbacks_moderate_buttons(
                     database_user.fullname,
                     database_user.username,
                     database_user.user_id,
-                    get_string("user_service.moderation.request_status_on_moderation"),
+                    get_string("user_service.moderation.request_status.on_moderation"),
                     database_user.name,
                     database_user.surname,
                     database_user.room,
@@ -460,7 +460,7 @@ async def callbacks_moderate_buttons(
                     database_user.fullname,
                     database_user.username,
                     database_user.user_id,
-                    get_string("user_service.moderation.request_status_on_moderation"),
+                    get_string("user_service.moderation.request_status.on_moderation"),
                     database_user.name,
                     database_user.surname,
                     database_user.room,
@@ -506,7 +506,7 @@ async def on_join_accept(
                     database_user.fullname,
                     database_user.username,
                     database_user.user_id,
-                    get_string("user_service.moderation.request_status_on_moderation"),
+                    get_string("user_service.moderation.request_status.on_moderation"),
                     database_user.name,
                     database_user.surname,
                     database_user.room,
@@ -543,10 +543,10 @@ async def on_join_accept(
                     database_user.username,
                     database_user.user_id,
                     get_string(
-                        "user_service.moderation.request_status_approved",
+                        "user_service.moderation.request_status.approved.username",
                         callback.from_user.username
                     ) if callback.from_user.username else get_string(
-                        "user_service.moderation.request_status_approved_nousername",
+                        "user_service.moderation.request_status.approved.nousername",
                         callback.from_user.id, callback.from_user.full_name
                     ),
                     database_user.name,
@@ -557,7 +557,7 @@ async def on_join_accept(
             )
             await _bot.send_message(
                 database_user.user_id,
-                get_string("user_service.moderation.accepted")
+                get_string("user_service.moderation.user_answer.accepted")
             )
             await users_repository.update_user_fields(
                 callback_data.database_id,
@@ -573,7 +573,7 @@ async def on_join_accept(
                     database_user.fullname,
                     database_user.username,
                     database_user.user_id,
-                    get_string("user_service.moderation.request_status_on_moderation"),
+                    get_string("user_service.moderation.request_status.on_moderation"),
                     database_user.name,
                     database_user.surname,
                     database_user.room,
@@ -616,23 +616,23 @@ async def refuse_user(reason: str | None, state: FSMContext, from_user: User) ->
     if from_user.username:
         if reason:
             status = get_string(
-                "user_service.moderation.request_status_refused_commented",
+                "user_service.moderation.request_status.refused.username.commented",
                 from_user.username, reason
             )
         else:
             status = get_string(
-                "user_service.moderation.request_status_refused",
+                "user_service.moderation.request_status.refused.username.nocomment",
                 from_user.username
             )
     else:
         if reason:
             status = get_string(
-                "user_service.moderation.request_status_refused_nousername_commented",
+                "user_service.moderation.request_status.refused.nousername.commented",
                 from_user.id, from_user.full_name, reason
             )
         else:
             status = get_string(
-                "user_service.moderation.request_status_refused_nousername",
+                "user_service.moderation.request_status.refused.nousername.nocomment",
                 from_user.id, from_user.full_name
             )
 
@@ -661,9 +661,9 @@ async def refuse_user(reason: str | None, state: FSMContext, from_user: User) ->
     await _bot.send_message(
         database_user.user_id,
         get_string(
-            "user_service.moderation.refused_reason", reason
+            "user_service.moderation.user_answer.refused.commented", reason
         ) if reason else get_string(
-            "user_service.moderation.refused"
+            "user_service.moderation.user_answer.refused.nocomment"
         )
     )
 

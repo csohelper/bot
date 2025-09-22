@@ -43,7 +43,7 @@ async def refuser_loop_check() -> None:
             await _bot.send_message(
                 request.user_id,
                 get_string(
-                    'user_service.moderation.auto_refused',
+                    'user_service.auto_refused',
                     config.refuser.request_life_hours
                 ),
                 reply_markup=ReplyKeyboardRemove()
