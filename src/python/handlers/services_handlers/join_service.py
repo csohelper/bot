@@ -396,114 +396,161 @@ async def on_send_chosen(message: Message, state: FSMContext) -> None:
 
 
 class JoinModerateStatuses(StatesGroup):
-    waiting_accept = State()
-    waiting_refuse = State()
     waiting_refuse_description = State()
+
+
+class ModerateButtonsAction(Enum):
+    ACCEPT_CONFIRM = 'accept_confirm'
+    REFUSE_CONFIRM = 'refuse_confirm'
+    CANCEL = 'cancel'
+
+
+class ModerateButtonsFactory(CallbackData, prefix="moderatebuttons"):
+    action: ModerateButtonsAction
+    database_id: int
+    message: int
 
 
 @router.callback_query(ModerateUserCallbackFactory.filter())
 async def callbacks_moderate_buttons(
         callback: types.CallbackQuery,
-        callback_data: ModerateUserCallbackFactory,
-        state: FSMContext,
+        callback_data: ModerateUserCallbackFactory
 ) -> None:
     if not callback.message:
         return
     match callback_data.action:
         case "accept":
-            await callback.message.reply(
-                get_string("user_service.moderation.accept_confirm"),
-                reply_markup=ReplyKeyboardBuilder().row(
-                    KeyboardButton(text="✅Подтвердить"),
-                    KeyboardButton(text="🚫Отмена")
-                ).as_markup(resize_keyboard=True, one_time_keyboard=False)
+            await callback.message.edit_reply_markup(
+                reply_markup=InlineKeyboardBuilder().row(
+                    InlineKeyboardButton(
+                        text="✅Подтвердить",
+                        callback_data=ModerateButtonsFactory(
+                            action=ModerateButtonsAction.ACCEPT_CONFIRM,
+                            database_id=callback_data.database_id,
+                            message=callback_data.message
+                        ).pack()
+                    )
+                ).row(
+                    InlineKeyboardButton(
+                        text="🚫Отмена",
+                        callback_data=ModerateButtonsFactory(
+                            action=ModerateButtonsAction.CANCEL,
+                            database_id=callback_data.database_id,
+                            message=callback_data.message
+                        ).pack()
+                    )
+                ).as_markup()
             )
-            await state.update_data(callback_data=callback_data.pack())
-            await state.set_state(JoinModerateStatuses.waiting_accept)
         case "refuse":
-            await callback.message.reply(
-                get_string("user_service.moderation.refuse_confirm"),
-                reply_markup=ReplyKeyboardBuilder().row(
-                    KeyboardButton(text="Отклонить"),
-                    KeyboardButton(text="🚫Отмена")
-                ).as_markup(resize_keyboard=True, one_time_keyboard=False)
+            await callback.message.edit_reply_markup(
+                reply_markup=InlineKeyboardBuilder().row(
+                    InlineKeyboardButton(
+                        text="Отклонить",
+                        callback_data=ModerateButtonsFactory(
+                            action=ModerateButtonsAction.REFUSE_CONFIRM,
+                            database_id=callback_data.database_id,
+                            message=callback_data.message
+                        ).pack()
+                    )
+                ).row(
+                    InlineKeyboardButton(
+                        text="🚫Отмена",
+                        callback_data=ModerateButtonsFactory(
+                            action=ModerateButtonsAction.CANCEL,
+                            database_id=callback_data.database_id,
+                            message=callback_data.message
+                        ).pack()
+                    )
+                ).as_markup()
             )
-            await state.update_data(callback_data=callback_data.pack())
-            await state.set_state(JoinModerateStatuses.waiting_refuse)
     await callback.answer()
 
 
-@router.message(
-    JoinModerateStatuses.waiting_accept
-)
-async def on_join_accept(message: Message, state: FSMContext) -> None:
-    if message.text == "🚫Отмена":
-        await message.reply(
-            get_string("user_service.moderation.accept_confirm_cancel"),
-            reply_markup=ReplyKeyboardRemove()
-        )
-    elif message.text == "✅Подтвердить":
-        callback_data: ModerateUserCallbackFactory = ModerateUserCallbackFactory.unpack(
-            await state.get_value("callback_data")
-        )
-        await message.reply(
-            get_string("user_service.moderation.accept_confirmed"),
-            reply_markup=ReplyKeyboardRemove()
-        )
-        database_user = await users_repository.get_user_by_id(callback_data.database_id)
-        await _bot.approve_chat_join_request(
-            config.chat_config.chat_id,
-            database_user.user_id
-        )
-        await _bot.edit_message_caption(
-            chat_id=config.chat_config.admin_chat_id,
-            message_id=callback_data.message,
-            caption=new_request_message(
-                database_user.fullname,
-                database_user.username,
+@router.callback_query(ModerateButtonsFactory.filter())
+async def on_join_accept(
+        callback: types.CallbackQuery,
+        callback_data: ModerateButtonsFactory,
+        state: FSMContext
+) -> None:
+    if not callback.message:
+        return
+    match callback_data.action:
+        case ModerateButtonsAction.CANCEL:
+            await callback.message.edit_reply_markup(
+                reply_markup=InlineKeyboardBuilder().row(InlineKeyboardButton(
+                    text='🚫Отклонить',
+                    callback_data=ModerateUserCallbackFactory(
+                        action="refuse",
+                        database_id=callback_data.database_id,
+                        message=callback_data.message
+                    ).pack()
+                )).row(InlineKeyboardButton(
+                    text='✅Одобрить',
+                    callback_data=ModerateUserCallbackFactory(
+                        action="accept",
+                        database_id=callback_data.database_id,
+                        message=callback_data.message
+                    ).pack()
+                )).as_markup()
+            )
+        case ModerateButtonsAction.ACCEPT_CONFIRM:
+            await callback.message.reply(
+                get_string(
+                    "user_service.moderation.accept_confirmed", callback.from_user.username
+                )
+                if callback.from_user.username else get_string(
+                    "user_service.moderation.accept_confirmed_nousername", callback.from_user.id,
+                    callback.from_user.full_name
+                ),
+                reply_markup=ReplyKeyboardRemove()
+            )
+            database_user = await users_repository.get_user_by_id(callback_data.database_id)
+            await _bot.approve_chat_join_request(
+                config.chat_config.chat_id,
+                database_user.user_id
+            )
+            await _bot.edit_message_caption(
+                chat_id=config.chat_config.admin_chat_id,
+                message_id=callback_data.message,
+                caption=new_request_message(
+                    database_user.fullname,
+                    database_user.username,
+                    database_user.user_id,
+                    get_string(
+                        "user_service.moderation.request_status_approved",
+                        callback.from_user.username
+                    ) if callback.from_user.username else get_string(
+                        "user_service.moderation.request_status_approved_nousername",
+                        callback.from_user.id, callback.from_user.full_name
+                    ),
+                    database_user.name,
+                    database_user.surname,
+                    database_user.room
+                ),
+                reply_markup=None
+            )
+            await _bot.send_message(
                 database_user.user_id,
-                get_string("user_service.moderation.request_status_approved"),
-                database_user.name,
-                database_user.surname,
-                database_user.room
-            ),
-            reply_markup=None
-        )
-        await _bot.send_message(
-            database_user.user_id,
-            get_string("user_service.moderation.accepted")
-        )
-        await users_repository.update_user_fields(
-            callback_data.database_id,
-            status="accept",
-            processed_by=message.from_user.id,
-            processed_by_fullname=message.from_user.full_name,
-            processed_by_username=message.from_user.username
-        )
-    else:
-        await message.reply(get_string("user_service.moderation.accept_confirm_unknown"))
-
-
-@router.message(
-    JoinModerateStatuses.waiting_refuse
-)
-async def on_refuse_accept(message: Message, state: FSMContext) -> None:
-    if message.text == "🚫Отмена":
-        await message.reply(
-            get_string("user_service.moderation.refuse_confirm_cancel"),
-            reply_markup=ReplyKeyboardRemove()
-        )
-    elif message.text == "Отклонить":
-        await message.reply(
-            get_string("user_service.moderation.refuse_commenting"),
-            reply_markup=ReplyKeyboardBuilder().row(
-                KeyboardButton(text="Без причины"),
-                KeyboardButton(text="🚫Отмена")
-            ).as_markup(resize_keyboard=True, one_time_keyboard=False)
-        )
-        await state.set_state(JoinModerateStatuses.waiting_refuse_description)
-    else:
-        await message.reply(get_string("user_service.moderation.refuse_confirm_unknown"))
+                get_string("user_service.moderation.accepted")
+            )
+            await users_repository.update_user_fields(
+                callback_data.database_id,
+                status="accept",
+                processed_by=callback.from_user.id,
+                processed_by_fullname=callback.from_user.full_name,
+                processed_by_username=callback.from_user.username
+            )
+        case ModerateButtonsAction.REFUSE_CONFIRM:
+            await callback.message.reply(
+                get_string("user_service.moderation.refuse_commenting"),
+                reply_markup=ReplyKeyboardBuilder().row(
+                    KeyboardButton(text="Без причины"),
+                    KeyboardButton(text="🚫Отмена")
+                ).as_markup(resize_keyboard=True, one_time_keyboard=False)
+            )
+            await state.update_data(callback_data=callback_data.pack())
+            await state.set_state(JoinModerateStatuses.waiting_refuse_description)
+    await callback.answer()
 
 
 @router.message(
@@ -521,7 +568,7 @@ async def on_refuse_description_accept(message: Message, state: FSMContext) -> N
     else:
         reason = message.text
 
-    callback_data: ModerateUserCallbackFactory = ModerateUserCallbackFactory.unpack(
+    callback_data: ModerateButtonsFactory = ModerateButtonsFactory.unpack(
         await state.get_value("callback_data")
     )
     database_user = await users_repository.get_user_by_id(callback_data.database_id)
@@ -536,7 +583,13 @@ async def on_refuse_description_accept(message: Message, state: FSMContext) -> N
             database_user.fullname,
             database_user.username,
             database_user.user_id,
-            get_string("user_service.moderation.request_status_refused"),
+            get_string(
+                "user_service.moderation.request_status_refused",
+                message.from_user.username
+            ) if message.from_user.username else get_string(
+                "user_service.moderation.request_status_refused_nousername",
+                message.from_user.id, message.from_user.full_name
+            ),
             database_user.name,
             database_user.surname,
             database_user.room
@@ -554,33 +607,59 @@ async def on_refuse_description_accept(message: Message, state: FSMContext) -> N
     if reason:
         await _bot.send_message(
             database_user.user_id,
-            get_string("user_service.moderation.refused_reason", reason)
+            get_string("user_service.moderation.refused_reason", reason),
+            reply_markup=ReplyKeyboardRemove()
         )
         await message.reply(
-            get_string("user_service.moderation.refuse_confirmed_commented", reason),
+            get_string(
+                "user_service.moderation.refuse_confirmed_commented", message.from_user.username,
+                reason
+            ) if message.from_user.username else get_string(
+                "user_service.moderation.refuse_confirmed_commented_nousername",
+                message.from_user.id, message.from_user.full_name, reason
+            ),
             reply_markup=ReplyKeyboardRemove()
         )
     else:
         await _bot.send_message(
             database_user.user_id,
-            get_string("user_service.moderation.refused", reason)
+            get_string("user_service.moderation.refused", reason),
+            reply_markup=ReplyKeyboardRemove()
         )
         await message.reply(
-            get_string("user_service.moderation.refuse_confirmed"),
+            get_string(
+                "user_service.moderation.refuse_confirmed",
+                message.from_user.username
+            ) if message.from_user.username else get_string(
+                "user_service.moderation.refuse_confirmed_nousername",
+                message.from_user.id, message.from_user.full_name
+            ),
             reply_markup=ReplyKeyboardRemove()
         )
 
 
 def new_request_message(
-        fullname: str, username: str, user_id: int, status: str, first_name: str, last_name: str, room: int
+        fullname: str, username: str | None, user_id: int, status: str, first_name: str, last_name: str, room: int
 ) -> str:
-    return get_string(
-        "user_service.moderation.new_request",
-        fullname,
-        username,
-        user_id,
-        status,
-        first_name,
-        last_name,
-        room
-    )
+    if username:
+        return get_string(
+            "user_service.moderation.new_request",
+            fullname,
+            username,
+            user_id,
+            status,
+            first_name,
+            last_name,
+            room
+        )
+    else:
+        return get_string(
+            "user_service.moderation.new_request_nousername",
+            user_id,
+            fullname,
+            user_id,
+            status,
+            first_name,
+            last_name,
+            room
+        )
