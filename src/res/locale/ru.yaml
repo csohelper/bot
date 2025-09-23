@@ -254,6 +254,13 @@ echo_commands:
       +7(499)192-86-57
       +7(499)192-85-00
       e.v.vahovskiy@mtuci.ru
+      
+      <b>Кафедра ЦТР</b> (или /depdat)
+      <b>Кафедра СРиСО</b> (или /depsrapr)
+      <b>Кафедра ЦЭУиБТ</b> (или /depdemabt)
+      <b>Кафедра ФИиМК</b> (или /depphaic)
+      <b>Кафедра ИНО</b> (или /depfor)
+      <b>Кафедра БИ</b> (или /depbcs)
   departments:
     it:
       mcait: |
@@ -459,7 +466,7 @@ echo_commands:
         asa@mtuci.ru
     cais:
       edet: |
-        <b><a href="https://mtuci.ru/about_the_university/structure/771/">Кафедра «Технологии Электронного Обмена Данными ()»</a></b>
+        <b><a href="https://mtuci.ru/about_the_university/structure/771/">Кафедра «Технологии Электронного Обмена Данными (ТЭОД)»</a></b>
         (Electronic Data Exchange Technologies)
         Ауд.: А-242
         +7 (495) 532-37-11
@@ -468,7 +475,7 @@ echo_commands:
         <b>И.О. Заведующего Кафедрой</b>
         Кутуков Виктор Александрович
       is: |
-        <b><a href="https://mtuci.ru/about_the_university/structure/769/">Кафедра «Информационная Безопасность ()»</a></b>
+        <b><a href="https://mtuci.ru/about_the_university/structure/769/">Кафедра «Информационная Безопасность (ИБ)»</a></b>
         (Information Security)
         Ауд.: А-254
         +7(495)957-79-51
@@ -478,7 +485,7 @@ echo_commands:
         Шелухин Олег Иванович
         sheluhin52@mail.ru
       ismaa: |
-        <b><a href="https://mtuci.ru/about_the_university/structure/768/">Кафедра «Интеллектуальные Системы в Управлении и Автоматизации ()»</a></b>
+        <b><a href="https://mtuci.ru/about_the_university/structure/768/">Кафедра «Интеллектуальные Системы в Управлении и Автоматизации (ИСУиА)»</a></b>
         (Intelligent Systems in Management and Automation)
         Ауд.: А-344
         +7(495)957-77-99 (доб. 640)
@@ -488,11 +495,11 @@ echo_commands:
         Воронов Вячеслав Игоревич
         v.i.voronov@mtuci.ru
       tcs: |
-        <b><a href="https://mtuci.ru/about_the_university/structure/588/">Кафедра «Безопасность Телекоммуникаций ()»</a></b>
+        <b><a href="https://mtuci.ru/about_the_university/structure/588/">Кафедра «Безопасность Телекоммуникаций (БТК)»</a></b>
         (Telecommunications Security)
         btk@mtuci.ru
       ptaam: |
-        <b><a href="https://mtuci.ru/about_the_university/structure/575/">Кафедра «Теория Вероятностей и Прикладная Математика ()»</a></b>
+        <b><a href="https://mtuci.ru/about_the_university/structure/575/">Кафедра «Теория Вероятностей и Прикладная Математика (ТВиПМ)»</a></b>
         (Probability Theory and Applied Mathematics)
         Ауд.: Н-513, Н-517а
         Секретарь: +7(499)192-80-29
@@ -503,7 +510,7 @@ echo_commands:
         +7(495)957-77-99 (доб. 2059)
         pankov_kn@mtuci.ru
       elsap: |
-        <b><a href="https://mtuci.ru/about_the_university/structure/575/">Кафедра «Экология, Безопасность Жизнедеятельности и Электропитание ()»</a></b>
+        <b><a href="https://mtuci.ru/about_the_university/structure/575/">Кафедра «Экология, Безопасность Жизнедеятельности и Электропитание (ЭБЖиЭ)»</a></b>
         (Ecology, Life Safety and Power Supply)
         Ауд.: А-153
         +7(495)957-77-15 (доб. 762)
@@ -512,11 +519,69 @@ echo_commands:
         Ерофеева Виктория Вячеславовна
         v.v.erofeeva@mtuci.ru
       bmt: |
-        <b><a href="https://mtuci.ru/about_the_university/structure/12178/">Кафедра «Основы Военной Подготовки ()»</a></b>
+        <b><a href="https://mtuci.ru/about_the_university/structure/12178/">Кафедра «Основы Военной Подготовки (ОВП)»</a></b>
         
         <b>Заведующий кафедрой</b>
         Забродченко Геннадий Евгеньевич
         g.e.zabrodchenko@mtuci.ru
+    deamc:
+      dat: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/6143/">Кафедра «Цифровые технологии рекламы (ЦТР)»</a></b>
+        (Digital Advertising Technologies)
+        Ауд.: Н-402
+        +7(495)957-77-99 (доб. 2072)
+        
+        <b>Заведующий кафедрой</b>
+        Кандалов Вадим Иванович
+        v.i.kandalov@mtuci.ru
+      srapr: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/571/">Кафедра «Социальные отношения, Реклама и Связи с Общественностью (СРиСО)»</a></b>
+        (Social relations, Advertising and Public Relations)
+        Ауд.: Н-402
+        +7(499)957-78-52
+        
+        <b>Заведующий Кафедрой</b>
+        Брега Александр Васильевич
+        +7(499)192-85-72
+        a.v.brega@mtuci.ru
+      demabt: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/570/">Кафедра «Цифровая экономика, управление и бизнес-технологии (ЦЭУиБТ)»</a></b>
+        (Digital Economy, Management and Business Technology)
+        
+        <b>Заведующая Кафедрой</b>
+        Салютина Татьяна Юрьевна
+        +7(499)192-84-74
+        t.i.saliutina@mtuci.ru
+      phaic: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/530/">Кафедра «Философия, История и Межкультурные Коммуникации (ФИиМК)»</a></b>
+        (Philosophy, History and Intercultural Communication)
+        Ауд.: Н-311
+        +7(495)957-79-70 (доб. 2079)
+        filos@mtuci.ru
+        
+        <b>Заведующая Кафедрой</b>
+        Кораблева Елена Валентиновна
+        +7(495)957-77-99 (доб. 2078)
+      for: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/527/">Кафедра «Иностранные Языки (ИНО)»</a></b>
+        (Foreign Languages)
+        Ауд.: Н-324
+        +7(495)957-79-70 (доб. 2082)
+        ino@mtuci.ru
+        
+        <b>Заведующая Кафедрой</b>
+        Соловьева Наталия Владимировна
+        n.v.soloveva@mtuci.ru
+      bcs: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/160/">Кафедра «Бизнес-Информатика (БИ)»</a></b>
+        (Business Computer Science)
+        Ауд.: Н-407
+        +7(495)957-77-99 (доб. 2096)
+        bi.dep@mtuci.ru
+        
+        <b>Заведующая Кафедрой</b>
+        Тутова Наталья Владимировна
+        n.v.tutova@mtuci.ru
   jko: |
     <b>Жилищно-Коммунальный Отдел</b>
     График: с ПН по ПТ (10:00 - 18:00)
