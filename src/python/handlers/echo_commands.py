@@ -78,7 +78,15 @@ commands = [
     EchoCommand("depgts", ["кафедра нтс"], 'echo_commands.departments.nacs.gts'),
     EchoCommand("depgnass", ["кафедра ссиск"], 'echo_commands.departments.nacs.gnass'),
     EchoCommand("depmsami", ["кафедра мсиии"], 'echo_commands.departments.nacs.msami'),
-    EchoCommand("depgtc", ["кафедра отс"], 'echo_commands.departments.nacs.gtc')
+    EchoCommand("depgtc", ["кафедра отс"], 'echo_commands.departments.nacs.gtc'),
+
+    EchoCommand("depedet", ["кафедра тэод"], 'echo_commands.departments.cais.edet'),
+    EchoCommand("depis", ["кафедра иб"], 'echo_commands.departments.cais.is'),
+    EchoCommand("depismaa", ["кафедра исуиа"], 'echo_commands.departments.cais.ismaa'),
+    EchoCommand("deptcs", ["кафедра бтк"], 'echo_commands.departments.cais.tcs'),
+    EchoCommand("depptaam", ["кафедра твипм"], 'echo_commands.departments.cais.ptaam'),
+    EchoCommand("depelsap", ["кафедра эбжиэ"], 'echo_commands.departments.cais.elsap'),
+    EchoCommand("depbmt", ["кафедра овп"], 'echo_commands.departments.cais.bmt')
 ]
 
 

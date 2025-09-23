@@ -235,6 +235,14 @@ echo_commands:
       Иевлев Олег Павлович
       +7(495)957-77-99 (доб. 405)
       ievlev@mtuci.ru
+      
+      <b>Кафедра ТЭОД</b> (или /depedet)
+      <b>Кафедра ИБ</b> (или /depis)
+      <b>Кафедра ИСУиА</b> (или /depismaa)
+      <b>Кафедра БТК</b> (или /deptcs)
+      <b>Кафедра ТВиПМ</b> (или /depptaam)
+      <b>Кафедра ЭБЖиЭ</b> (или /depelsap)
+      <b>Кафедра ОВП</b> (или /depebmt)
     deamc: |
       <b><a href="https://mtuci.ru/dep/307">Деканат «Цифровая Экономика и Массовые Коммуникации»</a></b>
       (Digital Economy and Mass Communications)
@@ -449,6 +457,66 @@ echo_commands:
         Аджемов Артём Сергеевич
         +7(495)673-27-62
         asa@mtuci.ru
+    cais:
+      edet: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/771/">Кафедра «Технологии Электронного Обмена Данными ()»</a></b>
+        (Electronic Data Exchange Technologies)
+        Ауд.: А-242
+        +7 (495) 532-37-11
+        mvs@ccitn.ru
+        
+        <b>И.О. Заведующего Кафедрой</b>
+        Кутуков Виктор Александрович
+      is: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/769/">Кафедра «Информационная Безопасность ()»</a></b>
+        (Information Security)
+        Ауд.: А-254
+        +7(495)957-79-51
+        mail@kibia.ru
+        
+        <b>Заведующий Кафедрой</b>
+        Шелухин Олег Иванович
+        sheluhin52@mail.ru
+      ismaa: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/768/">Кафедра «Интеллектуальные Системы в Управлении и Автоматизации ()»</a></b>
+        (Intelligent Systems in Management and Automation)
+        Ауд.: А-344
+        +7(495)957-77-99 (доб. 640)
+        isua.kaf@yandex.ru
+        
+        <b>Заведующий Кафедрой</b>
+        Воронов Вячеслав Игоревич
+        v.i.voronov@mtuci.ru
+      tcs: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/588/">Кафедра «Безопасность Телекоммуникаций ()»</a></b>
+        (Telecommunications Security)
+        btk@mtuci.ru
+      ptaam: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/575/">Кафедра «Теория Вероятностей и Прикладная Математика ()»</a></b>
+        (Probability Theory and Applied Mathematics)
+        Ауд.: Н-513, Н-517а
+        Секретарь: +7(499)192-80-29
+        tvipm.dep@mtuci.ru
+        
+        <b>Заведующий Кафедрой</b>
+        Панков Константин Николаевич
+        +7(495)957-77-99 (доб. 2059)
+        pankov_kn@mtuci.ru
+      elsap: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/575/">Кафедра «Экология, Безопасность Жизнедеятельности и Электропитание ()»</a></b>
+        (Ecology, Life Safety and Power Supply)
+        Ауд.: А-153
+        +7(495)957-77-15 (доб. 762)
+        
+        <b>Заведующая Кафедрой</b>
+        Ерофеева Виктория Вячеславовна
+        v.v.erofeeva@mtuci.ru
+      bmt: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/12178/">Кафедра «Основы Военной Подготовки ()»</a></b>
+        
+        <b>Заведующий кафедрой</b>
+        Забродченко Геннадий Евгеньевич
+        g.e.zabrodchenko@mtuci.ru
   jko: |
     <b>Жилищно-Коммунальный Отдел</b>
     График: с ПН по ПТ (10:00 - 18:00)
