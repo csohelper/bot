@@ -190,6 +190,12 @@ echo_commands:
       Колесников Олег Вячеславович
       +7(495)957-79-22
       o.v.kolesnikov@mtuci.ru
+      
+      <b>Кафедра МТС</b> (или /depmts)
+      <b>Кафедра НТС</b> (или /depgts)
+      <b>Кафедра ССиСК</b> (или /depgnass)
+      <b>Кафедра МСиИИ</b> (или /depmsami)
+      <b>Кафедра ОТС</b> (или /depgtc)
     rit: |
       <b><a href="https://mtuci.ru/dep/305/">Деканат «Радио и Телевидение»</a></b>
       (Radio and Television)
@@ -394,6 +400,55 @@ echo_commands:
         <b>Заведующий Кафедрой</b>
         Николаев Алексей Владимирович
         a.w.nikolaev@mtuci.ru
+    nacs:
+      mts: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/763/">Кафедра «Многоканальные Телекоммуникационные Системы (МТС)»</a></b>
+        (Multichannel Telecommunication Systems)
+        Ауд.: А-161
+        +7(495)957-77-99 (доб. 497)
+        mts@mtuci.ru
+
+        <b>Заведующая Кафедрой</b>
+        Шишова Надежда Альвиновна
+        n.a.shishova@mtuci.ru
+      gts: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/543/">Кафедра «Направляющие Телекоммуникационные Среды (НТС)»</a></b>
+        (Guiding Telecommunication Media)
+        +7(495)957-77-33 (доб. 698)
+        mtuci_nts@mtuci.ru
+        
+        <b>Заведующий Кафедрой</b>
+        Колесников Олег Вячеславович
+        +7(495)951-77-99 (доб. 379)
+        o.v.kolesnikov@mtuci.ru
+      gnass: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/764/">Кафедра «Сети Связи и Системы Коммутации (ССиСК)»</a></b>
+        (Communication Networks and Switching Systems)
+        Ауд.: УЛК-904, 905, 906, Л-400, 402, 407, 408
+        
+        <b>Заведующий Кафедрой</b>
+        Степанов Сергей Николаевич
+        +7(495)957-77-99 (доб. 665)
+        s.n.stepanov@mtuci.ru
+      msami: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/168/">Кафедра «Метрологии, Стандартизации и Измерений в Инфокоммуникациях (МСиИИ)»</a></b>
+        (Metrology, Standardization and Measurement in Info-communications)
+        Ауд.: А-428
+        
+        <b>Заведующий Кафедрой</b>
+        Исаева Людмила Николаевна
+        +7 (495) 957-77-99 (доб. 656; 657)
+        l.n.isaeva@mtuci.ru
+      gtc: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/531/">Кафедра «Общая Теория Связи (ОТС)»</a></b>
+        (General Theory of Communication)
+        Ауд.: УЛК-1008, Н-326
+        +7(495)957-77-99 (доб. 2084)
+        
+        <b>Заведующий Кафедрой</b>
+        Аджемов Артём Сергеевич
+        +7(495)673-27-62
+        asa@mtuci.ru
   jko: |
     <b>Жилищно-Коммунальный Отдел</b>
     График: с ПН по ПТ (10:00 - 18:00)

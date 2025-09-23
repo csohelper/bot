@@ -72,7 +72,13 @@ commands = [
     EchoCommand("depitinf", ["кафедра информатика"], 'echo_commands.departments.it.informatics'),
     EchoCommand("depitpe", ["кафедра физвосп"], 'echo_commands.departments.it.pe'),
     EchoCommand("depitaai", ["кафедра пии"], 'echo_commands.departments.it.aai'),
-    EchoCommand("depitsp", ["кафедра сп"], 'echo_commands.departments.it.sp')
+    EchoCommand("depitsp", ["кафедра сп"], 'echo_commands.departments.it.sp'),
+
+    EchoCommand("depmts", ["кафедра мтс"], 'echo_commands.departments.nacs.mts'),
+    EchoCommand("depgts", ["кафедра нтс"], 'echo_commands.departments.nacs.gts'),
+    EchoCommand("depgnass", ["кафедра ссиск"], 'echo_commands.departments.nacs.gnass'),
+    EchoCommand("depmsami", ["кафедра мсиии"], 'echo_commands.departments.nacs.msami'),
+    EchoCommand("depgtc", ["кафедра отс"], 'echo_commands.departments.nacs.gtc')
 ]
 
 
