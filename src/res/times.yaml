@@ -1,0 +1,288 @@
+dorm:
+  director:
+    - days:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+      times:
+        - start: 09:00
+          end: 18:00
+  shower:
+    - days:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+      times:
+        - start: 00:00
+          end: 01:00
+        - start: 06:00
+          end: 23:59:59.999
+  kitchen:
+    - days:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+      times:
+        - start: 00:00
+          end: 01:00
+        - start: 06:00
+          end: 23:59:59.999
+  linen:
+    - days:
+        - 0
+      times:
+        - start: 10:00
+          end: 13:00
+        - start: 14:00
+          end: 17:00
+university:
+  accounting:
+    - days:
+        - 0
+        - 1
+        - 2
+        - 3
+      times:
+        - start: 09:00
+          end: 13:00
+        - start: 14:00
+          end: 18:00
+    - days:
+        - 4
+      times:
+        - start: 09:00
+          end: 13:00
+        - start: 14:00
+          end: 16:45
+  deans:
+    ed:
+      - days:
+          - 0
+          - 1
+          - 2
+          - 3
+          - 4
+        times:
+          - start: 08:50
+            end: 19:00
+      - days:
+          - 5
+        times:
+          - start: 09:00
+            end: 15:00
+    it:
+      - days:
+          - 0
+          - 1
+          - 2
+          - 3
+        times:
+          - start: 09:00
+            end: 13:00
+          - start: 14:00
+            end: 18:00
+      - days:
+          - 4
+        times:
+          - start: 09:00
+            end: 13:00
+          - start: 14:00
+            end: 16:45
+    rit:
+      - days:
+          - 0
+          - 1
+          - 2
+          - 3
+        times:
+          - start: 09:00
+            end: 13:00
+          - start: 14:00
+            end: 18:00
+      - days:
+          - 4
+        times:
+          - start: 09:00
+            end: 13:00
+          - start: 14:00
+            end: 16:45
+    nacs:
+      - days:
+          - 0
+          - 1
+          - 2
+          - 3
+        times:
+          - start: 09:00
+            end: 13:00
+          - start: 14:00
+            end: 18:00
+      - days:
+          - 4
+        times:
+          - start: 09:00
+            end: 13:00
+          - start: 14:00
+            end: 16:45
+    cais:
+      - days:
+          - 0
+          - 1
+          - 2
+          - 3
+        times:
+          - start: 09:00
+            end: 13:00
+          - start: 14:00
+            end: 18:00
+      - days:
+          - 4
+        times:
+          - start: 09:00
+            end: 13:00
+          - start: 14:00
+            end: 16:45
+    foreign:
+      - days:
+          - 0
+          - 2
+        times:
+          - start: 09:00
+            end: 13:00
+          - start: 14:00
+            end: 18:00
+      - days:
+          - 4
+        times:
+          - start: 09:00
+            end: 13:00
+          - start: 14:00
+            end: 16:45
+  jko:
+    - days:
+        - 0
+        - 1
+        - 2
+        - 3
+      times:
+        - start: 09:00
+          end: 18:00
+  hr:
+    - days:
+        - 0
+        - 1
+        - 2
+        - 3
+      times:
+        - start: 10:00
+          end: 13:00
+        - start: 14:00
+          end: 17:00
+    - days:
+        - 4
+      times:
+        - start: 10:00
+          end: 13:00
+        - start: 14:00
+          end: 16:45
+  library:
+    working:
+      - days:
+          - 0
+          - 1
+          - 2
+          - 3
+        times:
+          - start: 9:00
+            end: 13:00
+          - start: 14:00
+            end: 18:00
+      - days:
+          - 4
+        times:
+          - start: 10:00
+            end: 13:00
+          - start: 14:00
+            end: 16:45
+    clients:
+      - days:
+          - 0
+          - 1
+          - 2
+          - 3
+        times:
+          - start: 9:00
+            end: 13:00
+          - start: 14:00
+            end: 17:00
+      - days:
+          - 4
+        times:
+          - start: 10:00
+            end: 13:00
+          - start: 14:00
+            end: 16:45
+  cafe:
+    vost:
+      - days:
+          - 0
+          - 1
+          - 2
+          - 3
+          - 4
+        times:
+          - start: 9:00
+            end: 18:00
+    bufet:
+      - days:
+          - 0
+          - 1
+          - 2
+          - 3
+          - 4
+        times:
+          - start: 8:00
+            end: 17:00
+polyclinic:
+  - days:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+    times:
+      - start: 8:00
+        end: 20:00
+  - days:
+      - 5
+    times:
+      - start: 9:00
+        end: 18:00
+  - days:
+      - 6
+    times:
+      - start: 9:00
+        end: 16:00
+laundress:
+  - days:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+    times:
+      - start: 10:00
+        end: 21:00

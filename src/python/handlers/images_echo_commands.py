@@ -5,13 +5,14 @@ from ..storage.strings import get_string, get_object
 from aiogram.types import Message
 from aiogram.filters import Command, BaseFilter
 from ..logger import logger
-from aiogram.types import  FSInputFile, InputMediaPhoto, Message
+from aiogram.types import FSInputFile, InputMediaPhoto, Message
 
+from ..storage.times import get_time_status
 
 router = Router()
 
-
 cached_vost_file_id = None
+
 
 @router.message(Command("vost"))
 @router.message(lambda message: message.text and message.text.lower() in ["восточка"])
@@ -24,7 +25,9 @@ async def command_vost_handler(message: Message) -> None:
             image_path = "./src/res/images/cafe_vost.jpg"
             sent: Message = await message.reply_photo(
                 photo=FSInputFile(image_path),
-                caption=get_string('echo_commands.cafe_vost'),
+                caption=get_string(
+                    'echo_commands.cafe_vost', working_status=get_time_status('university.cafe.vost')
+                ),
                 show_caption_above_media=True
             )
             if sent.photo:
@@ -33,7 +36,9 @@ async def command_vost_handler(message: Message) -> None:
             try:
                 await message.reply_photo(
                     photo=cached_vost_file_id,
-                    caption=get_string('echo_commands.cafe_vost'),
+                    caption=get_string(
+                        'echo_commands.cafe_vost', working_status=get_time_status('university.cafe.vost')
+                    ),
                     show_caption_above_media=True
                 )
             except Exception as e:
@@ -42,7 +47,9 @@ async def command_vost_handler(message: Message) -> None:
                 continue
         break
 
+
 cached_bufet_file_id = None
+
 
 @router.message(Command("bufet"))
 @router.message(lambda message: message.text and message.text.lower() in ["буфет"])
@@ -55,7 +62,9 @@ async def command_bufet_handler(message: Message) -> None:
             image_path = "./src/res/images/cafe_bufet.jpg"
             sent: Message = await message.reply_photo(
                 photo=FSInputFile(image_path),
-                caption=get_string('echo_commands.cafe_bufet'),
+                caption=get_string(
+                    'echo_commands.cafe_bufet', working_status=get_time_status('university.cafe.bufet')
+                ),
                 show_caption_above_media=True
             )
             if sent.photo:
@@ -64,7 +73,9 @@ async def command_bufet_handler(message: Message) -> None:
             try:
                 await message.reply_photo(
                     photo=cached_bufet_file_id,
-                    caption=get_string('echo_commands.cafe_bufet'),
+                    caption=get_string(
+                        'echo_commands.cafe_bufet', working_status=get_time_status('university.cafe.bufet')
+                    ),
                     show_caption_above_media=True
                 )
             except Exception as e:
@@ -75,6 +86,7 @@ async def command_bufet_handler(message: Message) -> None:
 
 
 cached_linen_file_id = None
+
 
 @router.message(Command("linen"))
 @router.message(lambda message: message.text and message.text.lower() in ["обмен белья"])
@@ -105,9 +117,8 @@ async def command_linen_handler(message: Message) -> None:
         break
 
 
-
-
 cached_laundress_files_id = []
+
 
 @router.message(Command("laundress"))
 @router.message(lambda message: message.text and message.text.lower() in ["прачка", "прачечная", "прачка биля"])
@@ -123,15 +134,17 @@ async def command_laundress_handler(message: Message) -> None:
     while True:
         if len(cached_laundress_files_id) == 0:
             laundress_dir = "./src/res/images/laundress/"
-            media=[
+            media = [
                 InputMediaPhoto(
                     media=FSInputFile(os.path.join(laundress_dir, x)),
                     show_caption_above_media=True
                 ) for x in os.listdir(laundress_dir)
             ]
-            media[0].caption = get_string('echo_commands.laundress')
-            sent = await message.reply_media_group(media=media) # type: ignore[arg-type]
-            
+            media[0].caption = get_string(
+                'echo_commands.laundress', working_status=get_time_status('laundress')
+            )
+            sent = await message.reply_media_group(media=media)  # type: ignore[arg-type]
+
             for msg in sent:
                 if msg.photo:
                     largest_photo = msg.photo[-1]
@@ -144,8 +157,10 @@ async def command_laundress_handler(message: Message) -> None:
                         show_caption_above_media=True
                     ) for file_id in cached_laundress_files_id
                 ]
-                media[0].caption = get_string('echo_commands.laundress')
-                await message.reply_media_group(media=media) # type: ignore[arg-type]
+                media[0].caption = get_string(
+                    'echo_commands.laundress', working_status=get_time_status('laundress')
+                )
+                await message.reply_media_group(media=media)  # type: ignore[arg-type]
             except Exception as e:
                 logger.error(f"{e}")
                 cached_laundress_files_id = []
@@ -153,8 +168,8 @@ async def command_laundress_handler(message: Message) -> None:
         break
 
 
-
 cached_cards_files_id = []
+
 
 @router.message(Command("cards"))
 @router.message(lambda message: message.text and message.text.lower() in ["карты"])
@@ -170,14 +185,14 @@ async def command_cards_handler(message: Message) -> None:
     while True:
         if len(cached_cards_files_id) == 0:
             cards_dir = "./src/res/images/cards/"
-            media=[
+            media = [
                 InputMediaPhoto(
                     media=FSInputFile(os.path.join(cards_dir, x))
                 ) for x in sorted(os.listdir(cards_dir))
             ]
             media[-1].caption = get_string('echo_commands.cards')
-            sent = await message.reply_media_group(media=media) # type: ignore[arg-type]
-            
+            sent = await message.reply_media_group(media=media)  # type: ignore[arg-type]
+
             for msg in sent:
                 if msg.photo:
                     largest_photo = msg.photo[-1]
@@ -190,7 +205,7 @@ async def command_cards_handler(message: Message) -> None:
                     ) for file_id in cached_cards_files_id
                 ]
                 media[-1].caption = get_string('echo_commands.cards')
-                await message.reply_media_group(media=media) # type: ignore[arg-type]
+                await message.reply_media_group(media=media)  # type: ignore[arg-type]
             except Exception as e:
                 logger.error(f"{e}")
                 cached_cards_files_id = []
@@ -200,12 +215,14 @@ async def command_cards_handler(message: Message) -> None:
 
 bad_words = get_object("bad_words")
 
+
 def normalize_text(text: str) -> str:
     text = text.lower()
     text = text.replace("ё", "е")
     # убираем лишние символы, типа *, ., -, _
     clean = "".join(ch for ch in text if ch.isalnum() or ch.isspace())
     return clean
+
 
 class BadWordFilter(BaseFilter):
     async def __call__(self, message: Message) -> bool:
@@ -222,6 +239,7 @@ class BadWordFilter(BaseFilter):
 
 
 cached_bad_words_file_id = None
+
 
 @router.message(
     F.chat.type.in_(["group", "supergroup"]),

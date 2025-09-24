@@ -1,7 +1,8 @@
 import asyncio
 import datetime
 import random
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import List
 
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
@@ -15,8 +16,15 @@ from ..storage.strings import get_string, get_strings
 from aiogram.types import Message
 from aiogram.filters import Command, CommandStart, CommandObject
 from .. import utils
+from ..storage.times import get_time_status
 
 router = Router()
+
+
+@dataclass(frozen=True)
+class WorkingKey:
+    time_address: str
+    key: str = 'working_status'
 
 
 @dataclass(frozen=True)
@@ -24,12 +32,16 @@ class EchoCommand:
     command: str
     text: list[str]
     response: str
+    working_status: List[WorkingKey] = field(default_factory=list)
 
 
 commands = [
     EchoCommand("index", ["индекс"], 'echo_commands.index'),
     EchoCommand("address", ["адрес", "адресс", "адресочек"], 'echo_commands.address'),
-    EchoCommand("director", ["заведующий", "заведующая", "завед", "заведа"], 'echo_commands.director'),
+    EchoCommand(
+        "director", ["заведующий", "заведующая", "завед", "заведа"], 'echo_commands.director',
+        [WorkingKey('dorm.director')]
+    ),
     EchoCommand(
         "commandant",
         ["коменда", "комендант", "командант", "командантка", "комменда", "коммендант", "коммандант", "коммандантка"],
@@ -38,24 +50,30 @@ commands = [
     EchoCommand(
         "jko",
         ["жко", "жк", "жилищно коммунальный", "жилищно коммунальный отдел", "жилищно-коммунальный отдел"],
-        'echo_commands.jko'
+        'echo_commands.jko', [WorkingKey('university.jko')]
     ),
-    EchoCommand("hr", ["отдел кадров"], 'echo_commands.hr'),
+    EchoCommand("hr", ["отдел кадров"], 'echo_commands.hr', [WorkingKey('university.hr')]),
     EchoCommand("soft", ["софт", "программы", "программное обеспечение", "ПО"], 'echo_commands.soft'),
-    EchoCommand("library", ["библиотека"], 'echo_commands.library'),
-    EchoCommand("shower", ["душ"], 'echo_commands.shower'),
-    EchoCommand("kitchen", ["кухня"], 'echo_commands.kitchen'),
-    EchoCommand("polyclinic", ["поликлиника"], 'echo_commands.polyclinic'),
-    EchoCommand("accounting", ["бухгалтерия"], 'echo_commands.accounting'),
+    EchoCommand(
+        "library", ["библиотека"], 'echo_commands.library',
+        [WorkingKey('university.library.working'),WorkingKey('university.library.clients', 'working_status_clients')]
+    ),
+    EchoCommand("shower", ["душ"], 'echo_commands.shower', [WorkingKey('dorm.shower')]),
+    EchoCommand("kitchen", ["кухня"], 'echo_commands.kitchen', [WorkingKey('dorm.kitchen')]),
+    EchoCommand("polyclinic", ["поликлиника"], 'echo_commands.polyclinic', [WorkingKey('polyclinic')]),
+    EchoCommand("accounting", ["бухгалтерия"], 'echo_commands.accounting', [WorkingKey('university.accounting')]),
 
     EchoCommand("dean", ["деканат"], 'echo_commands.deanery.default'),
-    EchoCommand("ed", ["ед", "единый деканат"], 'echo_commands.deanery.ed'),
-    EchoCommand("deanit", ["деканат ит"], 'echo_commands.deanery.it'),
-    EchoCommand("deanrit", ["деканат рит"], 'echo_commands.deanery.rit'),
-    EchoCommand("deannacs", ["деканат сисс"], 'echo_commands.deanery.nacs'),
-    EchoCommand("deancais", ["деканат кииб"], 'echo_commands.deanery.cais'),
-    EchoCommand("deandeamc", ["деканат цэимк"], 'echo_commands.deanery.deamc'),
-    EchoCommand("deanforeign", ["иностранный деканат", "иностранный отдел"], 'echo_commands.deanery.foreign'),
+    EchoCommand("ed", ["ед", "единый деканат"], 'echo_commands.deanery.ed', [WorkingKey('university.deans.ed')]),
+    EchoCommand("deanit", ["деканат ит"], 'echo_commands.deanery.it', [WorkingKey('university.deans.it')]),
+    EchoCommand("deanrit", ["деканат рит"], 'echo_commands.deanery.rit', [WorkingKey('university.deans.rit')]),
+    EchoCommand("deannacs", ["деканат сисс"], 'echo_commands.deanery.nacs', [WorkingKey('university.deans.nacs')]),
+    EchoCommand("deancais", ["деканат кииб"], 'echo_commands.deanery.cais', [WorkingKey('university.deans.cais')]),
+    EchoCommand("deandeamc", ["деканат цэимк"], 'echo_commands.deanery.deamc', [WorkingKey('university.deans.deamc')]),
+    EchoCommand(
+        "deanforeign", ["иностранный деканат", "иностранный отдел"], 'echo_commands.deanery.foreign',
+        [WorkingKey('university.deans.foreign')]
+    ),
 
     EchoCommand("depritres", ["кафедра ртс"], 'echo_commands.departments.rit.res'),
     EchoCommand("depritreac", ["кафедра рос"], 'echo_commands.departments.rit.reac'),
@@ -98,11 +116,21 @@ commands = [
 ]
 
 
+def build_kwargs(working_status: List[WorkingKey]) -> dict[str, str]:
+    return {
+        wk.key: get_time_status(wk.time_address)
+        for wk in working_status
+    }
+
+
 def make_handler(command: EchoCommand):
     @router.message(Command(command.command))
     @router.message(lambda message, cmd=command: message.text and message.text.lower() in cmd.text)
     async def echo_command_handler(message: Message) -> None:
-        await message.reply(get_string(command.response))
+        await message.reply(get_string(
+            command.response,
+            **build_kwargs(command.working_status)
+        ))
 
     return echo_command_handler
 

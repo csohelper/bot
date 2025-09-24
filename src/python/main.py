@@ -1,22 +1,24 @@
 import asyncio
+import platform
+
 from aiogram import Bot, Dispatcher, F, Router
+from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.storage.redis import RedisStorage
 from aiogram.types import BotCommand, Message, ReplyKeyboardRemove
+from aiogram.types.link_preview_options import LinkPreviewOptions
 from redis.asyncio import from_url
 
+from python import anecdote_poller, join_refuser
+from python.handlers import echo_commands, images_echo_commands, kek_command, admin_commands
 from python.handlers.services_handlers import add_service_commands, list_services_command, moderate_service, \
     join_service
-from python.handlers import echo_commands, images_echo_commands, kek_command, admin_commands
-from python.storage.repository import services_repository, users_repository, anecdotes_repository
-from python.storage.config import config
-from python.storage.strings import get_object, get_string
-from aiogram.client.default import DefaultBotProperties
-from python.storage.database import open_database_pool, close_database_pool
-import platform
 from python.logger import logger
-from aiogram.types.link_preview_options import LinkPreviewOptions
-from python import anecdote_poller, join_refuser
+from python.storage.config import config
+from python.storage.database import open_database_pool, close_database_pool
+from python.storage.repository import services_repository, users_repository, anecdotes_repository
+from python.storage.strings import get_object, get_string
+from python.storage.times import get_time
 from python.utils import await_and_run
 
 bot: Bot
