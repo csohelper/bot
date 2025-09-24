@@ -128,7 +128,7 @@ echo_commands:
     +7(495)957-77-99 (доб. 151)
     e.a.chernicyna@mtuci.ru
 
-    <a href="https://yandex.ru/maps/?ll=37.713051%2C55.755059&&z=18&pt=37.711934,55.754292,pm2rdm">Фактический адрес: 111024, г. Москва, ул. Авиамоторная, 8 стр. 6, кабинет А-Л-201</a>
+    <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.711934,55.754292,pm2rdm">Фактический адрес: 111024, г. Москва, ул. Авиамоторная, 8 стр. 6, кабинет А-Л-201</a>
     
     {working_status}
   deanery:
@@ -150,7 +150,7 @@ echo_commands:
       <u>Почта:</u>
       ed@mtuci.ru
       <u>Адреса:</u>
-      <a href="https://yandex.ru/maps/?ll=37.713051%2C55.755059&&z=18&pt=37.711221,55.755108,pm2rdm">ул. Авиамоторная, 8а, кабинет 156, этаж 1</a>
+      <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.711221,55.755108,pm2rdm">ул. Авиамоторная, 8а, кабинет 156, этаж 1</a>
       +7(495)957-77-99 (доб. 399)
       <a href="https://yandex.ru/maps/?ll=37.482962%2C55.784228&z=17&pt=37.482649,55.784497,pm2rdm">ул. Народного Ополчения, 32, кабинет 225, этаж 2</a>
       +7(495)957-77-99 (доб. 2001)
@@ -159,7 +159,7 @@ echo_commands:
     it: |
       <b><a href="https://mtuci.ru/dep/304/">Деканат «Информационные Технологии»</a></b>
       (Information Technologies)
-      <a href="https://yandex.ru/maps/?ll=37.713051%2C55.755059&z=18&pt=37.711766,55.755289,pm2rdm">Ауд.: А-427</a>
+      <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.711766,55.755289,pm2rdm">Ауд.: А-427</a>
       +7(495)957-77-99 (доб. 482)
       it@mtuci.ru
       
@@ -169,7 +169,7 @@ echo_commands:
       
       <b>Декан</b>
       Городничев Михаил Геннадьевич
-      <a href="https://yandex.ru/maps/?ll=37.713051%2C55.755059&&z=18&pt=37.712029,55.755816,pm2rdm">Ауд.: А-315</a>
+      <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.712029,55.755816,pm2rdm">Ауд.: А-315</a>
       +7(495)925-10-67
       m.g.gorodnichev@mtuci.ru
       
@@ -187,7 +187,7 @@ echo_commands:
     nacs: |
       <b><a href="https://mtuci.ru/dep/306/">Деканат «Сети и Системы Связи»</a></b>
       (Networks and Communication Systems)
-      <a href="https://yandex.ru/maps/?ll=37.711204%2C55.755103&z=18&pt=37.711204,55.755103,pm2rdm">Ауд.: А-347</a>
+      <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.711204,55.755103,pm2rdm">Ауд.: А-347</a>
       +7(495)957-77-99 (доб. 199)
       mes@mtuci.ru
       
@@ -210,7 +210,7 @@ echo_commands:
     rit: |
       <b><a href="https://mtuci.ru/dep/305/">Деканат «Радио и Телевидение»</a></b>
       (Radio and Television)
-      <a href="https://yandex.ru/maps/?ll=37.713051%2C55.755059&z=18&pt=37.712158,55.755817,pm2rdm">Ауд.: А-416</a>
+      <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.712158,55.755817,pm2rdm">Ауд.: А-416</a>
       +7(495)957-77-99 (доб. 436)
       rit@mtuci.ru
       
@@ -236,7 +236,7 @@ echo_commands:
     cais: |
       <b><a href="https://mtuci.ru/dep/2444/">Деканат «Кибернетика и Информационная Безопасность»</a></b>
       (Cybernetics and Information Security)
-      <a href="https://yandex.ru/maps/?ll=37.713051%2C55.755059&z=18&pt=37.713132,55.755732,pm2rdm">Ауд.: А-403</a>
+      <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.713132,55.755732,pm2rdm">Ауд.: А-403</a>
       +7(495)957-77-99 (доб. 149)
       kiib@mtuci.ru
       
@@ -279,7 +279,7 @@ echo_commands:
     foreign: |
       <b><a href="https://mtuci.ru/education/intern_edu/">Отдел по работе с иностранными учащимися</a></b>
       (Department for Foreign Students Affairs)
-      <a href="https://yandex.ru/maps/?ll=37.713051%2C55.755059&z=18&pt=37.711409,55.755237,pm2rdm">Ауд.: А-345</a>
+      <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.711409,55.755237,pm2rdm">Ауд.: А-345</a>
       +7(495)957-79-95 (доб. 437, 190, 191)
       indec@mtuci.ru
       
@@ -304,7 +304,7 @@ echo_commands:
       mcait: |
         <b><a href="https://mtuci.ru/about_the_university/structure/1211/">Кафедра «Математическая кибернетика и информационные технологии»</a></b>
         (Mathematical Cybernetics and Information Technology)
-        ул. Авиамоторная, д. 8А, Л-502
+        <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.711720,55.754270,pm2rdm">ул. Авиамоторная, д. 8А, Л-502</a>
         mkiit.dep@mtuci.ru
 
         <b>Заведующий Кафедрой</b>
@@ -313,7 +313,7 @@ echo_commands:
       cis: |
         <b><a href="https://mtuci.ru/about_the_university/structure/566/">Кафедра «Корпоративные информационные системы»</a></b>
         (Corporate Information Systems)
-        ул. Авиамоторная, д. 8А, Л-308
+        <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.712143,55.754272,pm2rdm">Ауд.: Л-308</a>
         +7(495)957-77-99 (доб. 469)
         kafedra1c@mtuci.ru
 
@@ -323,7 +323,7 @@ echo_commands:
       nitas: |
         <b><a href="https://mtuci.ru/about_the_university/structure/770/">Кафедра «Сетевые Информационные Технологии и Сервисы»</a></b>
         (Network Information Technologies and Services)
-        ул. Авиамоторная, д. 8А, Л-211
+        <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.712456,55.754307,pm2rdm">Ауд.: Л-211</a>
         +7(495)957-79-71
         +7(495)957-77-74
         aud211@mail.ru
@@ -343,7 +343,7 @@ echo_commands:
       informatics: |
         <b><a href="https://mtuci.ru/about_the_university/structure/529/">Кафедра «Информатика»</a></b>
         (Informatics)
-        Ауд.: Н-125
+        <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.482165,55.783454,pm2rdm">Ауд.: Н-125</a>
         +7(499)192-71-43
         +7(499)192-85-43
         infokaf@mtuci.ru
@@ -354,7 +354,7 @@ echo_commands:
       pe: |
         <b><a href="https://mtuci.ru/about_the_university/structure/574/">Кафедра «Физическое Воспитание»</a></b>
         (Physical Education)
-        Ауд.: А-137, Н-129
+        <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.712133,55.755285,pm2rdm">Ауд.: А-137</a>, <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.482165,55.783454,pm2rdm">Ауд.: Н-129</a>
         +7(495)957-79-70
 
         <b>Заведующий Кафедрой</b>
@@ -362,13 +362,13 @@ echo_commands:
         a.b.sablin@mtuci.ru
       aai: |
         <b><a href="https://mtuci.ru/about_the_university/structure/6902/">Кафедра «Прикладной Искусственный Интеллект»</a></b>
-        Ауд.: Л-206
+        <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.711954,55.754305,pm2rdm">Ауд.: Л-206</a>
 
         <b>Заведующий Кафедрой</b>
         Соловьёв Владимир Игоревич
       sp: |
         <b><a href="https://mtuci.ru/about_the_university/structure/6352/">Кафедра «Системное Программирование»</a></b>
-        Ауд.: Л-212
+        <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.712277,55.754367,pm2rdm">Ауд.: Л-212</a>
 
         <b>Заведующий Кафедрой</b>
         Полищук Юрий Владимирович
@@ -382,7 +382,7 @@ echo_commands:
       res: |
         <b><a href="https://mtuci.ru/about_the_university/structure/582/">Кафедра «Радиотехнические Системы (РТС)»</a></b>
         (Radio Engineering Systems)
-        Ауд.: Л-600, Л-602
+        <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.711749,55.754272,pm2rdm">Ауд.: Л-600, Л-602</a>
         +7(495) 957-77-10
 
         <b>Заведующий Кафедрой</b>
@@ -391,7 +391,7 @@ echo_commands:
       reac: |
         <b><a href="https://mtuci.ru/about_the_university/structure/167/">Кафедра «Радиооборудование и Схемотехника (РОС)»</a></b>
         (Radio Equipment and Circuitry)
-        Ауд.: Л-503
+        <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.712020,55.754205,pm2rdm">Ауд.: Л-503</a>
 
         <b>Заведующий Кафедрой</b>
         Пестряков Александр Валентинович
@@ -400,7 +400,7 @@ echo_commands:
       electronics: |
         <b><a href="https://mtuci.ru/about_the_university/structure/1213/">Кафедра «Электроника»</a></b>
         (Electronics)
-        Ауд.: Л-512, Н-532
+        <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.712415,55.754395,pm2rdm">Ауд.: Л-512</a><a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.482035,55.783155,pm2rdm">Н-532</a>
         +7(499)192-85-08 (Н)
         elektronika@mtuci.ru
 
@@ -409,7 +409,7 @@ echo_commands:
       tasb: |
         <b><a href="https://mtuci.ru/about_the_university/structure/584/">Кафедра «Телевидение и Звуковое Вещание (ТиЗВ)»</a></b>
         (Television and Sound Broadcasting)
-        УЛК-1004...УЛК-1006, Л-105, Л-107
+        <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.714379,55.755420,pm2rdm">УЛК-1004...УЛК-1006</a><a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.712191,55.754225,pm2rdm">Л-105</a><a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.712363,55.754259,pm2rdm">Л-107</a>
 
         <b>И.О. Заведующего Кафедрой</b>
         Литвин Семен Анатольевич
@@ -424,11 +424,11 @@ echo_commands:
         Косичкина Татьяна Павловна
         +7(495)957-77-85
         t.p.kosichkina@mtuci.ru
-        Ауд.: А-354
+        <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.711590,55.754793,pm2rdm">Ауд.: А-354</a>
       tec: |
         <b><a href="https://mtuci.ru/about_the_university/structure/1280/">Кафедра «Теория Электрических Цепей (ТЭЦ)»</a></b>
         (Theory of Electrical Circuits)
-        Ауд.: Н-135
+        <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.482067,55.783219,pm2rdm">Ауд.: Н-135</a>
         +7(499)192-85-87
 
         <b>Заведующий Кафедрой</b>
@@ -438,7 +438,7 @@ echo_commands:
       physics: |
         <b><a href="https://mtuci.ru/about_the_university/structure/573/">Кафедра «Физика»</a></b>
         (Physics)
-        Ауд.: Н-345б
+        <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.482067,55.783219,pm2rdm">Ауд.: Н-345б</a>
 
         <b>Заведующий Кафедрой</b>
         Носков Антон Валерьевич
@@ -446,7 +446,7 @@ echo_commands:
       teaa: |
         <b><a href="https://mtuci.ru/about_the_university/structure/585/">Кафедра «Техническая Электродинамика и Антенны (ТЭДиА)»</a></b>
         (Technical Electrodynamics and Antennas)
-        Ауд.: Л-700, Л-709
+        <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.711828,55.754161,pm2rdm">Ауд.: Л-700, Л-709</a>
         +7(495)957-77-99 (доб. 490)
         tedia@mtuci.ru
 
@@ -457,7 +457,7 @@ echo_commands:
       mts: |
         <b><a href="https://mtuci.ru/about_the_university/structure/763/">Кафедра «Многоканальные Телекоммуникационные Системы (МТС)»</a></b>
         (Multichannel Telecommunication Systems)
-        Ауд.: А-161
+        <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.711484,55.754984,pm2rdm">Ауд.: А-161</a>
         +7(495)957-77-99 (доб. 497)
         mts@mtuci.ru
 
@@ -467,6 +467,7 @@ echo_commands:
       gts: |
         <b><a href="https://mtuci.ru/about_the_university/structure/543/">Кафедра «Направляющие Телекоммуникационные Среды (НТС)»</a></b>
         (Guiding Telecommunication Media)
+        <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.714391,55.755292,pm2rdm">УЛК-7, УЛК-9</a>
         +7(495)957-77-33 (доб. 698)
         mtuci_nts@mtuci.ru
         
@@ -477,7 +478,7 @@ echo_commands:
       gnass: |
         <b><a href="https://mtuci.ru/about_the_university/structure/764/">Кафедра «Сети Связи и Системы Коммутации (ССиСК)»</a></b>
         (Communication Networks and Switching Systems)
-        Ауд.: УЛК-904, 905, 906, Л-400, 402, 407, 408
+        <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.714391,55.755292,pm2rdm">Ауд.: УЛК-904, 905, 906</a><a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.711775,55.754263,pm2rdm">Л-400</a><a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.713259,55.755774,pm2rdm">402, 407, 408</a>
         
         <b>Заведующий Кафедрой</b>
         Степанов Сергей Николаевич
@@ -486,7 +487,7 @@ echo_commands:
       msami: |
         <b><a href="https://mtuci.ru/about_the_university/structure/168/">Кафедра «Метрологии, Стандартизации и Измерений в Инфокоммуникациях (МСиИИ)»</a></b>
         (Metrology, Standardization and Measurement in Info-communications)
-        Ауд.: А-428
+        <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.711548,55.755303,pm2rdm">Ауд.: А-428</a>
         
         <b>Заведующий Кафедрой</b>
         Исаева Людмила Николаевна
@@ -495,7 +496,7 @@ echo_commands:
       gtc: |
         <b><a href="https://mtuci.ru/about_the_university/structure/531/">Кафедра «Общая Теория Связи (ОТС)»</a></b>
         (General Theory of Communication)
-        Ауд.: УЛК-1008, Н-326
+        <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.714485,55.755242,pm2rdm">Ауд.: УЛК-1008</a><a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.482531,55.784520,pm2rdm">Н-326</a>
         +7(495)957-77-99 (доб. 2084)
         
         <b>Заведующий Кафедрой</b>
@@ -506,7 +507,7 @@ echo_commands:
       edet: |
         <b><a href="https://mtuci.ru/about_the_university/structure/771/">Кафедра «Технологии Электронного Обмена Данными (ТЭОД)»</a></b>
         (Electronic Data Exchange Technologies)
-        Ауд.: А-242
+        <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.482073,55.783307,pm2rdm">Ауд.: А-242</a>
         +7 (495) 532-37-11
         mvs@ccitn.ru
         
@@ -515,7 +516,7 @@ echo_commands:
       is: |
         <b><a href="https://mtuci.ru/about_the_university/structure/769/">Кафедра «Информационная Безопасность (ИБ)»</a></b>
         (Information Security)
-        Ауд.: А-254
+        <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.711495,55.754938,pm2rdm">Ауд.: А-254</a>
         +7(495)957-79-51
         mail@kibia.ru
         
@@ -525,7 +526,7 @@ echo_commands:
       ismaa: |
         <b><a href="https://mtuci.ru/about_the_university/structure/768/">Кафедра «Интеллектуальные Системы в Управлении и Автоматизации (ИСУиА)»</a></b>
         (Intelligent Systems in Management and Automation)
-        Ауд.: А-344
+        <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.711450,55.755258,pm2rdm">Ауд.: А-344</a>
         +7(495)957-77-99 (доб. 640)
         isua.kaf@yandex.ru
         
@@ -539,7 +540,7 @@ echo_commands:
       ptaam: |
         <b><a href="https://mtuci.ru/about_the_university/structure/575/">Кафедра «Теория Вероятностей и Прикладная Математика (ТВиПМ)»</a></b>
         (Probability Theory and Applied Mathematics)
-        Ауд.: Н-513, Н-517а
+        <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.482645,55.784385,pm2rdm">Ауд.: Н-513, Н-517а</a>
         Секретарь: +7(499)192-80-29
         tvipm.dep@mtuci.ru
         
@@ -550,7 +551,7 @@ echo_commands:
       elsap: |
         <b><a href="https://mtuci.ru/about_the_university/structure/575/">Кафедра «Экология, Безопасность Жизнедеятельности и Электропитание (ЭБЖиЭ)»</a></b>
         (Ecology, Life Safety and Power Supply)
-        Ауд.: А-153
+        <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.711450,55.755258,pm2rdm">Ауд.: А-153</a>
         +7(495)957-77-15 (доб. 762)
         
         <b>Заведующая Кафедрой</b>
@@ -566,7 +567,7 @@ echo_commands:
       dat: |
         <b><a href="https://mtuci.ru/about_the_university/structure/6143/">Кафедра «Цифровые технологии рекламы (ЦТР)»</a></b>
         (Digital Advertising Technologies)
-        Ауд.: Н-402
+        <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.483037,55.785385,pm2rdm">Ауд.: Н-402</a>
         +7(495)957-77-99 (доб. 2072)
         
         <b>Заведующий кафедрой</b>
@@ -575,7 +576,7 @@ echo_commands:
       srapr: |
         <b><a href="https://mtuci.ru/about_the_university/structure/571/">Кафедра «Социальные отношения, Реклама и Связи с Общественностью (СРиСО)»</a></b>
         (Social relations, Advertising and Public Relations)
-        Ауд.: Н-402
+        <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.483037,55.785385,pm2rdm">Ауд.: Н-314</a>
         +7(499)957-78-52
         
         <b>Заведующий Кафедрой</b>
@@ -593,7 +594,7 @@ echo_commands:
       phaic: |
         <b><a href="https://mtuci.ru/about_the_university/structure/530/">Кафедра «Философия, История и Межкультурные Коммуникации (ФИиМК)»</a></b>
         (Philosophy, History and Intercultural Communication)
-        Ауд.: Н-311
+        <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.483037,55.785385,pm2rdm">Ауд.: Н-311</a>
         +7(495)957-79-70 (доб. 2079)
         filos@mtuci.ru
         
@@ -603,7 +604,7 @@ echo_commands:
       for: |
         <b><a href="https://mtuci.ru/about_the_university/structure/527/">Кафедра «Иностранные Языки (ИНО)»</a></b>
         (Foreign Languages)
-        Ауд.: Н-324
+        <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.483037,55.785385,pm2rdm">Ауд.: Н-324</a>
         +7(495)957-79-70 (доб. 2082)
         ino@mtuci.ru
         
@@ -613,7 +614,7 @@ echo_commands:
       bcs: |
         <b><a href="https://mtuci.ru/about_the_university/structure/160/">Кафедра «Бизнес-Информатика (БИ)»</a></b>
         (Business Computer Science)
-        Ауд.: Н-407
+        <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.483037,55.785385,pm2rdm">Ауд.: Н-407</a>
         +7(495)957-77-99 (доб. 2096)
         bi.dep@mtuci.ru
         
@@ -626,7 +627,7 @@ echo_commands:
     +7(495)957-77-29
     +7(495)957-77-99 (доб. 438)
     t.a.novikova@mtuci.ru
-    <a href="https://yandex.ru/maps/?ll=37.713051%2C55.755059&z=18&pt=37.713264,55.755819,pm2rdm">Ауд.: А-101</a>
+    <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.713264,55.755819,pm2rdm">Ауд.: А-101</a>
     
     {working_status}
   unknown: |
@@ -638,7 +639,7 @@ echo_commands:
     Телефоны: +7(495)673-44-41, +7(495)957-77-07
     Факс: +7(495)957-7934
     E-mail: kadr@mtuci.ru
-    <a href="https://yandex.ru/maps/?ll=37.713051%2C55.755059&z=18&pt=37.711585,55.754505,pm2rdm">Адрес: 111024, г. Москва, ул. Авиамоторная д. 8а стр. 1, кабинет А-265</a>
+    <a href="https://yandex.ru/maps/?ll=37.714185%2C55.754809&z=18&pt=37.711585,55.754505,pm2rdm">Адрес: 111024, г. Москва, ул. Авиамоторная д. 8а стр. 1, кабинет А-265</a>
 
     <u>Структура отдела кадров:</u>
     Группа по работе с личным составом - +7(495)957-7707
