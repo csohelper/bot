@@ -55,6 +55,7 @@ commands = [
     EchoCommand("deannacs", ["деканат сисс"], 'echo_commands.deanery.nacs'),
     EchoCommand("deancais", ["деканат кииб"], 'echo_commands.deanery.cais'),
     EchoCommand("deandeamc", ["деканат цэимк"], 'echo_commands.deanery.deamc'),
+    EchoCommand("deanforeign", ["иностранный деканат", "иностранный отдел"], 'echo_commands.deanery.foreign'),
 
     EchoCommand("depritres", ["кафедра ртс"], 'echo_commands.departments.rit.res'),
     EchoCommand("depritreac", ["кафедра рос"], 'echo_commands.departments.rit.reac'),
