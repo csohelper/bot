@@ -158,9 +158,9 @@ def get_time_status(time_address: str) -> str | None:
         elif hours > 0:
             return get_string("time.open.h", hours)
         elif minutes > 0:
-            return get_string("time.open.m", minutes)
+            return get_string("time.open.m", minutes + 1)
         else:
-            return get_string("time.open.s", seconds)
+            return get_string("time.open.s", seconds + 1)
 
     if info.status == TimeStatus.REMAIN:
         if days >= 3:
@@ -172,16 +172,16 @@ def get_time_status(time_address: str) -> str | None:
         elif hours > 0:
             return get_string("time.remain.h", hours)
         elif minutes > 0:
-            return get_string("time.remain.m", minutes)
+            return get_string("time.remain.m", minutes + 1)
         else:
-            return get_string("time.remain.s", seconds)
+            return get_string("time.remain.s", seconds + 1)
 
     if info.status == TimeStatus.PASSED:
         if hours > 0:
             return get_string("time.passed.h", hours)
         elif minutes > 0:
-            return get_string("time.passed.m", minutes)
+            return get_string("time.passed.m", minutes + 1)
         else:
-            return get_string("time.passed.s", seconds)
+            return get_string("time.passed.s", seconds + 1)
 
     return None

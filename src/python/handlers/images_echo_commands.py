@@ -98,7 +98,7 @@ async def command_linen_handler(message: Message) -> None:
             image_path = "./src/res/images/linen.jpg"
             sent: Message = await message.reply_photo(
                 photo=FSInputFile(image_path),
-                caption=get_string('echo_commands.linen'),
+                caption=get_string('echo_commands.linen', working_status=get_time_status('dorm.linen')),
                 show_caption_above_media=True
             )
             if sent.photo:
@@ -107,7 +107,7 @@ async def command_linen_handler(message: Message) -> None:
             try:
                 await message.reply_photo(
                     photo=cached_linen_file_id,
-                    caption=get_string('echo_commands.linen'),
+                    caption=get_string('echo_commands.linen', working_status=get_time_status('dorm.linen')),
                     show_caption_above_media=True
                 )
             except Exception as e:
