@@ -128,7 +128,7 @@ echo_commands:
     +7(495)957-77-99 (доб. 151)
     e.a.chernicyna@mtuci.ru
 
-    Фактический адрес: 111024, г. Москва, ул. Авиамоторная, 8 стр. 6, кабинет А-Л-201
+    <a href="https://yandex.ru/maps/?ll=37.713051%2C55.755059&&z=18&pt=37.711934,55.754292,pm2rdm">Фактический адрес: 111024, г. Москва, ул. Авиамоторная, 8 стр. 6, кабинет А-Л-201</a>
     
     {working_status}
   deanery:
@@ -150,16 +150,16 @@ echo_commands:
       <u>Почта:</u>
       ed@mtuci.ru
       <u>Адреса:</u>
-      ул. Авиамоторная, 8а, кабинет 156, этаж 1
+      <a href="https://yandex.ru/maps/?ll=37.713051%2C55.755059&&z=18&pt=37.711221,55.755108,pm2rdm">ул. Авиамоторная, 8а, кабинет 156, этаж 1</a>
       +7(495)957-77-99 (доб. 399)
-      ул. Народного Ополчения, 32, кабинет 225, этаж 2
+      <a href="https://yandex.ru/maps/?ll=37.482962%2C55.784228&z=17&pt=37.482649,55.784497,pm2rdm">ул. Народного Ополчения, 32, кабинет 225, этаж 2</a>
       +7(495)957-77-99 (доб. 2001)
       
       {working_status}
     it: |
       <b><a href="https://mtuci.ru/dep/304/">Деканат «Информационные Технологии»</a></b>
       (Information Technologies)
-      Ауд.: А-427
+      <a href="https://yandex.ru/maps/?ll=37.713051%2C55.755059&z=18&pt=37.711766,55.755289,pm2rdm">Ауд.: А-427</a>
       +7(495)957-77-99 (доб. 482)
       it@mtuci.ru
       
@@ -169,7 +169,7 @@ echo_commands:
       
       <b>Декан</b>
       Городничев Михаил Геннадьевич
-      А-315
+      <a href="https://yandex.ru/maps/?ll=37.713051%2C55.755059&&z=18&pt=37.712029,55.755816,pm2rdm">Ауд.: А-315</a>
       +7(495)925-10-67
       m.g.gorodnichev@mtuci.ru
       
@@ -187,7 +187,7 @@ echo_commands:
     nacs: |
       <b><a href="https://mtuci.ru/dep/306/">Деканат «Сети и Системы Связи»</a></b>
       (Networks and Communication Systems)
-      Ауд.: А-347
+      <a href="https://yandex.ru/maps/?ll=37.711204%2C55.755103&z=18&pt=37.711204,55.755103,pm2rdm">Ауд.: А-347</a>
       +7(495)957-77-99 (доб. 199)
       mes@mtuci.ru
       
@@ -210,7 +210,7 @@ echo_commands:
     rit: |
       <b><a href="https://mtuci.ru/dep/305/">Деканат «Радио и Телевидение»</a></b>
       (Radio and Television)
-      Ауд.: А-416
+      <a href="https://yandex.ru/maps/?ll=37.713051%2C55.755059&z=18&pt=37.712158,55.755817,pm2rdm">Ауд.: А-416</a>
       +7(495)957-77-99 (доб. 436)
       rit@mtuci.ru
       
@@ -236,7 +236,7 @@ echo_commands:
     cais: |
       <b><a href="https://mtuci.ru/dep/2444/">Деканат «Кибернетика и Информационная Безопасность»</a></b>
       (Cybernetics and Information Security)
-      Ауд.: А-403
+      <a href="https://yandex.ru/maps/?ll=37.713051%2C55.755059&z=18&pt=37.713132,55.755732,pm2rdm">Ауд.: А-403</a>
       +7(495)957-77-99 (доб. 149)
       kiib@mtuci.ru
       
@@ -261,7 +261,7 @@ echo_commands:
     deamc: |
       <b><a href="https://mtuci.ru/dep/307">Деканат «Цифровая Экономика и Массовые Коммуникации»</a></b>
       (Digital Economy and Mass Communications)
-      Ауд.: Н-417
+      <a href="https://yandex.ru/maps/?ll=37.482962%2C55.784228&z=18&pt=37.482482,55.784163,pm2rdm">Ауд.: Н-417</a>
       +7(495)957-77-99 (доб. 2099)
       
       <b>Декан</b>
@@ -269,8 +269,6 @@ echo_commands:
       +7(499)192-86-57
       +7(499)192-85-00
       e.v.vahovskiy@mtuci.ru
-      
-      {working_status}
       
       <b>Кафедра ЦТР</b> (или /depdat)
       <b>Кафедра СРиСО</b> (или /depsrapr)
@@ -281,7 +279,7 @@ echo_commands:
     foreign: |
       <b><a href="https://mtuci.ru/education/intern_edu/">Отдел по работе с иностранными учащимися</a></b>
       (Department for Foreign Students Affairs)
-      Ауд.: А-345
+      <a href="https://yandex.ru/maps/?ll=37.713051%2C55.755059&z=18&pt=37.711409,55.755237,pm2rdm">Ауд.: А-345</a>
       +7(495)957-79-95 (доб. 437, 190, 191)
       indec@mtuci.ru
       
@@ -628,7 +626,7 @@ echo_commands:
     +7(495)957-77-29
     +7(495)957-77-99 (доб. 438)
     t.a.novikova@mtuci.ru
-    Ауд.: А-101
+    <a href="https://yandex.ru/maps/?ll=37.713051%2C55.755059&z=18&pt=37.713264,55.755819,pm2rdm">Ауд.: А-101</a>
     
     {working_status}
   unknown: |
@@ -640,7 +638,7 @@ echo_commands:
     Телефоны: +7(495)673-44-41, +7(495)957-77-07
     Факс: +7(495)957-7934
     E-mail: kadr@mtuci.ru
-    Адрес: 111024, г. Москва, ул. Авиамоторная д. 8а стр. 1, кабинет А-265
+    <a href="https://yandex.ru/maps/?ll=37.713051%2C55.755059&z=18&pt=37.711585,55.754505,pm2rdm">Адрес: 111024, г. Москва, ул. Авиамоторная д. 8а стр. 1, кабинет А-265</a>
 
     <u>Структура отдела кадров:</u>
     Группа по работе с личным составом - +7(495)957-7707

@@ -69,7 +69,7 @@ commands = [
     EchoCommand("deanrit", ["деканат рит"], 'echo_commands.deanery.rit', [WorkingKey('university.deans.rit')]),
     EchoCommand("deannacs", ["деканат сисс"], 'echo_commands.deanery.nacs', [WorkingKey('university.deans.nacs')]),
     EchoCommand("deancais", ["деканат кииб"], 'echo_commands.deanery.cais', [WorkingKey('university.deans.cais')]),
-    EchoCommand("deandeamc", ["деканат цэимк"], 'echo_commands.deanery.deamc', [WorkingKey('university.deans.deamc')]),
+    EchoCommand("deandeamc", ["деканат цэимк"], 'echo_commands.deanery.deamc'),
     EchoCommand(
         "deanforeign", ["иностранный деканат", "иностранный отдел"], 'echo_commands.deanery.foreign',
         [WorkingKey('university.deans.foreign')]
