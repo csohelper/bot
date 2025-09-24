@@ -174,8 +174,9 @@ university:
         - 1
         - 2
         - 3
+        - 5
       times:
-        - start: 09:00
+        - start: 10:00
           end: 18:00
   hr:
     - days:
