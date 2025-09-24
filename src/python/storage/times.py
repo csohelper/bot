@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import time, timedelta, datetime
+from enum import Enum
 from zoneinfo import ZoneInfo
 
 import yaml
@@ -87,7 +88,19 @@ with open("src/res/times.yaml", "r", encoding="utf-8") as f:
 times = walk(data)
 
 
-def get_time(time_address: str) -> timedelta | None:
+class TimeStatus(Enum):
+    OPEN = "open"  # Сейчас открыто
+    REMAIN = "remain"  # До открытия
+    PASSED = "passed"  # Уже закрылось
+
+
+@dataclass(frozen=True)
+class TimeDeltaInfo:
+    status: TimeStatus
+    delta: timedelta  # сколько времени до/после (для OPEN – до закрытия)
+
+
+def get_time(time_address: str) -> TimeDeltaInfo | None:
     parts = time_address.split(".")
     node = times
     for p in parts:
@@ -99,10 +112,9 @@ def get_time(time_address: str) -> timedelta | None:
     tz = ZoneInfo(config.timezone)
     now = datetime.now(tz)
 
-    deltas: list[timedelta] = []
+    deltas: list[TimeDeltaInfo] = []
 
-    # Проверяем сегодня и до недели вперёд
-    for shift in range(0, 8):  # только будущее (включая сегодня)
+    for shift in range(0, 8):  # только сегодня и вперёд
         day = now.date() + timedelta(days=shift)
         weekday = day.weekday()
 
@@ -113,42 +125,44 @@ def get_time(time_address: str) -> timedelta | None:
                     end_dt = datetime.combine(day, t.end, tz)
 
                     if start_dt <= now <= end_dt and shift == 0:
-                        return timedelta(0)  # прямо сейчас открыто
+                        return TimeDeltaInfo(TimeStatus.OPEN, end_dt - now)
 
                     if shift == 0:
                         if now < start_dt:
-                            # сегодня ещё не началось → приоритет
-                            deltas.append(start_dt - now)
+                            deltas.append(TimeDeltaInfo(TimeStatus.REMAIN, start_dt - now))
                         elif now > end_dt:
-                            # сегодня уже закрылось → приоритет
-                            deltas.append(-(now - end_dt))
+                            deltas.append(TimeDeltaInfo(TimeStatus.PASSED, now - end_dt))
                     else:
-                        # будущее дни → только положительные интервалы
                         if now < start_dt:
-                            deltas.append(start_dt - now)
+                            deltas.append(TimeDeltaInfo(TimeStatus.REMAIN, start_dt - now))
 
     if not deltas:
         return None
 
-    # выбираем ближайший по абсолютному времени
-    return min(deltas, key=lambda d: abs(d.total_seconds()))
+    return min(deltas, key=lambda d: d.delta.total_seconds())
 
 
 def get_time_status(time_address: str) -> str | None:
-    delta = get_time(time_address)
-    if delta is None:
+    info = get_time(time_address)
+    if info is None:
         return None
 
-    total_seconds = int(delta.total_seconds())
+    total_seconds = int(info.delta.total_seconds())
+    days, rem = divmod(total_seconds, 86400)
+    hours, rem = divmod(rem, 3600)
+    minutes, seconds = divmod(rem, 60)
 
-    if total_seconds == 0:
-        return get_string("time.open")
+    if info.status == TimeStatus.OPEN:
+        if days > 0:
+            return get_string("time.open.d", days)
+        elif hours > 0:
+            return get_string("time.open.h", hours)
+        elif minutes > 0:
+            return get_string("time.open.m", minutes)
+        else:
+            return get_string("time.open.s", seconds)
 
-    if total_seconds > 0:  # ещё не открылось
-        days, rem = divmod(total_seconds, 86400)
-        hours, rem = divmod(rem, 3600)
-        minutes, seconds = divmod(rem, 60)
-
+    if info.status == TimeStatus.REMAIN:
         if days >= 3:
             return get_string("time.remain.d", days)
         elif days == 2:
@@ -162,14 +176,12 @@ def get_time_status(time_address: str) -> str | None:
         else:
             return get_string("time.remain.s", seconds)
 
-    else:  # уже закрылось
-        total_seconds = abs(total_seconds)
-        hours, rem = divmod(total_seconds, 3600)
-        minutes, seconds = divmod(rem, 60)
-
+    if info.status == TimeStatus.PASSED:
         if hours > 0:
             return get_string("time.passed.h", hours)
         elif minutes > 0:
             return get_string("time.passed.m", minutes)
         else:
             return get_string("time.passed.s", seconds)
+
+    return None
