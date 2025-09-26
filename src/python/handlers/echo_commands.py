@@ -52,11 +52,14 @@ commands = [
         ["жко", "жк", "жилищно коммунальный", "жилищно коммунальный отдел", "жилищно-коммунальный отдел"],
         'echo_commands.jko', [WorkingKey('university.jko')]
     ),
-    EchoCommand("hr", ["отдел кадров"], 'echo_commands.hr', [WorkingKey('university.hr')]),
+    EchoCommand(
+        "hr", ["отдел кадров"], 'echo_commands.hr',
+        [WorkingKey('university.hr.working'), WorkingKey('university.hr.certificate', 'working_status_certificate')]
+    ),
     EchoCommand("soft", ["софт", "программы", "программное обеспечение", "ПО"], 'echo_commands.soft'),
     EchoCommand(
         "library", ["библиотека"], 'echo_commands.library',
-        [WorkingKey('university.library.working'),WorkingKey('university.library.clients', 'working_status_clients')]
+        [WorkingKey('university.library.working'), WorkingKey('university.library.clients', 'working_status_clients')]
     ),
     EchoCommand("shower", ["душ"], 'echo_commands.shower', [WorkingKey('dorm.shower')]),
     EchoCommand("kitchen", ["кухня"], 'echo_commands.kitchen', [WorkingKey('dorm.kitchen')]),

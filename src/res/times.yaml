@@ -177,23 +177,33 @@ university:
         - start: 10:00
           end: 18:00
   hr:
-    - days:
-        - 0
-        - 1
-        - 2
-        - 3
-      times:
-        - start: 10:00
-          end: 13:00
-        - start: 14:00
-          end: 17:00
-    - days:
-        - 4
-      times:
-        - start: 10:00
-          end: 13:00
-        - start: 14:00
-          end: 16:45
+    working:
+      - days:
+          - 0
+          - 1
+          - 2
+          - 3
+        times:
+          - start: 10:00
+            end: 13:00
+          - start: 14:00
+            end: 17:00
+      - days:
+          - 4
+        times:
+          - start: 10:00
+            end: 13:00
+          - start: 14:00
+            end: 16:45
+    certificate:
+      - days:
+          - 0
+          - 2
+        times:
+          - start: 10:00
+            end: 13:00
+          - start: 14:00
+            end: 17:00
   library:
     working:
       - days:
