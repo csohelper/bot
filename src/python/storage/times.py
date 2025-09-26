@@ -7,6 +7,7 @@ import yaml
 
 from python.storage.config import config
 from python.storage.strings import get_string
+from python.utils import TimeDelta
 
 
 @dataclass(frozen=True)
@@ -90,14 +91,14 @@ times = walk(data)
 
 class TimeStatus(Enum):
     OPEN = "open"  # Сейчас открыто
-    REMAIN = "remain"  # До открытия
-    PASSED = "passed"  # Уже закрылось
+    CLOSED = "remain"  # Сейчас закрыто
 
 
 @dataclass(frozen=True)
 class TimeDeltaInfo:
     status: TimeStatus
-    delta: timedelta  # сколько времени до/после (для OPEN – до закрытия)
+    delta_past: timedelta  # сколько времени прошло с открытия / закрытия
+    delta_future: timedelta  # сколько времени осталось до закрытия / открытия
 
 
 def get_time(time_address: str) -> TimeDeltaInfo | None:
@@ -112,9 +113,11 @@ def get_time(time_address: str) -> TimeDeltaInfo | None:
     tz = ZoneInfo(config.timezone)
     now = datetime.now(tz)
 
-    deltas: list[TimeDeltaInfo] = []
+    past_candidates: list[tuple[datetime, datetime]] = []
+    future_candidates: list[tuple[datetime, datetime]] = []
 
-    for shift in range(0, 8):  # только сегодня и вперёд
+    # смотрим неделю назад и неделю вперёд
+    for shift in range(-7, 8):
         day = now.date() + timedelta(days=shift)
         weekday = day.weekday()
 
@@ -124,27 +127,35 @@ def get_time(time_address: str) -> TimeDeltaInfo | None:
                     start_dt = datetime.combine(day, t.start, tz)
                     end_dt = datetime.combine(day, t.end, tz)
 
-                    # обработка перехода на следующий день
+                    # корректировка, если "перелив" на следующий день
                     if end_dt <= start_dt:
                         end_dt += timedelta(days=1)
 
-                    if start_dt <= now <= end_dt and shift == 0:
-                        return TimeDeltaInfo(TimeStatus.OPEN, end_dt - now)
-
-                    if shift == 0:
-                        if now < start_dt:
-                            deltas.append(TimeDeltaInfo(TimeStatus.REMAIN, start_dt - now))
-                        elif now > end_dt:
-                            deltas.append(TimeDeltaInfo(TimeStatus.PASSED, now - end_dt))
+                    if end_dt <= now:
+                        # уже полностью прошло
+                        past_candidates.append((start_dt, end_dt))
+                    elif start_dt > now:
+                        # ещё не началось
+                        future_candidates.append((start_dt, end_dt))
                     else:
-                        if now < start_dt:
-                            deltas.append(TimeDeltaInfo(TimeStatus.REMAIN, start_dt - now))
+                        # сейчас открыто
+                        return TimeDeltaInfo(
+                            status=TimeStatus.OPEN,
+                            delta_past=now - start_dt,
+                            delta_future=end_dt - now,
+                        )
 
-    if not deltas:
-        return None
+    # если закрыто, ищем ближайшую пару "прошлый слот -> следующий слот"
+    if past_candidates and future_candidates:
+        last_past = max(past_candidates, key=lambda x: x[1])  # ближайшее прошедшее закрытие
+        next_future = min(future_candidates, key=lambda x: x[0])  # ближайшее будущее открытие
+        return TimeDeltaInfo(
+            status=TimeStatus.CLOSED,
+            delta_past=now - last_past[1],  # прошло с момента закрытия
+            delta_future=next_future[0] - now,  # осталось до открытия
+        )
 
-    # ближайший по времени (по абсолютному значению)
-    return min(deltas, key=lambda d: d.delta.total_seconds())
+    return None
 
 
 def get_time_status(time_address: str) -> str | None:
@@ -152,51 +163,40 @@ def get_time_status(time_address: str) -> str | None:
     if info is None:
         return None
 
-    total_seconds = int(info.delta.total_seconds())
-    days, rem = divmod(total_seconds, 86400)
-    hours, rem = divmod(rem, 3600)
-    minutes, seconds = divmod(rem, 60)
-    micros = info.delta.microseconds
+    future = TimeDelta.create_from_delta(info.delta_future).round()
+    past = TimeDelta.create_from_delta(info.delta_past, False).round()
 
-    if micros > 0 and seconds != 0:
-        seconds += 1
-    if seconds > 0 and minutes != 0:
-        minutes += 1
-    if hours > 0 and days != 0:
-        days += 1
-    if minutes > 30 and hours != 0:
-        hours += 1
-
-    if info.status == TimeStatus.OPEN:
-        if days > 0:
-            return get_string("time.open.d", days)
-        elif hours > 0:
-            return get_string("time.open.h", hours)
-        elif minutes > 0:
-            return get_string("time.open.m", minutes)
+    if info.status == TimeStatus.CLOSED:
+        total_hours = past.total_hours
+        if total_hours < 1:
+            status = get_string("time.colors.opening")
         else:
-            return get_string("time.open.s", seconds)
-
-    if info.status == TimeStatus.REMAIN:
-        if days >= 3:
-            return get_string("time.remain.d", days)
-        elif days == 2:
-            return get_string("time.remain.2d")
-        elif days == 1:
-            return get_string("time.remain.1d")
-        elif hours > 0:
-            return get_string("time.remain.h", hours)
-        elif minutes > 0:
-            return get_string("time.remain.m", minutes)
+            status = get_string("time.colors.closed")
+        if total_hours < 8:
+            key = "time.placeholders.early_closed"
         else:
-            return get_string("time.remain.s", seconds)
-
-    if info.status == TimeStatus.PASSED:
-        if hours > 0:
-            return get_string("time.passed.h", hours)
-        elif minutes > 0:
-            return get_string("time.passed.m", minutes)
+            key = "time.placeholders.closed"
+        return get_string(
+            key,
+            status=status,
+            closed_time=past.parse_string(),
+            opening_time=future.parse_string()
+        )
+    elif info.status == TimeStatus.OPEN:
+        if future.total_hours < 1:
+            status = get_string("time.colors.closing")
         else:
-            return get_string("time.passed.s", seconds)
+            status = get_string("time.colors.open")
+        if past.total_hours < 1:
+            key = "time.placeholders.early_open"
+        else:
+            key = "time.placeholders.open"
 
-    return None
+        return get_string(
+            key,
+            status=status,
+            opened_time=past.parse_string(),
+            closing_time=future.parse_string()
+        )
+    else:
+        return None
