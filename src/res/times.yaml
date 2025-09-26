@@ -19,10 +19,10 @@ dorm:
         - 5
         - 6
       times:
-        - start: 00:00
-          end: 01:00
         - start: 06:00
-          end: 23:59:59.999
+          end: 12:00
+        - start: 13:00
+          end: 01:00
   kitchen:
     - days:
         - 0
@@ -33,10 +33,8 @@ dorm:
         - 5
         - 6
       times:
-        - start: 00:00
-          end: 01:00
         - start: 06:00
-          end: 23:59:59.999
+          end: 01:00
   linen:
     - days:
         - 0
@@ -174,7 +172,7 @@ university:
         - 1
         - 2
         - 3
-        - 5
+        - 4
       times:
         - start: 10:00
           end: 18:00

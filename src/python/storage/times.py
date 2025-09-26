@@ -124,6 +124,10 @@ def get_time(time_address: str) -> TimeDeltaInfo | None:
                     start_dt = datetime.combine(day, t.start, tz)
                     end_dt = datetime.combine(day, t.end, tz)
 
+                    # обработка перехода на следующий день
+                    if end_dt <= start_dt:
+                        end_dt += timedelta(days=1)
+
                     if start_dt <= now <= end_dt and shift == 0:
                         return TimeDeltaInfo(TimeStatus.OPEN, end_dt - now)
 
@@ -139,6 +143,7 @@ def get_time(time_address: str) -> TimeDeltaInfo | None:
     if not deltas:
         return None
 
+    # ближайший по времени (по абсолютному значению)
     return min(deltas, key=lambda d: d.delta.total_seconds())
 
 
@@ -151,6 +156,16 @@ def get_time_status(time_address: str) -> str | None:
     days, rem = divmod(total_seconds, 86400)
     hours, rem = divmod(rem, 3600)
     minutes, seconds = divmod(rem, 60)
+    micros = info.delta.microseconds
+
+    if micros > 0 and seconds != 0:
+        seconds += 1
+    if seconds > 0 and minutes != 0:
+        minutes += 1
+    if hours > 0 and days != 0:
+        days += 1
+    if minutes > 30 and hours != 0:
+        hours += 1
 
     if info.status == TimeStatus.OPEN:
         if days > 0:
@@ -158,9 +173,9 @@ def get_time_status(time_address: str) -> str | None:
         elif hours > 0:
             return get_string("time.open.h", hours)
         elif minutes > 0:
-            return get_string("time.open.m", minutes + 1)
+            return get_string("time.open.m", minutes)
         else:
-            return get_string("time.open.s", seconds + 1)
+            return get_string("time.open.s", seconds)
 
     if info.status == TimeStatus.REMAIN:
         if days >= 3:
@@ -172,16 +187,16 @@ def get_time_status(time_address: str) -> str | None:
         elif hours > 0:
             return get_string("time.remain.h", hours)
         elif minutes > 0:
-            return get_string("time.remain.m", minutes + 1)
+            return get_string("time.remain.m", minutes)
         else:
-            return get_string("time.remain.s", seconds + 1)
+            return get_string("time.remain.s", seconds)
 
     if info.status == TimeStatus.PASSED:
         if hours > 0:
             return get_string("time.passed.h", hours)
         elif minutes > 0:
-            return get_string("time.passed.m", minutes + 1)
+            return get_string("time.passed.m", minutes)
         else:
-            return get_string("time.passed.s", seconds + 1)
+            return get_string("time.passed.s", seconds)
 
     return None
