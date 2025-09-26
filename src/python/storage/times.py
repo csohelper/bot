@@ -167,12 +167,11 @@ def get_time_status(time_address: str) -> str | None:
     past = TimeDelta.create_from_delta(info.delta_past, False).round()
 
     if info.status == TimeStatus.CLOSED:
-        total_hours = past.total_hours
-        if total_hours < 1:
+        if future.total_hours < 1:
             status = get_string("time.colors.opening")
         else:
             status = get_string("time.colors.closed")
-        if total_hours < 8:
+        if past.total_hours < 8:
             key = "time.placeholders.early_closed"
         else:
             key = "time.placeholders.closed"

@@ -943,7 +943,7 @@ time:
     closed: "🔴"
     open: "🟢"
     opening: "🟡"
-    closing: "🟠"
+    closing: "🟡"
   format:
     future:
       unknown: "{d}:{h}:{m}:{s}:{u}"
