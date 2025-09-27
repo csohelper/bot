@@ -44,7 +44,7 @@ class ServicesCallbackFactory(CallbackData, prefix="services"):
 PAGE_SIZE = 5
 
 
-async def parse_folder_keyboard(path: str, offset=0, is_pm=False) -> tuple[InlineKeyboardBuilder, int, int]:
+async def parse_folder_keyboard(lang: str, path: str, offset=0, is_pm=False) -> tuple[InlineKeyboardBuilder, int, int]:
     services = await services_repository.get_service_list(path)
     builder = InlineKeyboardBuilder()
     logger.debug(f"{path}: {services}")
@@ -53,14 +53,14 @@ async def parse_folder_keyboard(path: str, offset=0, is_pm=False) -> tuple[Inlin
         if is_pm:
             builder.row(
                 InlineKeyboardButton(
-                    text=get_string("services.add_button.title"),
+                    text=get_string(lang, "services.add_button.title"),
                     callback_data=AddServiceHandlerFactory().pack()
                 )
             )
         else:
             builder.row(
                 InlineKeyboardButton(
-                    text=get_string("services.add_button.title"),
+                    text=get_string(lang, "services.add_button.title"),
                     url=await create_start_link(_bot, 'addservice', encode=True)
                 )
             )
@@ -73,10 +73,11 @@ async def parse_folder_keyboard(path: str, offset=0, is_pm=False) -> tuple[Inlin
     for service in l:
         if service.is_folder:
             button_path = service.folder_dest
-            text = get_string("services.folder_button", service.name)
+            text = get_string(lang,"services.folder_button", service.name)
         else:
             button_path = service.service_id
             text = get_string(
+                lang,
                 "services.service_button",
                 service.name, service.cost, service.cost_per,
                 service.owner
@@ -98,7 +99,7 @@ async def parse_folder_keyboard(path: str, offset=0, is_pm=False) -> tuple[Inlin
         if offset > 0:
             row.append(
                 InlineKeyboardButton(
-                    text=get_string("services.prev_button"),
+                    text=get_string(lang, "services.prev_button"),
                     callback_data=ServicesCallbackFactory(
                         path=path,
                         offset=offset - PAGE_SIZE
@@ -108,7 +109,7 @@ async def parse_folder_keyboard(path: str, offset=0, is_pm=False) -> tuple[Inlin
         if offset + PAGE_SIZE < len(services):
             row.append(
                 InlineKeyboardButton(
-                    text=get_string("services.next_button"),
+                    text=get_string(lang, "services.next_button"),
                     callback_data=ServicesCallbackFactory(
                         path=path,
                         offset=offset + PAGE_SIZE
@@ -123,7 +124,7 @@ async def parse_folder_keyboard(path: str, offset=0, is_pm=False) -> tuple[Inlin
         del path_split[-1]
         parent_path = "/" + "/".join(path_split)
         builder.row(InlineKeyboardButton(
-            text=get_string("services.back_button"),
+            text=get_string(lang, "services.back_button"),
             callback_data=ServicesCallbackFactory(
                 path=parent_path
             ).pack()
@@ -142,12 +143,14 @@ async def add_service_button(callback: types.CallbackQuery, state: FSMContext):
 @router.message(Command("services"))
 @router.message(lambda message: message.text and message.text.lower() in ["услуги"])
 async def command_services_handler(message: Message) -> None:
-    builder, page, pages = await parse_folder_keyboard("/", is_pm=message.chat.type == 'private')
+    builder, page, pages = await parse_folder_keyboard(message.from_user.language_code, "/",
+                                                       is_pm=message.chat.type == 'private')
 
-    caption_lines = [get_string("services.folder_caption.header").strip()]
+    caption_lines = [get_string(message.from_user.language_code, "services.folder_caption.header").strip()]
     if pages > 1:
         caption_lines.append(
             get_string(
+                message.from_user.language_code,
                 'services.folder_caption.page',
                 page, pages
             ).strip()
@@ -173,15 +176,18 @@ async def callbacks_num_change_fab(
             return
         builder = InlineKeyboardBuilder()
         builder.row(InlineKeyboardButton(
-            text=get_string("services.go_button.title"),
+            text=get_string(
+                callback.from_user.language_code, "services.go_button.title"
+            ),
             url=get_string(
+                callback.from_user.language_code,
                 "services.go_button.url_placeholder",
                 service.owner,
                 urllib.parse.quote(service.name)
             )
         ))
         builder.row(InlineKeyboardButton(
-            text=get_string("services.back_button"),
+            text=get_string(callback.from_user.language_code, "services.back_button"),
             callback_data=ServicesCallbackFactory(
                 path=service.directory
             ).pack()
@@ -205,6 +211,7 @@ async def callbacks_num_change_fab(
                 InputMediaPhoto(
                     media=media,
                     caption=get_string(
+                        callback.from_user.language_code,
                         "services.author_page_description", service.name, int(service.cost), service.cost_per,
                         service.description
                     ) if service.description else get_string(
@@ -217,9 +224,11 @@ async def callbacks_num_change_fab(
             logger.error(f"Cannot proccess image: {e}")
             await callback.message.edit_caption(
                 caption=get_string(
+                    callback.from_user.language_code,
                     "services.author_page_description", service.name, int(service.cost), service.cost_per,
                     service.description
                 ) if service.description else get_string(
+                    callback.from_user.language_code,
                     "services.author_page", service.name, int(service.cost), service.cost_per
                 ),
                 reply_markup=builder.as_markup()
@@ -233,24 +242,26 @@ async def callbacks_num_change_fab(
             logger.error(f"Callback message not present or it is InaccessibleMessage: {callback.message}")
             return
         new_keyboard, page, pages = await parse_folder_keyboard(
+            callback.from_user.language_code,
             callback_data.path,
             callback_data.offset,
             callback.message.chat.type == 'private'
         )
 
-        caption_lines = [get_string("services.folder_caption.header").strip()]
+        caption_lines = [get_string(callback.from_user.language_code,"services.folder_caption.header").strip()]
         strip_path = callback_data.path.strip("/")
         if strip_path:
             caption_lines.append(
-                get_string('services.folder_caption.folder.sep').join(
+                get_string(callback.from_user.language_code,'services.folder_caption.folder.sep').join(
                     get_string(
-                        'services.folder_caption.folder.title', part
+                        callback.from_user.language_code,'services.folder_caption.folder.title', part
                     ) for part in strip_path.split("/")
                 ).strip()
             )
         if pages > 1:
             caption_lines.append(
                 get_string(
+                    callback.from_user.language_code,
                     'services.folder_caption.page',
                     page, pages
                 ).strip()

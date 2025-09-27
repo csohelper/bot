@@ -1,0 +1,1200 @@
+commands:
+  - command: cards
+    description: Discount cards of all popular store chains
+  - command: services
+    description: List of services offered by residents
+  - command: help
+    description: Help message
+  - command: kek
+    description: Doesn’t matter
+  - command: index
+    description: Dormitory postal code
+  - command: address
+    description: Dormitory address
+  - command: commandant
+    description: Phone number and email of the duty commandant
+  - command: director
+    description: Information about the head of the dormitory
+  - command: vost
+    description: Working hours and menu of the café
+  - command: jko
+    description: Information about the Housing and Utilities Department
+  - command: hr
+    description: Information about the HR Department
+  - command: ed
+    description: Information about the Unified Dean’s Office
+  - command: polyclinic
+    description: Polyclinic
+  - command: library
+    description: Library
+  - command: bufet
+    description: Buffet (A) and dining hall (ULK)
+  - command: week
+    description: Information about the current academic week
+  - command: soft
+    description: Useful programs for study
+  - command: shower
+    description: Shower schedule
+  - command: kitchen
+    description: Kitchen schedule
+  - command: laundress
+    description: MPEI laundress
+  - command: linen
+    description: Information about linen exchange
+  - command: deanit
+    description: Dean’s Office of Information Technology
+  - command: deanrit
+    description: Dean’s Office of Radio and Television
+  - command: deannacs
+    description: Dean’s Office of Networks and Communication Systems
+  - command: deancais
+    description: Dean’s Office of Cybernetics and Information Security
+  - command: deandeamc
+    description: Dean’s Office of Digital Economy and Mass Communications
+echo_commands:
+  start: |
+    Hello!
+    This is a dormitory reference bot for chat and local use.
+    The list of available commands is available with the command <b>Commands</b> (or /help)
+  first_start: |
+    Since you are the first one to start the bot, you have been added as a chat administrator
+  help: |
+    <b>List of commands:</b>
+
+    <b>Cards</b> - discount cards of all popular chains (or /cards)
+    <b>Index</b> - dormitory postal code (or /index)
+    <b>Address</b> - dormitory address (or /address)
+    <b>Director</b> - full name and phone number (or /director)
+    <b>Housing and Utilities Department</b> - all information about the department (or /jko)
+    <b>Human Resources Department</b> - all information about the department (or /hr)
+    <b>Polyclinic</b> - address of the center (or /polyclinic)
+    <b>Library</b> - all information about it (or /library)
+    <b>Services</b> - list of services from residents (or /services)
+    <b>Vostochka</b> - working hours and café menu (or /vost)
+    <b>Buffet</b> - Buffet (A) and dining hall (ULK) (or /bufet)
+    <b>Week</b> - information about the current academic week (or /week)
+    <b>Soft</b> - useful programs for study (or /soft)
+    <b>Shower</b> - working hours (or /shower)
+    <b>Kitchen</b> - working hours (or /kitchen)
+    <b>Laundress</b> - information about her (or /laundress)
+    <b>Linen exchange</b> - working hours (or /linen)
+    <b>Accounting</b> - location, phone numbers, and working hours (or /accounting)
+    <b>Commands / Help</b> - to call up this list (or /help)
+    Other commands:
+    <b>Unified Deans</b> (or /ed), <b>IT Deans</b> (or /deanit), 
+    <b>RiT Deans</b> (or /deanrit), <b>NaCS Deans</b> (or /deannacs), 
+    <b>CaIS Deans</b> (or /deancais), <b>DEaMC Deans</b> (or /deandeamc)
+  cards: |
+    <b>Discount cards of all popular chains:</b>
+  
+    1. Magnit
+    2. Dixy
+    3. Fix Price
+    4. Pyaterochka / Perekrestok
+    5. Lenta
+    6. Auchan
+    7. Polyarnaya Zvezda
+    8. Stolichki Pharmacy
+    9. SPAR
+  index: |
+    Dormitory postal code #<code>111024</code>
+    <a href="https://yandex.ru/maps/-/CHWsAU83">Entuziastov Highway, 22/18</a>
+    Nearest post office #<code>111116</code>
+    <a href="https://yandex.ru/maps/-/CHWsAS9x">Energeticheskaya St., 9</a>
+  address: |
+    <b>Dormitory address</b>
+    <code>Moscow, Aviamotornaya St. 8A bld. 7</code>
+    <a href="https://yandex.ru/maps/-/CHWsE4i-">Yandex Maps</a>
+  director: |
+    <b>Head of CSO-1</b>
+    Komarov Sergey Alexandrovich
+    +7(917)530-46-09
+    MON-FRI 09:00 - 18:00
+    {working_status}
+  commandant: |
+    <b>Duty Commandant</b>
+    <u>Phone:</u>
+    +7(985)532-37-10
+    <u>Dormitory email:</u>
+    cso-1@mtuci.ru
+  accounting: |
+    <b>Accounting Department</b>
+    MON-THU      09:00 - 18:00
+    FRI                   09:00 - 16:45
+    Break              13:00 - 14:00
+    +7(495)957-77-99 (ext. 692)
+    
+    <b>Chief Accountant</b>
+    Chernitsyna Olga Yuryevna
+    +7(495)957-77-99 (ext. 151)
+    e.a.chernicyna@mtuci.ru
+  
+    <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.711934,55.754292,pm2rdm">Actual address: 111024, Moscow, Aviamotornaya St., 8 bld. 6, office A-L-201</a>
+    
+    {working_status}
+  deanery:
+    default: |
+      <u><b>MTUCI Dean’s Offices</b></u>
+      
+      <b>Unified Deans</b> (or /ed)
+      <b>IT Deans</b> (or /deanit)
+      <b>RiT Deans</b> (or /deanrit)
+      <b>NaCS Deans</b> (or /deannacs)
+      <b>CaIS Deans</b> (or /deancais)
+      <b>DEaMC Deans</b> (or /deandeamc)
+      <b>Foreign Department</b> (or /deanforeign)
+    ed: |
+      <b>Unified Dean’s Office</b>
+      <u>Working hours:</u>
+      MON-FRI      08:50 - 19:00
+      SAT                   09:00 - 15:00
+      <u>Email:</u>
+      ed@mtuci.ru
+      <u>Addresses:</u>
+      <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.711221,55.755108,pm2rdm">Aviamotornaya St., 8a, office 156, 1st floor</a>
+      +7(495)957-77-99 (ext. 399)
+      <a href="https://yandex.ru/maps/?ll=37.482962%2C55.784228&z=17&pt=37.482649,55.784497,pm2rdm">Narodnogo Opolcheniya St., 32, office 225, 2nd floor</a>
+      +7(495)957-77-99 (ext. 2001)
+      
+      {working_status}
+    it: |
+      <b><a href="https://mtuci.ru/dep/304/">Dean’s Office of Information Technologies</a></b>
+      (Информационные Технологии)
+      <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.711766,55.755289,pm2rdm">Room: A-427</a>
+      +7(495)957-77-99 (ext. 482)
+      it@mtuci.ru
+      
+      MON-THU    09:00 - 18:00
+      FRI        09:00 - 16:45
+      Break 13:00 - 14:00
+      
+      <b>Dean</b>
+      Gorodnichev Mikhail Gennadyevich
+      <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.712029,55.755816,pm2rdm">Room: A-315</a>
+      +7(495)925-10-67
+      m.g.gorodnichev@mtuci.ru
+      
+      {working_status}
+      
+      <b>Department of MCaIT</b> (or /depitmcait)
+      <b>Department of CIS</b> (or /depitmcis)
+      <b>Department of NITaS</b> (or /depitnitas)
+      <b>Department of MathAnalysis</b> (or /depitma)
+      <b>Department of Informatics</b> (or /depitinf)
+      <b>Department of PhysEdu</b> (or /depitpe)
+      <b>Department of AAI</b> (or /depitaai)
+      <b>Department of SP</b> (or /depitsp)
+      <b>Department of SE</b> (or /depitpre)
+    nacs: |
+      <b><a href="https://mtuci.ru/dep/306/">Dean’s Office of Networks and Communication Systems</a></b>
+      (Сети и Системы Связи)
+      <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.711204,55.755103,pm2rdm">Room: A-347</a>
+      +7(495)957-77-99 (ext. 199)
+      mes@mtuci.ru
+      
+      MON-THU    09:00 - 18:00
+      FRI        09:00 - 16:45
+      Break 13:00 - 14:00
+      
+      <b>Dean</b>
+      Kolesnikov Oleg Vyacheslavovich
+      +7(495)957-79-22
+      o.v.kolesnikov@mtuci.ru
+      
+      {working_status}
+      
+      <b>Department MTS</b> (or /depmts)
+      <b>Department GTS</b> (or /depgts)
+      <b>Department NaCS</b> (or /depgnass)
+      <b>Department MSaMI</b> (or /depmsami)
+      <b>Department GTC</b> (or /depgtc)
+    rit: |
+      <b><a href="https://mtuci.ru/dep/305/">Dean’s Office of Radio and Television</a></b>
+      (Радио и Телевидение)
+      <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.712158,55.755817,pm2rdm">Room: A-416</a>
+      +7(495)957-77-99 (ext. 436)
+      rit@mtuci.ru
+      
+      MON-THU    09:00 - 18:00
+      FRI        09:00 - 16:45
+      Break 13:00 - 14:00
+      
+      <b>Dean</b>
+      Ben Rejeb Tawfiq Ben Kamel
+      +7(495)957-79-27
+      t.benrejeb@mtuci.ru
+      
+      {working_status}
+      
+      <b>Department RES</b> (or /depritres)
+      <b>Department REAC</b> (or /depritreac)
+      <b>Department Electronics</b> (or /depritelect)
+      <b>Department TASB</b> (or /deprittasb)
+      <b>Department RATSAN</b> (or /depritratsan)
+      <b>Department TEC</b> (or /deprittec)
+      <b>Department Physics</b> (or /depritphys)
+      <b>Department TEAA</b> (or /depritteaa)
+    cais: |
+      <b><a href="https://mtuci.ru/dep/2444/">Dean’s Office of Cybernetics and Information Security</a></b>
+      (Кибернетика и Информационная Безопасность)
+      <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.713132,55.755732,pm2rdm">Room: A-403</a>
+      +7(495)957-77-99 (ext. 149)
+      kiib@mtuci.ru
+      
+      MON-THU    09:00 - 18:00
+      FRI        09:00 - 16:45
+      Break 13:00 - 14:00
+      
+      <b>Dean</b>
+      Ievlev Oleg Pavlovich
+      +7(495)957-77-99 (ext. 405)
+      ievlev@mtuci.ru
+      
+      {working_status}
+      
+      <b>Department EDET</b> (or /depedet)
+      <b>Department IS</b> (or /depis)
+      <b>Department ISaMA</b> (or /depismaa)
+      <b>Department TCS</b> (or /deptcs)
+      <b>Department PTAAM</b> (or /depptaam)
+      <b>Department ELSAP</b> (or /depelsap)
+      <b>Department BMT</b> (or /depebmt)
+    deamc: |
+      <b><a href="https://mtuci.ru/dep/307">Dean’s Office of Digital Economy and Mass Communications</a></b>
+      (Цифровая Экономика и Массовые Коммуникации)
+      <a href="https://yandex.ru/maps/?ll=37.482962%2C55.784228&z=18&pt=37.482482,55.784163,pm2rdm">Room: N-417</a>
+      +7(495)957-77-99 (ext. 2099)
+      
+      <b>Dean</b>
+      Vakhovskiy Evgeniy Vyacheslavovich
+      +7(499)192-86-57
+      +7(499)192-85-00
+      e.v.vahovskiy@mtuci.ru
+      
+      <b>Department DAT</b> (or /depdat)
+      <b>Department SRAPR</b> (or /depsrapr)
+      <b>Department DEMABT</b> (or /depdemabt)
+      <b>Department PHAIC</b> (or /depphaic)
+      <b>Department FOR</b> (or /depfor)
+      <b>Department BCS</b> (or /depbcs)
+    foreign: |
+      <b><a href="https://mtuci.ru/education/intern_edu/">Department for Foreign Students Affairs</a></b>
+      (Отдел по работе с иностранными учащимися)
+      <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.711409,55.755237,pm2rdm">Room: A-345</a>
+      +7(495)957-79-95 (ext. 437, 190, 191)
+      indec@mtuci.ru
+      
+      MON          09:00 - 18:00
+      WED          09:00 - 18:00
+      FRI          09:00 - 16:45
+      Break 13:00 - 14:00
+      
+      <b>Acting Head of Department for Foreign Students Affairs</b>
+      Yakovleva Darya Alexandrovna
+      +7(495)957-79-95
+      indec2@mtuci.ru
+      
+      <b>Head of International Activities Management</b>
+      Vasiliev Maksim Sergeevich
+      +7(495)957-77-99 (ext. 397)
+      m.s.vasilev@mtuci.ru
+      
+      {working_status}
+  departments:
+    it:
+      mcait: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/1211/">Department of Mathematical Cybernetics and Information Technology</a></b>
+        (Кафедра «Математическая кибернетика и информационные технологии»)
+        <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.711720,55.754270,pm2rdm">ul. Aviamotornaya, 8A, L-502</a>
+        mkiit.dep@mtuci.ru
+        
+        <b>Head of Department</b>
+        Gorodnichev Mikhail Gennadyevich
+        m.g.gorodnichev@mtuci.ru
+      cis: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/566/">Department of Corporate Information Systems</a></b>
+        (Кафедра «Корпоративные информационные системы»)
+        <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.712143,55.754272,pm2rdm">Room: L-308</a>
+        +7(495)957-77-99 (ext. 469)
+        kafedra1c@mtuci.ru
+        
+        <b>Acting Head of Department</b>
+        Andreev Ilya Alexandrovich
+        i.a.andreev@mtuci.ru
+      nitas: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/770/">Department of Network Information Technologies and Services</a></b>
+        (Кафедра «Сетевые Информационные Технологии и Сервисы»)
+        <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.712456,55.754307,pm2rdm">Room: L-211</a>
+        +7(495)957-79-71
+        +7(495)957-77-74
+        aud211@mail.ru
+        
+        <b>Head of Department</b>
+        Dokuchaev Vladimir Anatolyevich
+        v.a.dokuchaev@mtuci.ru
+      ma: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/161/">Department of Mathematical Analysis</a></b>
+        (Кафедра «Математический Анализ»)
+        +7(495)957-77-99 (ext. 2075)
+        dma@mtuci.ru
+        
+        <b>Head of Department</b>
+        Dobrynina Irina Vasilievna
+        i.v.dobrynina@mtuci.ru
+      informatics: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/529/">Department of Informatics</a></b>
+        (Информатика)
+        <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.482165,55.783454,pm2rdm">Room: N-125</a>
+        +7(499)192-71-43
+        +7(499)192-85-43
+        infokaf@mtuci.ru
+        
+        <b>Acting Head of Department</b>
+        Khalabiya Rustam Faruk
+        r.f.halabiya@mtuci.ru
+      pe: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/574/">Department of Physical Education</a></b>
+        (Кафедра «Физическое Воспитание»)
+        <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.712133,55.755285,pm2rdm">Room: A-137</a>, <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.482165,55.783454,pm2rdm">Room: N-129</a>
+        +7(495)957-79-70
+        
+        <b>Head of Department</b>
+        Sablin Andrey Borisovich
+        a.b.sablin@mtuci.ru
+      aai: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/6902/">Department of Applied Artificial Intelligence</a></b>
+        (Кафедра «Прикладной Искусственный Интеллект»)
+        <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.711954,55.754305,pm2rdm">Room: L-206</a>
+        
+        <b>Head of Department</b>
+        Solovyov Vladimir Igorevich
+      sp: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/6352/">Department of System Programming</a></b>
+        (Кафедра «Системное Программирование»)
+        <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.712277,55.754367,pm2rdm">Room: L-212</a>
+        
+        <b>Head of Department</b>
+        Polishchuk Yuri Vladimirovich
+        y.v.polishchuk@mtuci.ru
+      pre: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/12250/">Department of Software Engineering</a></b>
+        (Кафедра «Программная Инженерия»)
+        
+        <b>Acting Head of Department</b>
+        Moseva Marina Sergeevna
+        m.s.moseva@mtuci.ru
+    rit:
+      res: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/582/">Кафедра «Радиотехнические Системы (РТС)»</a></b>
+        (Radio Engineering Systems)
+        <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.711749,55.754272,pm2rdm">Ауд.: Л-600, Л-602</a>
+        +7(495) 957-77-10
+
+        <b>Заведующий Кафедрой</b>
+        Чиров Денис Сергеевич
+        d.s.chirov@mtuci.ru
+      reac: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/167/">Кафедра «Радиооборудование и Схемотехника (РОС)»</a></b>
+        (Radio Equipment and Circuitry)
+        <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.712020,55.754205,pm2rdm">Ауд.: Л-503</a>
+
+        <b>Заведующий Кафедрой</b>
+        Пестряков Александр Валентинович
+        +7 (495) 957-79-27
+        a.v.pestriakov@mtuci.ru
+      electronics: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/1213/">Кафедра «Электроника»</a></b>
+        (Electronics)
+        <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.712415,55.754395,pm2rdm">Ауд.: Л-512</a><a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.482035,55.783155,pm2rdm">Н-532</a>
+        +7(499)192-85-08 (Н)
+        elektronika@mtuci.ru
+
+        <b>Заведующий Кафедрой</b>
+        Кирик Дмитрий Игоревич
+      tasb: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/584/">Кафедра «Телевидение и Звуковое Вещание (ТиЗВ)»</a></b>
+        (Television and Sound Broadcasting)
+        <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.714379,55.755420,pm2rdm">УЛК-1004...УЛК-1006</a><a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.712191,55.754225,pm2rdm">Л-105</a><a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.712363,55.754259,pm2rdm">Л-107</a>
+
+        <b>И.О. Заведующего Кафедрой</b>
+        Литвин Семен Анатольевич
+        s.a.litvin@mtuci.ru
+      ratsan: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/583/">Системы и сети радиосвязи и телерадиовещания (СиСРТ)»</a></b>
+        (Radio and Television Systems and Networks)
+        +7(495)957-77-85
+        sisrt.dep@mtuci.ru
+
+        <b>Заведующая Кафедрой</b>
+        Косичкина Татьяна Павловна
+        +7(495)957-77-85
+        t.p.kosichkina@mtuci.ru
+        <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.711590,55.754793,pm2rdm">Ауд.: А-354</a>
+      tec: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/1280/">Кафедра «Теория Электрических Цепей (ТЭЦ)»</a></b>
+        (Theory of Electrical Circuits)
+        <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.482067,55.783219,pm2rdm">Ауд.: Н-135</a>
+        +7(499)192-85-87
+
+        <b>Заведующий Кафедрой</b>
+        Крейнделин Виталий Борисович
+        +7(499)192-85-87
+        v.b.kreindelin@mtuci.ru
+      physics: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/573/">Кафедра «Физика»</a></b>
+        (Physics)
+        <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.482067,55.783219,pm2rdm">Ауд.: Н-345б</a>
+
+        <b>Заведующий Кафедрой</b>
+        Носков Антон Валерьевич
+        a.v.noskov@mtuci.ru
+      teaa: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/585/">Кафедра «Техническая Электродинамика и Антенны (ТЭДиА)»</a></b>
+        (Technical Electrodynamics and Antennas)
+        <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.711828,55.754161,pm2rdm">Ауд.: Л-700, Л-709</a>
+        +7(495)957-77-99 (доб. 490)
+        tedia@mtuci.ru
+
+        <b>Заведующий Кафедрой</b>
+        Николаев Алексей Владимирович
+        a.w.nikolaev@mtuci.ru
+    nacs:
+      mts: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/763/">Кафедра «Многоканальные Телекоммуникационные Системы (МТС)»</a></b>
+        (Multichannel Telecommunication Systems)
+        <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.711484,55.754984,pm2rdm">Ауд.: А-161</a>
+        +7(495)957-77-99 (доб. 497)
+        mts@mtuci.ru
+
+        <b>Заведующая Кафедрой</b>
+        Шишова Надежда Альвиновна
+        n.a.shishova@mtuci.ru
+      gts: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/543/">Кафедра «Направляющие Телекоммуникационные Среды (НТС)»</a></b>
+        (Guiding Telecommunication Media)
+        <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.714391,55.755292,pm2rdm">УЛК-7, УЛК-9</a>
+        +7(495)957-77-33 (доб. 698)
+        mtuci_nts@mtuci.ru
+        
+        <b>Заведующий Кафедрой</b>
+        Колесников Олег Вячеславович
+        +7(495)951-77-99 (доб. 379)
+        o.v.kolesnikov@mtuci.ru
+      gnass: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/764/">Кафедра «Сети Связи и Системы Коммутации (ССиСК)»</a></b>
+        (Communication Networks and Switching Systems)
+        <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.714391,55.755292,pm2rdm">Ауд.: УЛК-904, 905, 906</a><a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.711775,55.754263,pm2rdm">, Л-400</a><a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.713259,55.755774,pm2rdm">, 402, 407, 408</a>
+        
+        <b>Заведующий Кафедрой</b>
+        Степанов Сергей Николаевич
+        +7(495)957-77-99 (доб. 665)
+        s.n.stepanov@mtuci.ru
+      msami: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/168/">Кафедра «Метрологии, Стандартизации и Измерений в Инфокоммуникациях (МСиИИ)»</a></b>
+        (Metrology, Standardization and Measurement in Info-communications)
+        <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.711548,55.755303,pm2rdm">Ауд.: А-428</a>
+        
+        <b>Заведующий Кафедрой</b>
+        Исаева Людмила Николаевна
+        +7 (495) 957-77-99 (доб. 656; 657)
+        l.n.isaeva@mtuci.ru
+      gtc: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/531/">Кафедра «Общая Теория Связи (ОТС)»</a></b>
+        (General Theory of Communication)
+        <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.714485,55.755242,pm2rdm">Ауд.: УЛК-1008</a><a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.482531,55.784520,pm2rdm">Н-326</a>
+        +7(495)957-77-99 (доб. 2084)
+        
+        <b>Заведующий Кафедрой</b>
+        Аджемов Артём Сергеевич
+        +7(495)673-27-62
+        asa@mtuci.ru
+    cais:
+      edet: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/771/">Кафедра «Технологии Электронного Обмена Данными (ТЭОД)»</a></b>
+        (Electronic Data Exchange Technologies)
+        <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.482073,55.783307,pm2rdm">Ауд.: А-242</a>
+        +7 (495) 532-37-11
+        mvs@ccitn.ru
+        
+        <b>И.О. Заведующего Кафедрой</b>
+        Кутуков Виктор Александрович
+      is: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/769/">Кафедра «Информационная Безопасность (ИБ)»</a></b>
+        (Information Security)
+        <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.711495,55.754938,pm2rdm">Ауд.: А-254</a>
+        +7(495)957-79-51
+        mail@kibia.ru
+        
+        <b>Заведующий Кафедрой</b>
+        Шелухин Олег Иванович
+        sheluhin52@mail.ru
+      ismaa: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/768/">Кафедра «Интеллектуальные Системы в Управлении и Автоматизации (ИСУиА)»</a></b>
+        (Intelligent Systems in Management and Automation)
+        <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.711450,55.755258,pm2rdm">Ауд.: А-344</a>
+        +7(495)957-77-99 (доб. 640)
+        isua.kaf@yandex.ru
+        
+        <b>Заведующий Кафедрой</b>
+        Воронов Вячеслав Игоревич
+        v.i.voronov@mtuci.ru
+      tcs: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/588/">Кафедра «Безопасность Телекоммуникаций (БТК)»</a></b>
+        (Telecommunications Security)
+        btk@mtuci.ru
+      ptaam: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/575/">Кафедра «Теория Вероятностей и Прикладная Математика (ТВиПМ)»</a></b>
+        (Probability Theory and Applied Mathematics)
+        <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.482645,55.784385,pm2rdm">Ауд.: Н-513, Н-517а</a>
+        Секретарь: +7(499)192-80-29
+        tvipm.dep@mtuci.ru
+        
+        <b>Заведующий Кафедрой</b>
+        Панков Константин Николаевич
+        +7(495)957-77-99 (доб. 2059)
+        pankov_kn@mtuci.ru
+      elsap: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/575/">Кафедра «Экология, Безопасность Жизнедеятельности и Электропитание (ЭБЖиЭ)»</a></b>
+        (Ecology, Life Safety and Power Supply)
+        <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.711450,55.755258,pm2rdm">Ауд.: А-153</a>
+        +7(495)957-77-15 (доб. 762)
+        
+        <b>Заведующая Кафедрой</b>
+        Ерофеева Виктория Вячеславовна
+        v.v.erofeeva@mtuci.ru
+      bmt: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/12178/">Кафедра «Основы Военной Подготовки (ОВП)»</a></b>
+        
+        <b>Заведующий кафедрой</b>
+        Забродченко Геннадий Евгеньевич
+        g.e.zabrodchenko@mtuci.ru
+    deamc:
+      dat: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/6143/">Кафедра «Цифровые технологии рекламы (ЦТР)»</a></b>
+        (Digital Advertising Technologies)
+        <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.483037,55.785385,pm2rdm">Ауд.: Н-402</a>
+        +7(495)957-77-99 (доб. 2072)
+        
+        <b>Заведующий кафедрой</b>
+        Кандалов Вадим Иванович
+        v.i.kandalov@mtuci.ru
+      srapr: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/571/">Кафедра «Социальные отношения, Реклама и Связи с Общественностью (СРиСО)»</a></b>
+        (Social relations, Advertising and Public Relations)
+        <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.483037,55.785385,pm2rdm">Ауд.: Н-314</a>
+        +7(499)957-78-52
+        
+        <b>Заведующий Кафедрой</b>
+        Брега Александр Васильевич
+        +7(499)192-85-72
+        a.v.brega@mtuci.ru
+      demabt: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/570/">Кафедра «Цифровая экономика, управление и бизнес-технологии (ЦЭУиБТ)»</a></b>
+        (Digital Economy, Management and Business Technology)
+        
+        <b>Заведующая Кафедрой</b>
+        Салютина Татьяна Юрьевна
+        +7(499)192-84-74
+        t.i.saliutina@mtuci.ru
+      phaic: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/530/">Кафедра «Философия, История и Межкультурные Коммуникации (ФИиМК)»</a></b>
+        (Philosophy, History and Intercultural Communication)
+        <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.483037,55.785385,pm2rdm">Ауд.: Н-311</a>
+        +7(495)957-79-70 (доб. 2079)
+        filos@mtuci.ru
+        
+        <b>Заведующая Кафедрой</b>
+        Кораблева Елена Валентиновна
+        +7(495)957-77-99 (доб. 2078)
+      for: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/527/">Кафедра «Иностранные Языки (ИНО)»</a></b>
+        (Foreign Languages)
+        <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.483037,55.785385,pm2rdm">Ауд.: Н-324</a>
+        +7(495)957-79-70 (доб. 2082)
+        ino@mtuci.ru
+        
+        <b>Заведующая Кафедрой</b>
+        Соловьева Наталия Владимировна
+        n.v.soloveva@mtuci.ru
+      bcs: |
+        <b><a href="https://mtuci.ru/about_the_university/structure/160/">Кафедра «Бизнес-Информатика (БИ)»</a></b>
+        (Business Computer Science)
+        <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.483037,55.785385,pm2rdm">Ауд.: Н-407</a>
+        +7(495)957-77-99 (доб. 2096)
+        bi.dep@mtuci.ru
+        
+        <b>Заведующая Кафедрой</b>
+        Тутова Наталья Владимировна
+        n.v.tutova@mtuci.ru
+  jko: |
+    <b>Жилищно-Коммунальный Отдел</b>
+    График: с ПН по ПТ (10:00 - 18:00)
+    +7(495)957-77-29
+    +7(495)957-77-99 (доб. 438)
+    t.a.novikova@mtuci.ru
+    <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.713264,55.755819,pm2rdm">Ауд.: А-101</a>
+    
+    {working_status}
+  unknown: |
+    Команда не распознана. Для справки воспользуйся /help
+  hr: |
+    <b>Отдел кадров</b>
+    <u>Руководитель</u>
+    Акопян Тамара Левиковна
+    Телефоны: +7(495)673-44-41, +7(495)957-77-07
+    Факс: +7(495)957-7934
+    E-mail: kadr@mtuci.ru
+    <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.711585,55.754505,pm2rdm">Адрес: 111024, г. Москва, ул. Авиамоторная д. 8а стр. 1, кабинет А-265</a>
+
+    <u>Структура отдела кадров:</u>
+    Группа по работе с личным составом - +7(495)957-7707
+    Группа по работе с профессорско-преподавательским составом - +7(495)957-7763
+    Социальный сектор (по вопросам оформления пенсии) - +7(495)957-7934
+    Группа по работе со студентами очной формы обучения - +7(495)957-79-34
+
+    Приём работников производится ежедневно с 10:00 до 17:00 (в ПТ с 10:00 до 16:45)
+    Перерыв с 13:00 до 14:00
+    {working_status}
+
+    Приём, выдача справок, документов об образовании в связи с отчислением (зачислением) 
+    и по всем другим вопросам производится:
+    Понедельник, среда с 10:00 до 17:00, перерыв с 13:00 до 14:00
+    {working_status_certificate}
+  polyclinic: |
+    <b>Поликлиника</b>
+    Диагностический центр №3, филиал №2
+    ПН-ПТ 08:00 - 20:00
+    СБ        09:00 - 18:00
+    ВС        09:00 - 16:00
+    <a href="https://yandex.ru/maps/-/CHWsFR3B">Юрьевский переулок, 13</a>
+    <u>Телефон:</u>
+    +7(499)638-36-50
+    Единая справочная служба:
+    +7(495)122-02-21
+    
+    {working_status}
+  library: |
+    <b>Библиотека</b>
+    Адрес: 111024, г. Москва, ул. Авиамоторная 8а, кабинет 706
+    <a href="https://yandex.ru/maps/-/CHW-UZ8v">(Библиотечный корпус)</a>
+    +7(495)957-77-99 доб. 443
+    library@mtuci.ru
+    Часы работы: 09.00 - 18.00
+    {working_status}
+    
+    Часы обслуживания читателей: 10:00 - 17:00, обед 13:00 - 14:00
+    {working_status_clients}
+    
+    Санитарный день: последняя пятница месяца
+  cafe_vost: |
+    <b>Восточка</b>
+    <u>График работы:</u>
+    ПН-ПТ 09:00 - 19:00
+    {working_status}
+    
+    <u>Меню:</u>
+  cafe_bufet: |
+    <b>Столовая в УЛК и на 3-м Гл. Корпуса</b>
+    <u>График работы:</u>
+    ПН-ПТ 08:00 - 17:00
+    {working_status}
+    
+    <u>Меню:</u>
+  week: |
+    {0} неделя ({1}) - №{2}
+  week_types_up_down:
+    - Нижняя
+    - Верхняя
+  week_types_even:
+    - чётная
+    - нечётная
+  soft: |
+    <b>Полезные программы для учебы:</b>
+    https://disk.yandex.ru/d/_lM2cOmx8CjPXg
+  shower: |
+    <b>График работы душевых</b>
+    06:00 - 01:00
+    Сан. час: 12:00 - 13:00
+    Левое крыло, этаж: -1
+    {working_status}
+  kitchen: |
+    <b>График работы кухни</b>
+    06:00 - 01:00
+    {working_status}
+  laundress: |
+    <b>Прачка КСБУ МЭИ</b>
+    <u>График работы:</u>
+    Ежедневно 10:00 - 21:00
+    <u>Телефон:</u>
+    +7(926)084-14-20
+    +7(905)500-69-63
+    <u>Цены:</u>
+    Стирка 5кг – 170₽ – 30мин
+    Стирка 8кг – 200₽ – 45мин
+    Сушка 10кг – 130₽ – 45 мин
+    prachka-express@mail.ru
+    http://prachka-express.ru
+    <a href="https://yandex.ru/maps/-/CHWdN8JD">ул. Лапина, 1</a>
+    
+    {working_status}
+  incorrect_lang: https://market.yandex.ru/cc/7a4iZW
+  mai:
+    - норм вуз вроде
+    - не гоните на МАИ
+    - ну МАИ и МАИ, че взять то
+    - от винта
+    - не МЭИ, слава богу
+    - в небе МАИ, в говне МЭИ
+    - не путать с мэишным болотом
+    - летают выше, чем мэишная хуйня
+    - штурвал держат крепко
+    - ну, делают самолётики
+    - в маи пацаны ахуенные
+    - пилоты, а не ебланы
+    - крылья есть, мозги на месте
+    - ну, МАИ как МАИ, но хоть не МЭИ
+    - вертолёты делают — не лампочки вкручивают
+    - авиаторы, блять, а не электрики-неудачники
+    - в небе нормально, в болоте — нет (намёк понял?)
+    - штурвал крутят, а не провода перебирают
+    - самолёты строят — не хуйню паяют
+    - хоть взлететь могут, в отличие от некоторых
+    - не МЭИ, уже плюс
+    - пацаны с двигателями, а не с паяльниками
+    - в МАИ хоть ветер в лицо, а не болотные испарения
+    - крылья есть — это сразу диагноз отпадает
+    - небо ближе, чем мэишные фантазии
+    - здание в виде рейса UAL93
+    - <stroke>Boeing 757-222 N591UA</stroke>
+  maishniky:
+    - норм типы
+    - заебись типочки
+    - легенды
+    - пилоты на 09/11
+    - любители девятого ноября (или девя..)
+    - \!!! НЕ ПУТАТЬ С МЭИшниками🤮 \!!!
+    - ну МАИишник и МАИшник
+    - ну маёвец и маёвец
+    - МЭИшникам не понять
+    - крылья есть, мозги на месте
+    - с пропеллером в душе
+    - парни с высоты
+    - крылатые, но не залупные
+    - нормальные ребята, в отличие от некоторых
+    - вертолётчики, блять, а не лампочкоёбы
+    - пилоты, а не сисадмины от бога
+    - не путать с мэишными землекопами
+    - люди, которые выше метра над землёй
+    - не электрики, уже хорошо
+    - пацаны, которые знают, куда лететь
+    - у них хотя бы пропеллеры крутятся, а не мозги
+    - не МЭИшники — уже адекваты
+    - в небо смотрят, а не в розетку
+    - крылатые, но не в переносном смысле
+    - в МАИ хоть тяга есть, не то что в МЭИ
+  mei:
+    - хуйня
+    - обосанная залупа
+    - ебаная хуйня
+    - ебаная залупа
+    - конченная помойка
+    - шарага
+    - место выращивания гидроцефалов
+    - траходром сосалок
+    - пиздецовая шарашкина контора
+    - рассадник дебилов
+    - ебучий гадюшник
+    - помойка для лохов
+    - хуйловый инкубатор
+    - сборище конченых дебилоидов
+    - ебаный цирк уродов
+    - залупная дыра
+    - клоака для дебилов
+    - херовая тусовка
+    - пиздецкое болото
+    - ёбнутая фабрика лузеров
+    - конченый хлев
+    - ебанистический притон
+    - сраная кузница дебилов
+    - хуйловый питомник
+    - пиздогрызная шарага
+    - ебучий рассадник идиотов
+    - залупный колледж хуеплётов
+    - помойный университет дебильности
+  meishniky:
+    - пидорасы
+    - сосать
+    - ебать
+    - гандоны
+    - сасали
+    - бляди
+    - пиздобляди
+    - ебланы
+    - пиздокрылые хуеплёты
+    - хуйланы
+    - ебучие долбоёбы
+    - лошары
+    - ебанутые
+    - ебанутые долбоёбы
+    - ебанутые пидорасы
+    - ебанутые сасали
+    - ебанутые бляди
+    - ебанутые хуеплёты
+    - ебанутые пиздобляди
+    - ебанутые пиздокрылые хуеплёты
+    - дебилы конченые
+    - хуесосы
+    - пиздецкие лохи
+    - долбоёбские мрази
+    - ебанашки
+    - херососы криворукие
+    - блядовозы
+    - пиздецовые ушлёпки
+    - хуйловые дебилоиды
+    - ёбаные клоуны
+    - пиздоголовые придурки
+    - хуебесы
+    - дебильные хуескопы
+    - ебливые лузеры
+    - пиздокозлы
+    - уёбищные дебилы
+    - хуепуталы
+    - ёбнутые кретены
+    - пиздецкие дебиланы
+    - хуеглоты
+  linen: |
+    <b>Обмен белья</b>
+    ПН 10:00 - 17:00
+    Перерыв 13:00 - 14:00
+    {working_status}
+  kek:
+    anecdote: |
+      {0}
+
+      <span class="tg-spoiler">Все текста взяты с сайта baneks.ru с небольшой лексической обработкой на Gemini
+      <a href="https://baneks.ru/{1}">Оригинал</a></span>
+    ban: |
+      <b>{0}</b>, так вышло, что твой «kek» замутил тебя на <b>{1} мин</b>
+    ban_admin: |
+      <b>{0}</b>, так вышло, что твой «kek» гипотетически тебя сейчас бы замутил, но ты админ, тварь такая
+    ban_no_rights: |
+      <b>{0}</b>, так вышло, что твой «kek» гипотетически тебя сейчас бы замутил, но у бота нет прав этого сделать, живи
+    ban_error: |
+      <b>{0}</b>, так вышло, что твой «kek» гипотетически тебя сейчас бы замутил, но произошла ошибка моего говнокода
+    too_many: |
+      <b>{0}</b>, не флудите
+      Не используйте «kek» чаще чем раз в <b>{1} секунд</b>
+      Осталось до использования в чате: {2} с
+    not_found: |
+      Анекдота с подходящими заменами не найдено
+      Попробуй позже
+      <span class="tg-spoiler">(Алгоритм подбора сделан для работы на картошке, не оббесудьте)</span>
+    only_group: |
+      <b>Команда предназначена для использования в группе</b>
+bad_words:
+  - хуй
+  - хуи
+  - хуек
+  - хуец
+  - хуила
+  - хуесос
+  - пизда
+  - пиздец
+  - пёзд
+  - ебать
+  - ебало
+  - еблан
+  - ебанат
+  - ебучий
+  - ебашь
+  - долбоеб
+  - долбаеб
+  - даун
+  - мудак
+  - мразь
+  - гандон
+  - презерватив
+  - шлюха
+  - шалава
+  - блядь
+  - бля
+  - блядина
+  - сучка
+  - сука
+  - ублюдок
+  - урод
+  - козел
+  - чмо
+  - петух
+  - пидор
+  - пидорас
+  - гомик
+  - гондон
+  - жопа
+  - срака
+  - срать
+  - обоссыш
+  - обосрался
+admin_commands:
+  admin_not_install: Администратор бота не установлен
+  not_admin: Вы не являетесь администратором бота
+time:
+  placeholders:
+    early_closed: "{status} Закрыто <b>{closed_time}</b> (откроется <b>{opening_time}</b>)"
+    closed: "{status} Откроется <b>{opening_time}</b>"
+    early_open: "{status} Открыто <b>{opened_time}</b> (Закроется <b>{closing_time}</b>)"
+    open: "{status} Закроется <b>{closing_time}</b>"
+  colors:
+    closed: "🔴"
+    open: "🟢"
+    opening: "🟡"
+    closing: "🟡"
+  format:
+    future:
+      unknown: "{d}:{h}:{m}:{s}:{u}"
+      d: "через {0}д"
+      1d: "завтра"
+      2d: "послезавтра"
+      h: "через ≈{0}ч"
+      m: "через ≈{0}мин"
+      s: "через ≈{0}с"
+      u: "через ≈{0}мкс"
+    past:
+      unknown: "-{d}:{h}:{m}:{s}:{u}"
+      d: "{0}д назад"
+      1d: "вчера"
+      2d: "позавчера"
+      h: "≈{0}ч назад"
+      m: "≈{0}мин назад"
+      s: "≈{0}с назад"
+      u: "≈{0}мкс назад"
+services:
+  add_button:
+    title: Добавить услугу 📝
+  service_button: |
+    {0} - {1}₽ / {2} ➡️
+  folder_button: 📂 {0}
+  back_button: ⬅️ Назад
+  prev_button: ⏪ Предыдущая страница
+  next_button: Следующая страница ⏩
+  go_button:
+    title: Написать ↗️
+    url_placeholder: tg://user?id={0}
+  author_page: |
+    <u><b>Услуга</b></u>: {0}
+    <u><b>Стоимость</b></u>: {1}₽ / {2}
+    <u><b>Описание</b></u>: 🚫 Отсутствует
+  author_page_description: |
+    <u><b>Услуга</b></u>: {0}
+    <u><b>Стоимость</b></u>: {1}₽ / {2}
+    <u><b>Описание</b></u>: {3}
+  folder_caption:
+    header: Список доступных услуг и категорий
+    folder:
+      title: 📂 {0}
+      sep: →
+    page: <b>Страница</b> {0}/{1}
+  add_command:
+    not_private: |
+      Это действие ты можешь сделать только в ЛС с ботом
+    goto_pm: Перейти
+    greeting: |
+      Для добавления своей услуги в каталог нужно описать несколько её параметров.
+      Начнём с названия твоей услуги. Как её назвать?
+      ❗ Не называйте свою услугу длиннее чем 25-ю символамии
+    cancel_button: 🚫 Отменить
+    cancel_message: |
+      🚫 Создание услуги отменено
+    incorrect_name: |
+      Дружище, название твоей услуги неккоректно:
+      Оно должно быть в пределе 5..25 символов (не сильно коротким, но и не сильно длинным)
+    choose_description: |
+      Введите описание услуги
+    empty_description: Некорректное описание. Выберите кнопку или введите текстовое описание
+    without_description: 🖼️ Без описания
+    choose_cost: |
+      Теперь введи стоимость услуги в рублях за единицу товара
+    cost_not_int: |
+      Это должно быть целое положительное число
+    cost_too_big: Слишком высокая цена
+    choose_cost_per: |
+      Хорошо! Теперь введи название Единицы товара (не более 6 символов)
+      Например, если у вас стоимость за Лист, за Час, за Штуку - в данном случае пропишите <code>Лист</code>,  <code>Час</code>,  <code>Шт</code>
+    cost_per_incorrect: |
+      Неккоректный формат единицы товара. Его размер должен быть в пределе 1..6 символов
+    choose_picture: |
+      Хорошо!
+      Теперь вы можете прислать фотографию (обложку) для своей услуги
+    without_picture: 🖼️ Без обложки
+    not_photo_and_empty: |
+      Пришлите либо обложку услуги, либо команду /empty для продолжения
+    preview: |
+      🗒️Предпросмотр
+
+      <u><b>Услуга</b></u>: {0}
+      <u><b>Стоимость</b></u>: {1}₽ / {2}
+      <u><b>Описание</b></u>: {3}
+
+      Проверьте все данные и отправьте на модерацию
+    edit_name: |
+      Введите новое название услуги
+      ❗ Не называйте свою услугу длиннее чем 25-ю символамии!
+    edit_description: |
+      Введите новое описание для услуги или отправь /empty для пропуска
+    edit_cost: |
+      Введите новую стоимость услуги
+    edit_cost_per: |
+      Введите название Единицы товара (не более 6 символов)
+      Например, если у вас стоимость за Лист, за Час, за Штуку - в данном случае пропишите <code>Лист</code>,  <code>Час</code>,  <code>Шт</code>
+    edit_picture: |
+      Отправьте новую фотографию (обложку) для своей услуги
+      Если вы хотите её убрать, пришлите /empty
+    sent_to_moderation: |
+      ⏳Отправлено на модерацию
+      
+      <u><b>Услуга</b></u>: {0}
+      <u><b>Стоимость</b></u>: {1}₽ / {2}
+      <u><b>Описание</b></u>: {3}
+  service_no_description: 🚫 Отсутствует
+  moderation:
+    preview: |
+      <u><b>Статус</b></u>: {0}
+      <u><b>Услуга</b></u>: {1}
+      <u><b>Стоимость</b></u>: {2}₽ / {3}
+      <u><b>Описание</b></u>: {4}
+      <u><b>Владелец</b></u>: <a href="tg://user?id={5}">{6}</a>
+    category: |
+      <u><b>Категория</b></u>: {0}
+    status:
+      moderation: ⏳ На рассмотрении
+      accept: ✅ Опубликовано
+      reject: 🚫 Отказано
+    setting_category: |
+      Установите категорию (вкладку) услуги
+      Напишите её в формате директорий, например:
+      <blockquote>Общага/Печать/Цветная</blockquote>
+      Разделитель - "/", без лишний пробелов
+      Корневая директория (без категории) - /
+    empty_category: Отправьте категорию в виде текста
+    category_set: ✅ Категория установлена
+    category_cancel: 🚫 Установка категории отменена
+    refuse: |
+      Напишите причину отказа, для передачи владельцу услуги
+      Вы можете отправить 🖼️ Без описания для игнорирования либо 🚫 Отмена
+    empty_refuse: Отправьте 🖼️ Без описания, 🚫 Отмена, либо текст пояснения
+    refuse_confirm: |
+      ⛔ Публикация отказана
+    refuse_cancel: Отказ отменён
+    accepting: |
+      Для одобрения публикации, подтвердите выбор, отправьте: 
+      ✅ Подтвердить или 🚫 Отмена
+    empty_accept: Отравьте ✅ Подтвердить или 🚫 Отмена
+    accept_cancel: |
+      🚫 Публикация отменена
+    accept_confirm: |
+      ✅ Публикация подтверждена
+    accept_unknown: Отправьте /confirm или /cancel
+    refused_message: |
+      🚫 <b>К сожалению, модерация отклонила публикацию услуги</b> {0}
+    refused_message_text: |
+      🚫 <b>К сожалению, модерация отклонила публикацию услуги</b> {0}: 
+      <blockquote>{1}</blockquote>
+    service_approved: ✅ <b>Модерация одобрила публикацию услуги</b> {0}
+user_service:
+  greeting_start: |
+    Привет!
+    Ты подал заявку на студенческий чат Первого Общежития МТУСИ
+    Подтверди пожалуйста, являешься ли ты её жителем.
+    Для этого нужно ответить на несколько вопросов, если согласен, нажми на кнопку ✅ Начать или ❌ Отмена
+    Заявка будет автоматически отклонена через {0} часа
+    Если вы считаете, что произошла какая-то ошибка, обратитесь к @slavapmk
+  greeting_start_refused: |
+    Привет!
+    Ты подал заявку на студенческий чат Первого Общежития МТУСИ
+    Подтверди пожалуйста, являешься ли ты её жителем.
+    Для этого нужно ответить на несколько вопросов, если согласен, нажми на кнопку ✅ Начать или ❌ Отмена
+    Заявка будет автоматически отклонена через {0} часа
+    
+    UPD: ❌ Заявка была автоматически отклонена по прошествию {0} часов
+    ⚠️ Если вы считаете, что произошла ошибка, обратитесь к @slavapmk
+  auto_refused: |
+    ❌ Ваша заявка была автоматически отклонена по прошествию {0} часов с подачи.
+    Вы можете подать её заново для рассмотрения
+    ⚠️ Если вы считаете, что произошла ошибка, обратитесь к @slavapmk
+  greeting_unknown: |
+    Пожалуйста, выбери один из вариантов: ✅ Начать или ❌ Отмена
+  greeting_button_start: ✅ Начать
+  greeting_button_cancel: ❌ Отмена
+  greeting_button_start_payload: process_join_agreed
+  on_cancel: |
+    ❌ Процедура рассмотрения отменена. Для её повторения необходимо будет заново подать заявку
+  select_room: |
+    🔢 Для начала нужно ввести номер комнаты в которой ты проживаешь. Просто отправь 3-значное число
+  select_room_unknown: |
+    ⚠️ Формат некорректен. Пожалуйста, отправь номер комнаты трёхзначным числом
+  select_name: ✍️ Теперь введите своё полное имя
+  name_empty: ⚠️ Текст не обнаружен. Введите текстом своё полное имя
+  select_surname: ✍️ Теперь введите свою фамилию
+  surname_empty: ⚠️ Введите текстом свою полную фамилию
+  confirm_picture: |
+    🖼️ Хорошо, теперь для подтверждения, перед отправкой данных на рассмотрение администрацией требуется подтвердить данные.
+    Нужно будет отправить фотографию, где будет видно лицо и пропуск в общежитие, как на примере
+    ❗ Просьба отзеркалить её так, чтобы текст был читаем
+  not_photo_and_empty: |
+    ⚠️ Фотография не обнаружена. Пришлите изображения подтверждения
+  confirm: |
+    Итого, твоя анкета
+    <b>Имя</b>: {0}
+    <b>Фамилия</b>: {1}
+    <b>Комната</b>: {2}
+    Для отправки заявления администрации нажми ✅ Отправить или ❌ Отмена
+  confirm_sent: |
+    Заявка отправлена на рассмотрение
+  confirm_unknown: |
+    Для отправки заявления администрации нажми ✅ Отправить или ❌ Отмена
+  moderation:
+    new_request: |
+      <b>Новая заявка</b> от {0} (@{1}) - <code>#{2}</code>
+      <b>Статус</b>: {3}
+      <b>Имя</b>: {4}
+      <b>Фамилия</b>: {5}
+      <b>Комната</b>: {6}
+      
+      {7}
+    new_request_nousername: |
+      <b>Новая заявка</b> от <a href="tg://user?id={0}">{1}</a> - <code>#{2}</code>
+      <b>Статус</b>: {3}
+      <b>Имя</b>: {4}
+      <b>Фамилия</b>: {5}
+      <b>Комната</b>: {6}
+      
+      {7}
+    actions:
+      choose: Выберите действие
+      accept_confirm: Подтвердите добавление ✅
+      refuse_confirm: Подтвердите отклонение ❌
+      refuse_choose_description: ✍️ Напишите причину отказа в чат
+    request_status:
+      on_moderation: ⏳ На рассмотрении
+      approved:
+        username: ✅ Одобрен @{0}
+        nousername: ✅ Одобрен <a href="tg://user?id={0}">{1}</a>
+      refused:
+        username:
+          nocomment: ❌ Отклонён @{0}
+          commented: |
+            ❌ Отклонён @{0} по причине:
+            <blockquote>{1}</blockquote>
+        nousername:
+          nocomment: ❌ Отклонён <a href="tg://user?id={0}">{1}</a>
+          commented: |
+            ❌ Отклонён <a href="tg://user?id={0}">{1}</a>
+            <blockquote>{2}</blockquote>
+    user_answer:
+      accepted: ✅ Вы были одобрены администрацией для добавления в чат
+      refused:
+        nocomment: ❌ К сожалению, администрация чата отклонила ваш запрос
+        commented: |
+          ❌ К сожалению, администрация чата отклонила ваш запрос:
+          <blockquote>{0}</blockquote>
+    refuse_confirm_empty: ⚠️ Отправьте причину отказа или выберите соответсвующий вариант

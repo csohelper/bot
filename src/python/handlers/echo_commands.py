@@ -119,20 +119,22 @@ commands = [
 ]
 
 
-def build_kwargs(working_status: List[WorkingKey]) -> dict[str, str]:
+def build_kwargs(working_status: List[WorkingKey], lang: str) -> dict[str, str]:
     return {
-        wk.key: get_time_status(wk.time_address)
+        wk.key: get_time_status(wk.time_address, lang)
         for wk in working_status
     }
 
 
-def make_handler(command: EchoCommand):
-    @router.message(Command(command.command))
+def make_handler(command_info: EchoCommand):
+    @router.message(Command(command_info.command))
     @router.message(lambda message, cmd=command: message.text and message.text.lower() in cmd.text)
     async def echo_command_handler(message: Message) -> None:
+        print(message.from_user.language_code)
         await message.reply(get_string(
-            command.response,
-            **build_kwargs(command.working_status)
+            message.from_user.language_code,
+            command_info.response,
+            **build_kwargs(command_info.working_status, message.from_user.language_code)
         ))
 
     return echo_command_handler
@@ -151,7 +153,7 @@ async def command_start_handler(message: Message, command: CommandObject, state:
     match payload:
         case 'addservice':
             await on_addservice(message, state)
-        case _ if payload == get_string("user_service.greeting_button_start_payload"):
+        case _ if payload == get_string(message.from_user.language_code, "user_service.greeting_button_start_payload"):
             await on_accept_join_process(message, state)
         case _:
             logger.error(f"Can't handle start payload - Args: {args}, Payload: {payload}")
@@ -159,10 +161,10 @@ async def command_start_handler(message: Message, command: CommandObject, state:
 
 @router.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
-    await message.reply(get_string('echo_commands.start'))
+    await message.reply(get_string(message.from_user.language_code, 'echo_commands.start'))
 
     if message.chat.type == "private" and config.chat_config.owner == 0:
-        await message.answer(get_string('echo_commands.first_start'))
+        await message.answer(get_string(message.from_user.language_code, 'echo_commands.first_start'))
         config.chat_config.owner = message.from_user.id
         save_config(config)
         return
@@ -174,7 +176,7 @@ async def command_start_handler(message: Message) -> None:
     "я долбоёбка", "я долбаебка", "я долбаёбка"
 ])
 async def command_help_handler(message: Message) -> None:
-    await message.reply(get_string('echo_commands.help'))
+    await message.reply(get_string(message.from_user.language_code, 'echo_commands.help'))
 
 
 @router.message(Command("mei"))
@@ -182,7 +184,7 @@ async def command_help_handler(message: Message) -> None:
 async def command_mei_handler(message: Message) -> None:
     await message.reply(
         random.choice(
-            get_strings('echo_commands.mei')
+            get_strings(message.from_user.language_code, 'echo_commands.mei')
         )
     )
 
@@ -192,7 +194,7 @@ async def command_mei_handler(message: Message) -> None:
 async def command_meishniky_handler(message: Message) -> None:
     await message.reply(
         random.choice(
-            get_strings('echo_commands.meishniky')
+            get_strings(message.from_user.language_code, 'echo_commands.meishniky')
         )
     )
 
@@ -202,7 +204,7 @@ async def command_meishniky_handler(message: Message) -> None:
 async def command_mai_handler(message: Message) -> None:
     await message.reply(
         random.choice(
-            get_strings('echo_commands.mai')
+            get_strings(message.from_user.language_code, 'echo_commands.mai')
         )
     )
 
@@ -212,7 +214,7 @@ async def command_mai_handler(message: Message) -> None:
 async def command_maishniky_handler(message: Message) -> None:
     await message.reply(
         random.choice(
-            get_strings('echo_commands.maishniky')
+            get_strings(message.from_user.language_code, 'echo_commands.maishniky')
         )
     )
 
@@ -224,8 +226,8 @@ async def command_week_handler(message: Message) -> None:
     await message.reply(
         get_string(
             'echo_commands.week',
-            get_strings('echo_commands.week_types_up_down')[week_number % 2],
-            get_strings('echo_commands.week_types_even')[week_number % 2],
+            get_strings(message.from_user.language_code, 'echo_commands.week_types_up_down')[week_number % 2],
+            get_strings(message.from_user.language_code, 'echo_commands.week_types_even')[week_number % 2],
             week_number
         )
     )
@@ -234,5 +236,5 @@ async def command_week_handler(message: Message) -> None:
 @router.message(lambda message: message.text and message.text.lower() in ["заведущий", "заведущая"])
 async def command_week_handler(message: Message) -> None:
     await message.reply(get_string(
-        'echo_commands.incorrect_lang'
+        message.from_user.language_code, 'echo_commands.incorrect_lang'
     ))

@@ -1,16 +1,17 @@
 import asyncio
 import datetime
 import random
+
 from aiogram import Bot, Router
-from ..storage.strings import get_string
-from aiogram.types import Message
-from aiogram.filters import Command
-from ..logger import logger
 from aiogram.enums import ChatMemberStatus
 from aiogram.exceptions import TelegramBadRequest, TelegramRetryAfter
+from aiogram.filters import Command
 from aiogram.types import ChatPermissions, Message
-from ..storage.config import config
+
 from .. import anecdote_poller
+from ..logger import logger
+from ..storage.config import config
+from ..storage.strings import get_string
 
 router = Router()
 _bot: Bot
@@ -28,7 +29,7 @@ async def init(bot: Bot):
 async def command_anecdote_handler(message: Message) -> None:
     if message.chat.type not in ['group', 'supergroup']:
         await message.reply(get_string(
-            'echo_commands.kek.only_group'
+            message.from_user.language_code, 'echo_commands.kek.only_group'
         ))
         return
 
@@ -46,6 +47,7 @@ async def command_anecdote_handler(message: Message) -> None:
     remain = antiflood_time - int(delta.total_seconds())
     if delta < datetime.timedelta(seconds=antiflood_time):
         reply = await message.reply(get_string(
+            message.from_user.language_code,
             'echo_commands.kek.too_many',
             message.from_user.full_name,
             antiflood_time,
@@ -69,6 +71,7 @@ async def command_anecdote_handler(message: Message) -> None:
         if bot_member.status == ChatMemberStatus.ADMINISTRATOR and bot_member.can_restrict_members:
             ban_time = random.randint(1, 30)
             reply = await message.reply(get_string(
+                message.from_user.language_code,
                 'echo_commands.kek.ban',
                 message.from_user.full_name,
                 ban_time
@@ -76,6 +79,7 @@ async def command_anecdote_handler(message: Message) -> None:
             user_member = await _bot.get_chat_member(chat_id=message.chat.id, user_id=message.from_user.id)
             if user_member.status != ChatMemberStatus.MEMBER:
                 await reply.edit_text(get_string(
+                    message.from_user.language_code,
                     'echo_commands.kek.ban_admin',
                     message.from_user.full_name
                 ))
@@ -89,6 +93,7 @@ async def command_anecdote_handler(message: Message) -> None:
                     )
                 except TelegramBadRequest as e:
                     await reply.edit_text(get_string(
+                        message.from_user.language_code,
                         'echo_commands.kek.ban_error',
                         message.from_user.full_name,
                         ban_time
@@ -97,6 +102,7 @@ async def command_anecdote_handler(message: Message) -> None:
                         f"Failed to restrict user {message.from_user.id} in chat {message.chat.id}. User not admin and bot has rights\n{e}")
         else:
             await message.reply(get_string(
+                message.from_user.language_code,
                 'echo_commands.kek.ban_no_rights',
                 message.from_user.full_name
             ))
@@ -119,6 +125,7 @@ async def command_anecdote_handler(message: Message) -> None:
                 anecdote = await anecdote_poller.get_anecdote()
                 if anecdote:
                     await message.reply(get_string(
+                        message.from_user.language_code,
                         'echo_commands.kek.anecdote',
                         anecdote.text,
                         anecdote.anecdote_id
@@ -127,5 +134,6 @@ async def command_anecdote_handler(message: Message) -> None:
             except Exception as e:
                 logger.error(f"Failed to generate anecdote with exc {e}. Retrying...")
     await message.reply(get_string(
+        message.from_user.language_code,
         'echo_commands.kek.not_found'
     ))

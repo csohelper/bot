@@ -23,6 +23,7 @@ class User:
     refuse_reason: Optional[str]
     created_at: datetime
     image: Optional[str]
+    lang: Optional[str]
 
 
 async def init_database_module() -> None:
@@ -43,7 +44,8 @@ async def init_database_module() -> None:
                     processed_by_fullname TEXT,
                     processed_by_username TEXT,
                     refuse_reason TEXT,
-                    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    lang TEXT
                 )
             """
             logger.debug(query)
@@ -54,7 +56,8 @@ async def init_database_module() -> None:
                     user_id BIGINT NOT NULL UNIQUE,
                     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     processed BOOLEAN NOT NULL DEFAULT FALSE,
-                    greeting_msg INTEGER
+                    greeting_msg INTEGER,
+                    lang TEXT
                 )
             """
             logger.debug(query)
@@ -70,7 +73,8 @@ async def add_user(
         surname: str,
         room: int | None = None,
         image: str | None = None,
-        status: str = "waiting"
+        status: str = "waiting",
+        lang: str|None = None,
 ) -> int:
     """
     Добавляет пользователя в таблицу users или обновляет его данные.
@@ -84,16 +88,17 @@ async def add_user(
     :param room: Комната (может быть None)
     :param status: Статус (по умолчанию 'waiting')
     :param image: Изображение подтверждения в base64 (JPG)
+    :param lang: Код языка пользователя
     :return: id записи в таблице users
     """
     async with database.get_db_connection() as conn:
         async with conn.cursor() as cur:
             query = """
-                INSERT INTO users (user_id, username, fullname, name, surname, room, status, image)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                INSERT INTO users (user_id, username, fullname, name, surname, room, status, image, lang)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING id
             """
-            values = (user_id, username, fullname, name, surname, room, status, image)
+            values = (user_id, username, fullname, name, surname, room, status, image, lang)
             logger.debug(query)
             logger.debug(values)
             await cur.execute(query, values)
@@ -114,7 +119,7 @@ async def get_user_by_id(user_id: int) -> User | None:
             query = """
                 SELECT id, user_id, username, fullname, name, surname, room, status,
                        processed_by, processed_by_fullname, processed_by_username,
-                       refuse_reason, created_at, image
+                       refuse_reason, created_at, image, lang
                 FROM users
                 WHERE id = %s
             """
@@ -143,14 +148,15 @@ async def get_user_by_id(user_id: int) -> User | None:
                 processed_by_username=row[10],
                 refuse_reason=row[11],
                 created_at=row[12],
-                image=row[13]
+                image=row[13],
+                lang=row[14]
             )
 
 
 ALLOWED_USER_FIELDS = {
     "username", "fullname", "name", "surname", "room", "status",
     "processed_by", "processed_by_fullname", "processed_by_username",
-    "refuse_reason", "image"
+    "refuse_reason", "image", "lang"
 }
 
 
@@ -175,7 +181,7 @@ async def update_user_fields(id: int, **fields) -> Optional[User]:
         WHERE id = %s
         RETURNING id, user_id, username, fullname, name, surname, room, status,
                   processed_by, processed_by_fullname, processed_by_username,
-                  refuse_reason, created_at, image
+                  refuse_reason, created_at, image, lang
     """
 
     logger.debug(query)
@@ -202,7 +208,8 @@ async def update_user_fields(id: int, **fields) -> Optional[User]:
                     processed_by_username=row[10],
                     refuse_reason=row[11],
                     created_at=row[12],
-                    image=row[13]
+                    image=row[13],
+                    lang=row[14]
                 )
             return None
 
@@ -245,7 +252,7 @@ async def delete_users_by_user_id(user_id: int) -> int:
             return deleted_count
 
 
-async def create_or_replace_request(user_id: int, greeting_msg: int) -> None:
+async def create_or_replace_request(user_id: int, greeting_msg: int, lang: str) -> None:
     """
     Создаёт запись в таблице requests для указанного user_id.
     Если запись уже есть — удаляет её и вставляет заново с дефолтными значениями.
@@ -261,10 +268,10 @@ async def create_or_replace_request(user_id: int, greeting_msg: int) -> None:
 
             # Теперь вставляем новую запись
             insert_query = """
-                INSERT INTO requests (user_id, greeting_msg)
-                VALUES (%s, %s)
+                INSERT INTO requests (user_id, greeting_msg, lang)
+                VALUES (%s, %s, %s)
             """
-            values = (user_id, greeting_msg)
+            values = (user_id, greeting_msg, lang)
             logger.debug(insert_query)
             logger.debug(values)
             await cur.execute(insert_query, values)
@@ -276,6 +283,7 @@ class RequestInfo:
     user_id: int
     created_at: datetime
     greeting_msg: int
+    lang: str
 
 
 async def pop_unprocessed_requests_older_than(hours: int) -> FrozenSet[RequestInfo]:
@@ -290,7 +298,7 @@ async def pop_unprocessed_requests_older_than(hours: int) -> FrozenSet[RequestIn
                 SET processed = TRUE
                 WHERE processed = FALSE
                   AND created_at <= NOW() - (%s * INTERVAL '1 hour')
-                RETURNING user_id, created_at, greeting_msg
+                RETURNING user_id, created_at, greeting_msg, lang
             """
             values = (hours,)
             logger.debug(query)
@@ -301,7 +309,7 @@ async def pop_unprocessed_requests_older_than(hours: int) -> FrozenSet[RequestIn
             await conn.commit()
 
             return frozenset(
-                RequestInfo(user_id=row[0], created_at=row[1], greeting_msg=row[2]) for row in rows
+                RequestInfo(user_id=row[0], created_at=row[1], greeting_msg=row[2], lang=row[3]) for row in rows
             )
 
 

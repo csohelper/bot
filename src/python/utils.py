@@ -167,44 +167,46 @@ class TimeDelta:
                 + self.microseconds
         )
 
-    def parse_string(self) -> str:
+    def parse_string(self, lang: str) -> str:
         if self.is_positive:
             if self.days > 2:
-                return get_string("time.format.future.d", self.days)
+                return get_string(lang, "time.format.future.d", self.days)
             elif self.days == 2:
-                return get_string("time.format.future.2d")
+                return get_string(lang, "time.format.future.2d")
             elif self.days == 1:
-                return get_string("time.format.future.1d")
+                return get_string(lang, "time.format.future.1d")
             elif self.hours > 0:
-                return get_string("time.format.future.h", self.hours)
+                return get_string(lang, "time.format.future.h", self.hours)
             elif self.minutes > 0:
-                return get_string("time.format.future.m", self.minutes)
+                return get_string(lang, "time.format.future.m", self.minutes)
             elif self.seconds > 0:
-                return get_string("time.format.future.s", self.seconds)
+                return get_string(lang, "time.format.future.s", self.seconds)
             elif self.microseconds > 0:
-                return get_string("time.format.future.u", self.microseconds)
+                return get_string(lang, "time.format.future.u", self.microseconds)
             else:
                 return get_string(
+                    lang,
                     "time.format.future.unknown",
                     d=self.days, h=self.hours, m=self.minutes, s=self.seconds, u=self.microseconds,
                 )
         else:
             if self.days > 2:
-                return get_string("time.format.past.d", self.days)
+                return get_string(lang, "time.format.past.d", self.days)
             elif self.days == 2:
-                return get_string("time.format.past.2d")
+                return get_string(lang, "time.format.past.2d")
             elif self.days == 1:
-                return get_string("time.format.past.1d")
+                return get_string(lang, "time.format.past.1d")
             elif self.hours > 0:
-                return get_string("time.format.past.h", self.hours)
+                return get_string(lang, "time.format.past.h", self.hours)
             elif self.minutes > 0:
-                return get_string("time.format.past.m", self.minutes)
+                return get_string(lang, "time.format.past.m", self.minutes)
             elif self.seconds > 0:
-                return get_string("time.format.past.s", self.seconds)
+                return get_string(lang, "time.format.past.s", self.seconds)
             elif self.microseconds > 0:
-                return get_string("time.format.past.u", self.microseconds)
+                return get_string(lang, "time.format.past.u", self.microseconds)
             else:
                 return get_string(
+                    lang,
                     "time.format.past.unknown",
                     d=self.days, h=self.hours, m=self.minutes, s=self.seconds, u=self.microseconds,
                 )

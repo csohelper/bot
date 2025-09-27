@@ -43,6 +43,7 @@ async def refuser_loop_check() -> None:
             await _bot.send_message(
                 request.user_id,
                 get_string(
+                    request.lang,
                     'user_service.auto_refused',
                     config.refuser.request_life_hours
                 ),
@@ -54,7 +55,9 @@ async def refuser_loop_check() -> None:
                     logger.debug(f"Refuser: {request.user_id} banned bot, trying edit old message")
                     await _bot.edit_message_text(
                         text=get_string(
-                            'greeting_start_refused.greeting_start_refused', config.refuser.request_life_hours
+                            request.lang,
+                            'greeting_start_refused.greeting_start_refused',
+                            config.refuser.request_life_hours
                         ),
                         chat_id=request.user_id,
                         message_id=request.greeting_msg

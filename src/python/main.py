@@ -14,10 +14,11 @@ from python.handlers import echo_commands, images_echo_commands, kek_command, ad
 from python.handlers.services_handlers import add_service_commands, list_services_command, moderate_service, \
     join_service
 from python.logger import logger
+from python.storage import strings
 from python.storage.config import config
 from python.storage.database import open_database_pool, close_database_pool
 from python.storage.repository import services_repository, users_repository, anecdotes_repository
-from python.storage.strings import get_object, get_string
+from python.storage.strings import __get_locale_object, get_string, get_object
 from python.storage.times import get_time
 from python.utils import await_and_run
 
@@ -29,7 +30,19 @@ default_router = Router()
 
 @default_router.message(F.chat.type == "private")
 async def default_private_handler(message: Message):
-    await message.answer(get_string("echo_commands.unknown"), reply_markup=ReplyKeyboardRemove())
+    await message.answer(
+        get_string(message.from_user.language_code, "echo_commands.unknown"),
+        reply_markup=ReplyKeyboardRemove()
+    )
+
+
+async def set_commands(commands_dict, lang: str | None):
+    await bot.set_my_commands(
+        [
+            BotCommand(command=x['command'], description=x['description']) for x in commands_dict
+        ],
+        language_code=lang,
+    )
 
 
 async def main() -> None:
@@ -81,11 +94,9 @@ async def main() -> None:
         if config.refuser.enabled:
             asyncio.create_task(await_and_run(10, join_refuser.refuser_loop_check))
 
-        await bot.set_my_commands(
-            [
-                BotCommand(command=x['command'], description=x['description']) for x in get_object("commands")
-            ]
-        )
+        await set_commands(get_object(None, "commands"), None)
+        for lang in strings.list_langs():
+            await set_commands(get_object(lang, "commands"), lang)
 
     @dp.shutdown()
     async def on_shutdown() -> None:

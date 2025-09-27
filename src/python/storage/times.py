@@ -83,7 +83,7 @@ def walk(node):
         raise ValueError(f"Unexpected node type: {type(node)}")
 
 
-with open("src/res/times.yaml", "r", encoding="utf-8") as f:
+with open("src/res/strings/times.yaml", "r", encoding="utf-8") as f:
     data = yaml.safe_load(f)
 
 times = walk(data)
@@ -158,7 +158,7 @@ def get_time(time_address: str) -> TimeDeltaInfo | None:
     return None
 
 
-def get_time_status(time_address: str) -> str | None:
+def get_time_status(time_address: str, lang: str) -> str | None:
     info = get_time(time_address)
     if info is None:
         return None
@@ -168,34 +168,36 @@ def get_time_status(time_address: str) -> str | None:
 
     if info.status == TimeStatus.CLOSED:
         if future.total_hours < 1:
-            status = get_string("time.colors.opening")
+            status = get_string(lang, "time.colors.opening")
         else:
-            status = get_string("time.colors.closed")
+            status = get_string(lang, "time.colors.closed")
         if past.total_hours < 8:
             key = "time.placeholders.early_closed"
         else:
             key = "time.placeholders.closed"
         return get_string(
+            lang,
             key,
             status=status,
-            closed_time=past.parse_string(),
-            opening_time=future.parse_string()
+            closed_time=past.parse_string(lang),
+            opening_time=future.parse_string(lang)
         )
     elif info.status == TimeStatus.OPEN:
         if future.total_hours < 1:
-            status = get_string("time.colors.closing")
+            status = get_string(lang, "time.colors.closing")
         else:
-            status = get_string("time.colors.open")
+            status = get_string(lang, "time.colors.open")
         if past.total_hours < 1:
             key = "time.placeholders.early_open"
         else:
             key = "time.placeholders.open"
 
         return get_string(
+            lang,
             key,
             status=status,
-            opened_time=past.parse_string(),
-            closing_time=future.parse_string()
+            opened_time=past.parse_string(lang),
+            closing_time=future.parse_string(lang)
         )
     else:
         return None

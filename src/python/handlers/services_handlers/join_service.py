@@ -55,16 +55,16 @@ async def join_request(update: ChatJoinRequest, bot: Bot, state: FSMContext) -> 
         ),
         reply_markup=InlineKeyboardBuilder().row(
             InlineKeyboardButton(
-                text=get_string("user_service.greeting_button_start"),
+                text=get_string(update.from_user.language_code, "user_service.greeting_button_start"),
                 url=await create_start_link(
                     _bot,
-                    get_string("user_service.greeting_button_start_payload"),
+                    get_string(update.from_user.language_code, "user_service.greeting_button_start_payload"),
                     encode=True
                 )
             )
         ).row(
             InlineKeyboardButton(
-                text=get_string("user_service.greeting_button_cancel"),
+                text=get_string(update.from_user.language_code, "user_service.greeting_button_cancel"),
                 callback_data=JoinGreetingCallbackFactory(
                     action=JoinGreetingActions.cancel
                 ).pack()
@@ -85,7 +85,9 @@ async def join_request(update: ChatJoinRequest, bot: Bot, state: FSMContext) -> 
 
     await user_state.update_data(greeting_message=send.message_id)
 
-    await users_repository.create_or_replace_request(update.from_user.id, send.message_id)
+    await users_repository.create_or_replace_request(
+        update.from_user.id, send.message_id, update.from_user.language_code
+    )
 
 
 @router.callback_query(JoinGreetingCallbackFactory.filter())
@@ -104,7 +106,7 @@ async def on_greeting_callback(
         case JoinGreetingActions.cancel:
             await users_repository.mark_request_processed(callback.from_user.id)
             await callback.message.reply(
-                get_string("user_service.on_cancel"),
+                get_string(callback.from_user.language_code, "user_service.on_cancel"),
                 reply_markup=ReplyKeyboardRemove()
             )
             await _bot.decline_chat_join_request(
@@ -120,7 +122,7 @@ async def on_accept_join_process(message: Message, state: FSMContext):
     )
     await state.clear()
     await message.reply(
-        get_string("user_service.select_room"),
+        get_string(message.from_user.language_code, "user_service.select_room"),
         reply_markup=ReplyKeyboardBuilder().row(
             KeyboardButton(text="❌Отмена")
         ).as_markup(resize_keyboard=True, one_time_keyboard=True)
@@ -134,7 +136,7 @@ async def on_accept_join_process(message: Message, state: FSMContext):
 async def on_room_chosen(message: Message, state: FSMContext) -> None:
     if message.text == "❌Отмена":
         await message.reply(
-            get_string("user_service.on_cancel"),
+            get_string(message.from_user.language_code, "user_service.on_cancel"),
             reply_markup=ReplyKeyboardRemove()
         )
         await state.clear()
@@ -145,7 +147,7 @@ async def on_room_chosen(message: Message, state: FSMContext) -> None:
         await users_repository.mark_request_processed(message.from_user.id)
     elif not message.text or len(message.text) != 3 or not message.text.isdigit() or int(message.text) < 0:
         await message.reply(
-            get_string("user_service.select_room_unknown"),
+            get_string(message.from_user.language_code, "user_service.select_room_unknown"),
             reply_markup=ReplyKeyboardBuilder().row(
                 KeyboardButton(text="❌Отмена")
             ).as_markup(resize_keyboard=True, one_time_keyboard=True)
@@ -153,7 +155,7 @@ async def on_room_chosen(message: Message, state: FSMContext) -> None:
     else:
         await state.update_data(room=int(message.text))
         await message.reply(
-            get_string("user_service.select_name"),
+            get_string(message.from_user.language_code, "user_service.select_name"),
             reply_markup=ReplyKeyboardBuilder().row(
                 KeyboardButton(text="❌Отмена")
             ).as_markup(resize_keyboard=True, one_time_keyboard=True)
@@ -167,7 +169,7 @@ async def on_room_chosen(message: Message, state: FSMContext) -> None:
 async def on_name_chosen(message: Message, state: FSMContext) -> None:
     if message.text == "❌Отмена":
         await message.reply(
-            get_string("user_service.on_cancel"),
+            get_string(message.from_user.language_code, "user_service.on_cancel"),
             reply_markup=ReplyKeyboardRemove()
         )
         await state.clear()
@@ -178,7 +180,7 @@ async def on_name_chosen(message: Message, state: FSMContext) -> None:
         await users_repository.mark_request_processed(message.from_user.id)
     elif not message.text or len(message.text) == 0:
         await message.reply(
-            get_string("user_service.name_empty"),
+            get_string(message.from_user.language_code, "user_service.name_empty"),
             reply_markup=ReplyKeyboardBuilder().row(
                 KeyboardButton(text="❌Отмена")
             ).as_markup(resize_keyboard=True, one_time_keyboard=True)
@@ -186,7 +188,7 @@ async def on_name_chosen(message: Message, state: FSMContext) -> None:
     else:
         await state.update_data(name=message.text)
         await message.reply(
-            get_string("user_service.select_surname"),
+            get_string(message.from_user.language_code, "user_service.select_surname"),
             reply_markup=ReplyKeyboardBuilder().row(
                 KeyboardButton(text="❌Отмена")
             ).as_markup(resize_keyboard=True, one_time_keyboard=True)
@@ -203,7 +205,7 @@ cached_confirm_sample_file_id = None
 async def on_surname_chosen(message: Message, state: FSMContext) -> None:
     if message.text == "❌Отмена":
         await message.reply(
-            get_string("user_service.on_cancel"),
+            get_string(message.from_user.language_code, "user_service.on_cancel"),
             reply_markup=ReplyKeyboardRemove()
         )
         await state.clear()
@@ -214,7 +216,7 @@ async def on_surname_chosen(message: Message, state: FSMContext) -> None:
         await users_repository.mark_request_processed(message.from_user.id)
     elif not message.text or len(message.text) == 0:
         await message.reply(
-            get_string("user_service.surname_empty"),
+            get_string(message.from_user.language_code, "user_service.surname_empty"),
             reply_markup=ReplyKeyboardBuilder().row(
                 KeyboardButton(text="❌Отмена")
             ).as_markup(resize_keyboard=True, one_time_keyboard=True)
@@ -229,7 +231,7 @@ async def on_surname_chosen(message: Message, state: FSMContext) -> None:
                 image_path = "./src/res/images/join_confirm_sample.jpg"
                 sent: Message = await message.reply_photo(
                     photo=FSInputFile(image_path),
-                    caption=get_string("user_service.confirm_picture"),
+                    caption=get_string(message.from_user.language_code, "user_service.confirm_picture"),
                     show_caption_above_media=True,
                     reply_markup=ReplyKeyboardBuilder().row(
                         KeyboardButton(text="❌Отмена")
@@ -241,7 +243,7 @@ async def on_surname_chosen(message: Message, state: FSMContext) -> None:
                 try:
                     await message.reply_photo(
                         photo=cached_confirm_sample_file_id,
-                        caption=get_string("user_service.confirm_picture"),
+                        caption=get_string(message.from_user.language_code, "user_service.confirm_picture"),
                         show_caption_above_media=True,
                         reply_markup=ReplyKeyboardBuilder().row(
                             KeyboardButton(text="❌Отмена")
@@ -262,7 +264,7 @@ async def on_surname_chosen(message: Message, state: FSMContext) -> None:
 async def on_picture_chosen(message: Message, state: FSMContext) -> None:
     if message.text == "❌Отмена":
         await message.reply(
-            get_string("user_service.on_cancel"),
+            get_string(message.from_user.language_code, "user_service.on_cancel"),
             reply_markup=ReplyKeyboardRemove()
         )
         await state.clear()
@@ -274,7 +276,7 @@ async def on_picture_chosen(message: Message, state: FSMContext) -> None:
         return
     if not message.photo:
         await message.reply(
-            get_string("user_service.not_photo_and_empty"),
+            get_string(message.from_user.language_code, "user_service.not_photo_and_empty"),
             reply_markup=ReplyKeyboardBuilder().row(
                 KeyboardButton(text="❌Отмена")
             ).as_markup(resize_keyboard=True, one_time_keyboard=True)
@@ -323,7 +325,7 @@ class ModerateUserCallbackFactory(CallbackData, prefix="moderateuser"):
 async def on_send_chosen(message: Message, state: FSMContext) -> None:
     if message.text == "❌Отмена":
         await message.reply(
-            get_string("user_service.on_cancel"),
+            get_string(message.from_user.language_code, "user_service.on_cancel"),
             reply_markup=ReplyKeyboardRemove()
         )
         await state.clear()
@@ -343,7 +345,8 @@ async def on_send_chosen(message: Message, state: FSMContext) -> None:
             name=await state.get_value("name"),
             surname=await state.get_value("surname"),
             room=await state.get_value("room"),
-            image=image
+            image=image,
+            lang=message.from_user.language_code
         )
         image_bytes = base64.b64decode(image)
         image_stream = io.BytesIO(image_bytes)
@@ -352,14 +355,15 @@ async def on_send_chosen(message: Message, state: FSMContext) -> None:
             chat_id=config.chat_config.admin_chat_id,
             photo=media,
             caption=new_request_message(
+                message.from_user.language_code,
                 message.from_user.full_name,
                 message.from_user.username,
                 message.from_user.id,
-                get_string("user_service.moderation.request_status.on_moderation"),
+                get_string(message.from_user.language_code, "user_service.moderation.request_status.on_moderation"),
                 await state.get_value("name"),
                 await state.get_value("surname"),
                 await state.get_value("room"),
-                get_string('user_service.moderation.actions.choose')
+                get_string(message.from_user.language_code, 'user_service.moderation.actions.choose')
             ),
             reply_markup=InlineKeyboardBuilder().row(InlineKeyboardButton(
                 text='🚫Отклонить',
@@ -384,11 +388,12 @@ async def on_send_chosen(message: Message, state: FSMContext) -> None:
                 message=send.message_id
             ).pack()
         )).as_markup())
-        await message.reply(get_string("user_service.confirm_sent"), reply_markup=ReplyKeyboardRemove())
+        await message.reply(get_string(message.from_user.language_code, "user_service.confirm_sent"),
+                            reply_markup=ReplyKeyboardRemove())
         await state.clear()
     else:
         await message.reply(
-            get_string("user_service.confirm_unknown"),
+            get_string(message.from_user.language_code, "user_service.confirm_unknown"),
             reply_markup=ReplyKeyboardBuilder().row(
                 KeyboardButton(text="✅Отправить"),
                 KeyboardButton(text="❌Отмена")
@@ -425,14 +430,16 @@ async def callbacks_moderate_buttons(
         case "accept":
             await callback.message.edit_caption(
                 caption=new_request_message(
+                    callback.from_user.language_code,
                     database_user.fullname,
                     database_user.username,
                     database_user.user_id,
-                    get_string("user_service.moderation.request_status.on_moderation"),
+                    get_string(callback.from_user.language_code,
+                               "user_service.moderation.request_status.on_moderation"),
                     database_user.name,
                     database_user.surname,
                     database_user.room,
-                    get_string('user_service.moderation.actions.accept_confirm')
+                    get_string(callback.from_user.language_code, 'user_service.moderation.actions.accept_confirm')
                 ),
                 reply_markup=InlineKeyboardBuilder().row(
                     InlineKeyboardButton(
@@ -457,14 +464,16 @@ async def callbacks_moderate_buttons(
         case "refuse":
             await callback.message.edit_caption(
                 caption=new_request_message(
+                    callback.from_user.language_code,
                     database_user.fullname,
                     database_user.username,
                     database_user.user_id,
-                    get_string("user_service.moderation.request_status.on_moderation"),
+                    get_string(callback.from_user.language_code,
+                               "user_service.moderation.request_status.on_moderation"),
                     database_user.name,
                     database_user.surname,
                     database_user.room,
-                    get_string('user_service.moderation.actions.refuse_confirm')
+                    get_string(callback.from_user.language_code, 'user_service.moderation.actions.refuse_confirm')
                 ),
                 reply_markup=InlineKeyboardBuilder().row(
                     InlineKeyboardButton(
@@ -503,14 +512,16 @@ async def on_join_accept(
         case ModerateButtonsAction.CANCEL:
             await callback.message.edit_caption(
                 caption=new_request_message(
+                    callback.from_user.language_code,
                     database_user.fullname,
                     database_user.username,
                     database_user.user_id,
-                    get_string("user_service.moderation.request_status.on_moderation"),
+                    get_string(callback.from_user.language_code,
+                               "user_service.moderation.request_status.on_moderation"),
                     database_user.name,
                     database_user.surname,
                     database_user.room,
-                    get_string('user_service.moderation.actions.choose')
+                    get_string(callback.from_user.language_code, 'user_service.moderation.actions.choose')
                 ),
                 reply_markup=InlineKeyboardBuilder().row(InlineKeyboardButton(
                     text='🚫Отклонить',
@@ -539,6 +550,7 @@ async def on_join_accept(
                 chat_id=config.chat_config.admin_chat_id,
                 message_id=callback_data.message,
                 caption=new_request_message(
+                    callback.from_user.language_code,
                     database_user.fullname,
                     database_user.username,
                     database_user.user_id,
@@ -546,6 +558,7 @@ async def on_join_accept(
                         "user_service.moderation.request_status.approved.username",
                         callback.from_user.username
                     ) if callback.from_user.username else get_string(
+                        callback.from_user.language_code,
                         "user_service.moderation.request_status.approved.nousername",
                         callback.from_user.id, callback.from_user.full_name
                     ),
@@ -557,7 +570,7 @@ async def on_join_accept(
             )
             await _bot.send_message(
                 database_user.user_id,
-                get_string("user_service.moderation.user_answer.accepted")
+                get_string(callback.from_user.language_code, "user_service.moderation.user_answer.accepted")
             )
             await users_repository.update_user_fields(
                 callback_data.database_id,
@@ -570,14 +583,17 @@ async def on_join_accept(
         case ModerateButtonsAction.REFUSE_CONFIRM:
             await callback.message.edit_caption(
                 caption=new_request_message(
+                    callback.from_user.language_code,
                     database_user.fullname,
                     database_user.username,
                     database_user.user_id,
-                    get_string("user_service.moderation.request_status.on_moderation"),
+                    get_string(callback.from_user.language_code,
+                               "user_service.moderation.request_status.on_moderation"),
                     database_user.name,
                     database_user.surname,
                     database_user.room,
-                    get_string('user_service.moderation.actions.refuse_choose_description')
+                    get_string(callback.from_user.language_code,
+                               'user_service.moderation.actions.refuse_choose_description')
                 ),
                 reply_markup=InlineKeyboardBuilder().row(InlineKeyboardButton(
                     text='🖼️Без причины',
@@ -627,11 +643,13 @@ async def refuse_user(reason: str | None, state: FSMContext, from_user: User) ->
     else:
         if reason:
             status = get_string(
+                from_user.language_code,
                 "user_service.moderation.request_status.refused.nousername.commented",
                 from_user.id, from_user.full_name, reason
             )
         else:
             status = get_string(
+                from_user.language_code,
                 "user_service.moderation.request_status.refused.nousername.nocomment",
                 from_user.id, from_user.full_name
             )
@@ -640,6 +658,7 @@ async def refuse_user(reason: str | None, state: FSMContext, from_user: User) ->
         chat_id=config.chat_config.admin_chat_id,
         message_id=callback_data.message,
         caption=new_request_message(
+            from_user.language_code,
             database_user.fullname,
             database_user.username,
             database_user.user_id,
@@ -661,8 +680,10 @@ async def refuse_user(reason: str | None, state: FSMContext, from_user: User) ->
     await _bot.send_message(
         database_user.user_id,
         get_string(
+            database_user.lang,
             "user_service.moderation.user_answer.refused.commented", reason
         ) if reason else get_string(
+            database_user.lang,
             "user_service.moderation.user_answer.refused.nocomment"
         )
     )
@@ -674,6 +695,7 @@ async def refuse_user(reason: str | None, state: FSMContext, from_user: User) ->
 async def on_refuse_description_accept(message: Message, state: FSMContext) -> None:
     if not message.text or len(message.text) == 0:
         await message.reply(get_string(
+            message.from_user.language_code,
             'user_service.moderation.refuse_confirm_empty'
         ))
     else:
@@ -682,11 +704,12 @@ async def on_refuse_description_accept(message: Message, state: FSMContext) -> N
 
 
 def new_request_message(
-        fullname: str, username: str | None, user_id: int, status: str,
+        lang: str | None, fullname: str, username: str | None, user_id: int, status: str,
         first_name: str, last_name: str, room: int, action: str = ''
 ) -> str:
     if username:
         return get_string(
+            lang,
             "user_service.moderation.new_request",
             fullname,
             username,
@@ -699,6 +722,7 @@ def new_request_message(
         )
     else:
         return get_string(
+            lang,
             "user_service.moderation.new_request_nousername",
             user_id,
             fullname,

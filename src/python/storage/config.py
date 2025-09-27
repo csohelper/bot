@@ -56,7 +56,7 @@ class LoggerConfig(BaseModel):
 
 
 class AppConfig(BaseModel):
-    lang: str = Field(default="ru")
+    admin_lang: str = Field(default="ru")
     timezone: str = Field(default="Europe/Moscow")
     logger: LoggerConfig = Field(default_factory=LoggerConfig)
     telegram: TelegramConfig = Field(default_factory=TelegramConfig)

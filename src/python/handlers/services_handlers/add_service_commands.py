@@ -44,19 +44,19 @@ class AddServiceStates(StatesGroup):
 async def on_addservice(message: Message, state: FSMContext) -> None:
     if message.chat.type != 'private':
         await message.answer(
-            text=get_string('services.add_command.not_private').strip(),
+            text=get_string(message.from_user.language_code, 'services.add_command.not_private').strip(),
             reply_markup=InlineKeyboardBuilder().row(
                 InlineKeyboardButton(
-                    text=get_string('services.add_command.goto_pm'),
+                    text=get_string(message.from_user.language_code, 'services.add_command.goto_pm'),
                     url=await create_start_link(_bot, 'addservice', encode=True)
                 )
             ).as_markup()
         )
         return
     await message.reply(
-        text=get_string('services.add_command.greeting'),
+        text=get_string(message.from_user.language_code, 'services.add_command.greeting'),
         reply_markup=ReplyKeyboardBuilder().row(
-            KeyboardButton(text=get_string('services.add_command.cancel_button'))
+            KeyboardButton(text=get_string(message.from_user.language_code, 'services.add_command.cancel_button'))
         ).as_markup(resize_keyboard=True, one_time_keyboard=False)
     )
     await state.set_state(AddServiceStates.choosing_name_state)
@@ -66,16 +66,16 @@ async def on_addservice(message: Message, state: FSMContext) -> None:
     AddServiceStates.choosing_name_state
 )
 async def on_name_chosen(message: Message, state: FSMContext) -> None:
-    if message.text == get_string('services.add_command.cancel_button'):
+    if message.text == get_string(message.from_user.language_code, 'services.add_command.cancel_button'):
         await message.reply(
-            text=get_string('services.add_command.cancel_message'),
+            text=get_string(message.from_user.language_code, 'services.add_command.cancel_message'),
             reply_markup=ReplyKeyboardRemove()
         )
         await state.clear()
         return
     if not message.text or not 4 <= len(message.text) <= 25:
         await message.reply(
-            text=get_string('services.add_command.incorrect_name')
+            text=get_string(message.from_user.language_code, 'services.add_command.incorrect_name')
         )
         return
 
@@ -83,10 +83,11 @@ async def on_name_chosen(message: Message, state: FSMContext) -> None:
         name=message.text
     )
     await message.reply(
-        text=get_string('services.add_command.choose_description'),
+        text=get_string(message.from_user.language_code, 'services.add_command.choose_description'),
         reply_markup=ReplyKeyboardBuilder().row(
-            KeyboardButton(text=get_string('services.add_command.without_description')),
-            KeyboardButton(text=get_string('services.add_command.cancel_button'))
+            KeyboardButton(
+                text=get_string(message.from_user.language_code, 'services.add_command.without_description')),
+            KeyboardButton(text=get_string(message.from_user.language_code, 'services.add_command.cancel_button'))
         ).as_markup(resize_keyboard=True, one_time_keyboard=False)
     )
     await state.set_state(AddServiceStates.choosing_description_state)
@@ -96,17 +97,17 @@ async def on_name_chosen(message: Message, state: FSMContext) -> None:
     AddServiceStates.choosing_description_state
 )
 async def on_description_chosen(message: Message, state: FSMContext) -> None:
-    if message.text == get_string('services.add_command.cancel_button'):
+    if message.text == get_string(message.from_user.language_code, 'services.add_command.cancel_button'):
         await message.reply(
-            text=get_string('services.add_command.cancel_message'),
+            text=get_string(message.from_user.language_code, 'services.add_command.cancel_message'),
             reply_markup=ReplyKeyboardRemove()
         )
         await state.clear()
         return
     if message.text is None or message.text.strip() == '':
-        await message.reply(get_string('services.add_command.empty_description'))
+        await message.reply(get_string(message.from_user.language_code, 'services.add_command.empty_description'))
         return
-    elif message.text == get_string('services.add_command.without_description'):
+    elif message.text == get_string(message.from_user.language_code, 'services.add_command.without_description'):
         await state.update_data(
             description=None
         )
@@ -115,9 +116,9 @@ async def on_description_chosen(message: Message, state: FSMContext) -> None:
             description=message.text
         )
     await message.reply(
-        text=get_string('services.add_command.choose_cost'),
+        text=get_string(message.from_user.language_code, 'services.add_command.choose_cost'),
         reply_markup=ReplyKeyboardBuilder().row(
-            KeyboardButton(text=get_string('services.add_command.cancel_button'))
+            KeyboardButton(text=get_string(message.from_user.language_code, 'services.add_command.cancel_button'))
         ).as_markup(resize_keyboard=True, one_time_keyboard=False)
     )
     await state.set_state(AddServiceStates.choosing_cost_state)
@@ -127,9 +128,9 @@ async def on_description_chosen(message: Message, state: FSMContext) -> None:
     AddServiceStates.choosing_cost_state
 )
 async def on_cost_chosen(message: Message, state: FSMContext) -> None:
-    if message.text == get_string('services.add_command.cancel_button'):
+    if message.text == get_string(message.from_user.language_code, 'services.add_command.cancel_button'):
         await message.reply(
-            text=get_string('services.add_command.cancel_message'),
+            text=get_string(message.from_user.language_code, 'services.add_command.cancel_message'),
             reply_markup=ReplyKeyboardRemove()
         )
         await state.clear()
@@ -137,13 +138,13 @@ async def on_cost_chosen(message: Message, state: FSMContext) -> None:
 
     if not message.text or not message.text.isdigit() or int(message.text) <= 0:
         await message.reply(
-            text=get_string('services.add_command.cost_not_int')
+            text=get_string(message.from_user.language_code, 'services.add_command.cost_not_int')
         )
         return
 
     if len(message.text) > 6:
         await message.reply(
-            text=get_string('services.add_command.cost_too_big')
+            text=get_string(message.from_user.language_code, 'services.add_command.cost_too_big')
         )
         return
 
@@ -151,9 +152,9 @@ async def on_cost_chosen(message: Message, state: FSMContext) -> None:
         cost=int(message.text)
     )
     await message.reply(
-        text=get_string('services.add_command.choose_cost_per'),
+        text=get_string(message.from_user.language_code, 'services.add_command.choose_cost_per'),
         reply_markup=ReplyKeyboardBuilder().row(
-            KeyboardButton(text=get_string('services.add_command.cancel_button'))
+            KeyboardButton(text=get_string(message.from_user.language_code, 'services.add_command.cancel_button'))
         ).as_markup(resize_keyboard=True, one_time_keyboard=False)
     )
     await state.set_state(AddServiceStates.choosing_cost_per_state)
@@ -163,9 +164,9 @@ async def on_cost_chosen(message: Message, state: FSMContext) -> None:
     AddServiceStates.choosing_cost_per_state
 )
 async def on_cost_per_chosen(message: Message, state: FSMContext) -> None:
-    if message.text == get_string('services.add_command.cancel_button'):
+    if message.text == get_string(message.from_user.language_code, 'services.add_command.cancel_button'):
         await message.reply(
-            text=get_string('services.add_command.cancel_message'),
+            text=get_string(message.from_user.language_code, 'services.add_command.cancel_message'),
             reply_markup=ReplyKeyboardRemove()
         )
         await state.clear()
@@ -173,7 +174,7 @@ async def on_cost_per_chosen(message: Message, state: FSMContext) -> None:
 
     if not message.text or not (1 <= len(message.text) <= 6):
         await message.reply(
-            text=get_string('services.add_command.cost_per_incorrect')
+            text=get_string(message.from_user.language_code, 'services.add_command.cost_per_incorrect')
         )
         return
 
@@ -181,10 +182,10 @@ async def on_cost_per_chosen(message: Message, state: FSMContext) -> None:
         cost_per=message.text
     )
     await message.reply(
-        text=get_string('services.add_command.choose_picture'),
+        text=get_string(message.from_user.language_code, 'services.add_command.choose_picture'),
         reply_markup=ReplyKeyboardBuilder().row(
-            KeyboardButton(text=get_string('services.add_command.without_picture')),
-            KeyboardButton(text=get_string('services.add_command.cancel_button'))
+            KeyboardButton(text=get_string(message.from_user.language_code, 'services.add_command.without_picture')),
+            KeyboardButton(text=get_string(message.from_user.language_code, 'services.add_command.cancel_button'))
         ).as_markup(resize_keyboard=True, one_time_keyboard=False)
     )
     await state.set_state(AddServiceStates.choosing_picture_state)
@@ -194,15 +195,15 @@ async def on_cost_per_chosen(message: Message, state: FSMContext) -> None:
     AddServiceStates.choosing_picture_state
 )
 async def on_picture_chosen(message: Message, state: FSMContext) -> None:
-    if message.text == get_string('services.add_command.cancel_button'):
+    if message.text == get_string(message.from_user.language_code, 'services.add_command.cancel_button'):
         await message.reply(
-            text=get_string('services.add_command.cancel_message'),
+            text=get_string(message.from_user.language_code, 'services.add_command.cancel_message'),
             reply_markup=ReplyKeyboardRemove()
         )
         await state.clear()
         return
 
-    if message.text == get_string('services.add_command.without_picture'):
+    if message.text == get_string(message.from_user.language_code, 'services.add_command.without_picture'):
         await state.update_data(
             image=None
         )
@@ -212,7 +213,7 @@ async def on_picture_chosen(message: Message, state: FSMContext) -> None:
 
     if not message.photo:
         await message.reply(
-            get_string("services.add_command.not_photo_and_empty")
+            get_string(message.from_user.language_code, "services.add_command.not_photo_and_empty")
         )
         return
 
@@ -265,10 +266,11 @@ async def process_create_service(message: Message, state: FSMContext) -> None:
 
     desc = data['description']
     caption = get_string(
+        message.from_user.language_code,
         'services.add_command.preview',
         data['name'],
         data['cost'], data['cost_per'],
-        desc if desc else get_string('services.service_no_description')
+        desc if desc else get_string(message.from_user.language_code, 'services.service_no_description')
     )
 
     keyboard = InlineKeyboardBuilder().row(InlineKeyboardButton(
@@ -362,23 +364,28 @@ async def callbacks_edit_service(
     match callback_data.action:
         case 'change_name':
             await state.set_state(EditServiceStates.edit_name_state)
-            reply = await callback.message.reply(text=get_string("services.add_command.edit_name"))
+            reply = await callback.message.reply(
+                text=get_string(callback.from_user.language_code, "services.add_command.edit_name"))
             await state.update_data(callback_data=callback_data.pack(), reply=reply.message_id)
         case 'change_description':
             await state.set_state(EditServiceStates.edit_description_state)
-            reply = await callback.message.reply(text=get_string("services.add_command.edit_description"))
+            reply = await callback.message.reply(
+                text=get_string(callback.from_user.language_code, "services.add_command.edit_description"))
             await state.update_data(callback_data=callback_data.pack(), reply=reply.message_id)
         case 'change_cost':
             await state.set_state(EditServiceStates.edit_cost_state)
-            reply = await callback.message.reply(text=get_string("services.add_command.edit_cost"))
+            reply = await callback.message.reply(
+                text=get_string(callback.from_user.language_code, "services.add_command.edit_cost"))
             await state.update_data(callback_data=callback_data.pack(), reply=reply.message_id)
         case 'change_cost_per':
             await state.set_state(EditServiceStates.edit_cost_per_state)
-            reply = await callback.message.reply(text=get_string("services.add_command.edit_cost_per"))
+            reply = await callback.message.reply(
+                text=get_string(callback.from_user.language_code, "services.add_command.edit_cost_per"))
             await state.update_data(callback_data=callback_data.pack(), reply=reply.message_id)
         case "change_image":
             await state.set_state(EditServiceStates.edit_picture_state)
-            reply = await callback.message.reply(text=get_string("services.add_command.edit_picture"))
+            reply = await callback.message.reply(
+                text=get_string(callback.from_user.language_code, "services.add_command.edit_picture"))
             await state.update_data(callback_data=callback_data.pack(), reply=reply.message_id)
         case "publish":
             service = await services_repository.find_service(service_id=callback_data.service_id)
@@ -386,13 +393,17 @@ async def callbacks_edit_service(
                 chat_id=callback.message.chat.id,
                 message_id=callback_data.original_msg,
                 caption=get_string(
+                    callback.from_user.language_code,
                     'services.add_command.sent_to_moderation',
                     service.name,
                     service.cost, service.cost_per,
-                    service.description if service.description else get_string('services.service_no_description')
+                    service.description if service.description else get_string(
+                        callback.from_user.language_code,
+                        'services.service_no_description'
+                    )
                 )
             )
-            await moderate_service.send_to_moderation(service, callback.from_user.full_name)
+            await moderate_service.send_to_moderation(service, callback.from_user.full_name, callback.from_user.language_code)
 
     await callback.answer()
 
@@ -451,7 +462,10 @@ def create_preview_keyboard(original_msg: int, service_id: int) -> InlineKeyboar
     )).as_markup()
 
 
-async def update_preview_text(chat: int, preview_message: int, service: Service, update_image: bool = False):
+async def update_preview_text(
+        lang: str | None, chat: int, preview_message: int,
+        service: Service, update_image: bool = False
+):
     if update_image:
         if service.image:
             image_bytes = base64.b64decode(service.image)
@@ -463,10 +477,13 @@ async def update_preview_text(chat: int, preview_message: int, service: Service,
             media=InputMediaPhoto(
                 media=media,
                 caption=get_string(
+                    lang,
                     'services.add_command.preview',
                     service.name,
                     service.cost, service.cost_per,
-                    service.description if service.description else get_string('services.service_no_description')
+                    service.description if service.description else get_string(
+                        lang, 'services.service_no_description'
+                    )
                 ),
             ),
             chat_id=chat,
@@ -478,10 +495,13 @@ async def update_preview_text(chat: int, preview_message: int, service: Service,
             chat_id=chat,
             message_id=preview_message,
             caption=get_string(
+                lang,
                 'services.add_command.preview',
                 service.name,
                 service.cost, service.cost_per,
-                service.description if service.description else get_string('services.service_no_description')
+                service.description if service.description else get_string(
+                    lang, 'services.service_no_description'
+                )
             ),
             reply_markup=create_preview_keyboard(preview_message, service.id)
         )
@@ -505,7 +525,7 @@ async def on_name_edit(message: Message, state: FSMContext) -> None:
     await _bot.delete_message(message.chat.id, message.message_id)
     service = await services_repository.update_service_fields(callback_data.service_id, name=message.text)
     if service:
-        await update_preview_text(message.chat.id, callback_data.original_msg, service)
+        await update_preview_text(message.from_user.language_code, message.chat.id, callback_data.original_msg, service)
     await state.clear()
 
 
@@ -532,7 +552,7 @@ async def on_description_edit(message: Message, state: FSMContext) -> None:
     await _bot.delete_message(message.chat.id, message.message_id)
     service = await services_repository.update_service_fields(callback_data.service_id, description=description)
     if service:
-        await update_preview_text(message.chat.id, callback_data.original_msg, service)
+        await update_preview_text(message.from_user.language_code, message.chat.id, callback_data.original_msg, service)
     await state.clear()
 
 
@@ -542,7 +562,7 @@ async def on_description_edit(message: Message, state: FSMContext) -> None:
 async def on_cost_edit(message: Message, state: FSMContext) -> None:
     if not message.text or not message.text.isdigit() or int(message.text) <= 0:
         reply = await message.reply(
-            text=get_string('services.add_command.cost_not_int')
+            text=get_string(message.from_user.language_code, 'services.add_command.cost_not_int')
         )
         await asyncio.sleep(3)
         await reply.delete()
@@ -550,7 +570,7 @@ async def on_cost_edit(message: Message, state: FSMContext) -> None:
         return
     elif len(message.text) > 6:
         reply = await message.reply(
-            text=get_string('services.add_command.cost_too_big')
+            text=get_string(message.from_user.language_code, 'services.add_command.cost_too_big')
         )
         await asyncio.sleep(3)
         await reply.delete()
@@ -565,7 +585,7 @@ async def on_cost_edit(message: Message, state: FSMContext) -> None:
     await _bot.delete_message(message.chat.id, message.message_id)
     service = await services_repository.update_service_fields(callback_data.service_id, cost=int(message.text))
     if service:
-        await update_preview_text(message.chat.id, callback_data.original_msg, service)
+        await update_preview_text(message.from_user.language_code, message.chat.id, callback_data.original_msg, service)
     await state.clear()
 
 
@@ -575,7 +595,7 @@ async def on_cost_edit(message: Message, state: FSMContext) -> None:
 async def on_cost_per_edit(message: Message, state: FSMContext) -> None:
     if not message.text or not (1 <= len(message.text) <= 6):
         reply = await message.reply(
-            text=get_string('services.add_command.cost_per_incorrect')
+            text=get_string(message.from_user.language_code, 'services.add_command.cost_per_incorrect')
         )
         await asyncio.sleep(3)
         await reply.delete()
@@ -590,7 +610,7 @@ async def on_cost_per_edit(message: Message, state: FSMContext) -> None:
     await _bot.delete_message(message.chat.id, message.message_id)
     service = await services_repository.update_service_fields(callback_data.service_id, cost_per=message.text)
     if service:
-        await update_preview_text(message.chat.id, callback_data.original_msg, service)
+        await update_preview_text(message.from_user.language_code, message.chat.id, callback_data.original_msg, service)
     await state.clear()
 
 
@@ -608,7 +628,7 @@ async def on_picture_edit(message: Message, state: FSMContext) -> None:
 
     if not message.photo:
         reply = await message.reply(
-            get_string("services.add_command.not_photo_and_empty")
+            get_string(message.from_user.language_code, "services.add_command.not_photo_and_empty")
         )
         await asyncio.sleep(3)
         await reply.delete()
@@ -631,7 +651,8 @@ async def on_picture_edit(message: Message, state: FSMContext) -> None:
     reply_message: int = await state.get_value("reply")
     service = await services_repository.update_service_fields(callback_data.service_id, image=photo_base64)
     if service:
-        await update_preview_text(message.chat.id, callback_data.original_msg, service, True)
+        await update_preview_text(message.from_user.language_code, message.chat.id, callback_data.original_msg, service,
+                                  True)
     await _bot.delete_message(message.chat.id, reply_message)
     await _bot.delete_message(message.chat.id, message.message_id)
     await state.clear()

@@ -22,13 +22,13 @@ async def init(bot_username: str, bot: Bot):
 @router.message(Command("initchat"))
 async def init_chat(message: Message) -> None:
     if not config.chat_config.owner:
-        reply = await message.reply(get_string("admin_commands.admin_not_install"))
+        reply = await message.reply(get_string(message.from_user.language_code, "admin_commands.admin_not_install"))
         await sleep(3)
         await reply.delete()
         await message.delete()
         return
     if config.chat_config.owner != message.from_user.id:
-        reply = await message.reply(get_string("admin_commands.not_admin"))
+        reply = await message.reply(get_string(message.from_user.language_code, "admin_commands.not_admin"))
         await sleep(3)
         await reply.delete()
         await message.delete()
@@ -43,13 +43,13 @@ async def init_chat(message: Message) -> None:
 @router.message(Command("initadmin"))
 async def init_admin(message: Message) -> None:
     if not config.chat_config.owner:
-        reply = await message.reply(get_string("admin_commands.admin_not_install"))
+        reply = await message.reply(get_string(message.from_user.language_code, "admin_commands.admin_not_install"))
         await sleep(3)
         await reply.delete()
         await message.delete()
         return
     if config.chat_config.owner != message.from_user.id:
-        reply = await message.reply(get_string("admin_commands.not_admin"))
+        reply = await message.reply(get_string(message.from_user.language_code, "admin_commands.not_admin"))
         await sleep(3)
         await reply.delete()
         await message.delete()

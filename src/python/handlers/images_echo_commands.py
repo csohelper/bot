@@ -1,12 +1,12 @@
 import asyncio
 import os
+
 from aiogram import Router, F
-from ..storage.strings import get_string, get_object
-from aiogram.types import Message
 from aiogram.filters import Command, BaseFilter
-from ..logger import logger
 from aiogram.types import FSInputFile, InputMediaPhoto, Message
 
+from ..logger import logger
+from ..storage.strings import get_string, get_object
 from ..storage.times import get_time_status
 
 router = Router()
@@ -26,7 +26,8 @@ async def command_vost_handler(message: Message) -> None:
             sent: Message = await message.reply_photo(
                 photo=FSInputFile(image_path),
                 caption=get_string(
-                    'echo_commands.cafe_vost', working_status=get_time_status('university.cafe.vost')
+                    message.from_user.language_code, 'echo_commands.cafe_vost',
+                    working_status=get_time_status('university.cafe.vost', message.from_user.language_code)
                 ),
                 show_caption_above_media=True
             )
@@ -37,7 +38,8 @@ async def command_vost_handler(message: Message) -> None:
                 await message.reply_photo(
                     photo=cached_vost_file_id,
                     caption=get_string(
-                        'echo_commands.cafe_vost', working_status=get_time_status('university.cafe.vost')
+                        message.from_user.language_code, 'echo_commands.cafe_vost',
+                        working_status=get_time_status('university.cafe.vost', message.from_user.language_code)
                     ),
                     show_caption_above_media=True
                 )
@@ -63,7 +65,8 @@ async def command_bufet_handler(message: Message) -> None:
             sent: Message = await message.reply_photo(
                 photo=FSInputFile(image_path),
                 caption=get_string(
-                    'echo_commands.cafe_bufet', working_status=get_time_status('university.cafe.bufet')
+                    message.from_user.language_code, 'echo_commands.cafe_bufet',
+                    working_status=get_time_status('university.cafe.bufet', message.from_user.language_code)
                 ),
                 show_caption_above_media=True
             )
@@ -74,7 +77,8 @@ async def command_bufet_handler(message: Message) -> None:
                 await message.reply_photo(
                     photo=cached_bufet_file_id,
                     caption=get_string(
-                        'echo_commands.cafe_bufet', working_status=get_time_status('university.cafe.bufet')
+                        message.from_user.language_code, 'echo_commands.cafe_bufet',
+                        working_status=get_time_status('university.cafe.bufet', message.from_user.language_code)
                     ),
                     show_caption_above_media=True
                 )
@@ -98,7 +102,10 @@ async def command_linen_handler(message: Message) -> None:
             image_path = "./src/res/images/linen.jpg"
             sent: Message = await message.reply_photo(
                 photo=FSInputFile(image_path),
-                caption=get_string('echo_commands.linen', working_status=get_time_status('dorm.linen')),
+                caption=get_string(
+                    message.from_user.language_code, 'echo_commands.linen',
+                    working_status=get_time_status('dorm.linen', message.from_user.language_code)
+                ),
                 show_caption_above_media=True
             )
             if sent.photo:
@@ -107,7 +114,10 @@ async def command_linen_handler(message: Message) -> None:
             try:
                 await message.reply_photo(
                     photo=cached_linen_file_id,
-                    caption=get_string('echo_commands.linen', working_status=get_time_status('dorm.linen')),
+                    caption=get_string(
+                        message.from_user.language_code, 'echo_commands.linen',
+                        working_status=get_time_status('dorm.linen', message.from_user.language_code)
+                    ),
                     show_caption_above_media=True
                 )
             except Exception as e:
@@ -141,7 +151,9 @@ async def command_laundress_handler(message: Message) -> None:
                 ) for x in os.listdir(laundress_dir)
             ]
             media[0].caption = get_string(
-                'echo_commands.laundress', working_status=get_time_status('laundress')
+                message.from_user.language_code,
+                'echo_commands.laundress',
+                working_status=get_time_status('laundress', message.from_user.language_code)
             )
             sent = await message.reply_media_group(media=media)  # type: ignore[arg-type]
 
@@ -158,7 +170,8 @@ async def command_laundress_handler(message: Message) -> None:
                     ) for file_id in cached_laundress_files_id
                 ]
                 media[0].caption = get_string(
-                    'echo_commands.laundress', working_status=get_time_status('laundress')
+                    message.from_user.language_code, 'echo_commands.laundress',
+                    working_status=get_time_status('laundress', message.from_user.language_code)
                 )
                 await message.reply_media_group(media=media)  # type: ignore[arg-type]
             except Exception as e:
@@ -190,7 +203,7 @@ async def command_cards_handler(message: Message) -> None:
                     media=FSInputFile(os.path.join(cards_dir, x))
                 ) for x in sorted(os.listdir(cards_dir))
             ]
-            media[-1].caption = get_string('echo_commands.cards')
+            media[-1].caption = get_string(message.from_user.language_code, 'echo_commands.cards')
             sent = await message.reply_media_group(media=media)  # type: ignore[arg-type]
 
             for msg in sent:
@@ -204,7 +217,7 @@ async def command_cards_handler(message: Message) -> None:
                         media=file_id
                     ) for file_id in cached_cards_files_id
                 ]
-                media[-1].caption = get_string('echo_commands.cards')
+                media[-1].caption = get_string(message.from_user.language_code, 'echo_commands.cards')
                 await message.reply_media_group(media=media)  # type: ignore[arg-type]
             except Exception as e:
                 logger.error(f"{e}")
@@ -213,7 +226,7 @@ async def command_cards_handler(message: Message) -> None:
         break
 
 
-bad_words = get_object("bad_words")
+bad_words = get_object(None, "bad_words")
 
 
 def normalize_text(text: str) -> str:

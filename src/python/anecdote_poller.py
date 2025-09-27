@@ -11,7 +11,7 @@ from .storage.repository.anecdotes_repository import AnecdoteItem
 from .utils import await_and_run
 
 with open(
-        f'src/res/locale/anecdote_prompt.yaml', 'r', encoding='utf-8'
+        f'src/res/strings/anecdote_prompt.yaml', 'r', encoding='utf-8'
 ) as f:
     prompt = yaml.safe_load(f)
 

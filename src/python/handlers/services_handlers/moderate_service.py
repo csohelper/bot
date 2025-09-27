@@ -32,16 +32,18 @@ class ModerateCallbackFactory(CallbackData, prefix="moderate"):
     author_name: str
     action: str
     original_msg: int
+    author_lang: str
 
 
-def create_markup(service_id: int, author_name: str, original_msg: int) -> InlineKeyboardMarkup:
+def create_markup(service_id: int, author_name: str, original_msg: int, author_lang: str) -> InlineKeyboardMarkup:
     return InlineKeyboardBuilder().row(InlineKeyboardButton(
         text='📂Установить категорию',
         callback_data=ModerateCallbackFactory(
             service_id=service_id,
             author_name=author_name,
             action='set_category',
-            original_msg=original_msg
+            original_msg=original_msg,
+            author_lang=author_lang
         ).pack()
     )).row(InlineKeyboardButton(
         text='🚫Отклонить',
@@ -49,7 +51,8 @@ def create_markup(service_id: int, author_name: str, original_msg: int) -> Inlin
             service_id=service_id,
             author_name=author_name,
             action='refuse',
-            original_msg=original_msg
+            original_msg=original_msg,
+            author_lang=author_lang
         ).pack()
     )).row(InlineKeyboardButton(
         text='✅Одобрить',
@@ -57,22 +60,24 @@ def create_markup(service_id: int, author_name: str, original_msg: int) -> Inlin
             service_id=service_id,
             author_name=author_name,
             action='accept',
-            original_msg=original_msg
+            original_msg=original_msg,
+            author_lang=author_lang
         ).pack()
     )).as_markup()
 
 
-def create_caption(service: Service, author_name: str) -> str:
+def create_caption(lang: str, service: Service, author_name: str) -> str:
     status = "unknown"
     match service.status:
         case "moderation":
-            status = get_string("services.moderation.status.moderation")
+            status = get_string(lang,"services.moderation.status.moderation")
         case "published":
-            status = get_string("services.moderation.status.accept")
+            status = get_string(lang,"services.moderation.status.accept")
         case "refused":
-            status = get_string("services.moderation.status.reject")
+            status = get_string(lang,"services.moderation.status.reject")
     if service.directory != "/":
         category_footer = get_string(
+            lang,
             "services.moderation.category",
             service.directory.strip("/").replace("/", " → ")
         )
@@ -80,6 +85,7 @@ def create_caption(service: Service, author_name: str) -> str:
         category_footer = ""
 
     return (get_string(
+        lang,
         "services.moderation.preview",
         status,
         service.name, service.cost,
@@ -88,7 +94,7 @@ def create_caption(service: Service, author_name: str) -> str:
     ) + category_footer).strip()
 
 
-async def send_to_moderation(service: Service, sender_name: str) -> None:
+async def send_to_moderation(service: Service, sender_name: str, sender_lang) -> None:
     if service.image:
         image_bytes = base64.b64decode(service.image)
         image_stream = io.BytesIO(image_bytes)
@@ -99,7 +105,7 @@ async def send_to_moderation(service: Service, sender_name: str) -> None:
     reply = await _bot.send_photo(
         chat_id=config.chat_config.admin_chat_id,
         photo=media,
-        caption=create_caption(service, sender_name),
+        caption=create_caption(config.admin_lang,service, sender_name),
         reply_markup=InlineKeyboardBuilder().row(InlineKeyboardButton(
             text='📂Установить категорию',
             callback_data='.'
@@ -112,7 +118,9 @@ async def send_to_moderation(service: Service, sender_name: str) -> None:
         )).as_markup()
     )
 
-    await reply.edit_reply_markup(reply_markup=create_markup(service.id, sender_name, reply.message_id))
+    await reply.edit_reply_markup(reply_markup=create_markup(
+        service.id, sender_name, reply.message_id, sender_lang
+    ))
 
 
 class ModerateStates(StatesGroup):
@@ -132,21 +140,21 @@ async def callbacks_moderate_buttons(
     match callback_data.action:
         case 'set_category':
             await callback.message.answer(
-                get_string("services.moderation.setting_category"),
+                get_string(callback.from_user.language_code,"services.moderation.setting_category"),
                 reply_markup=category_markup()
             )
             await state.update_data(callback_data=callback_data.pack())
             await state.set_state(ModerateStates.choosing_category)
         case 'refuse':
             await callback.message.answer(
-                text=get_string("services.moderation.refuse"),
+                text=get_string(callback.from_user.language_code,"services.moderation.refuse"),
                 reply_markup=reject_markup()
             )
             await state.update_data(callback_data=callback_data.pack())
             await state.set_state(ModerateStates.refusing)
         case 'accept':
             await callback.message.answer(
-                text=get_string("services.moderation.accepting"),
+                text=get_string(callback.from_user.language_code,"services.moderation.accepting"),
                 reply_markup=accept_markup()
             )
             await state.update_data(callback_data=callback_data.pack())
@@ -182,11 +190,11 @@ async def on_category_chosen(message: Message, state: FSMContext) -> None:
         await state.get_value("callback_data")
     )
     if message.text is None or len(message.text) == 0:
-        await message.answer(get_string("services.moderation.empty_category"))
+        await message.answer(get_string(message.from_user.language_code,"services.moderation.empty_category"))
         return
     if message.text == "🚫Отмена":
         await message.reply(
-            get_string("services.moderation.category_cancel"),
+            get_string(message.from_user.language_code,"services.moderation.category_cancel"),
             reply_markup=ReplyKeyboardRemove()
         )
         await state.clear()
@@ -194,19 +202,21 @@ async def on_category_chosen(message: Message, state: FSMContext) -> None:
     update_service = await services_repository.update_service_fields(
         callback_data.service_id, directory="/" + message.text.strip().strip("/").strip()
     )
-    await message.reply(get_string("services.moderation.category_set"), reply_markup=ReplyKeyboardRemove())
+    await message.reply(get_string(message.from_user.language_code,"services.moderation.category_set"), reply_markup=ReplyKeyboardRemove())
     await state.clear()
     await _bot.edit_message_caption(
         chat_id=message.chat.id,
         message_id=callback_data.original_msg,
         caption=create_caption(
+            config.admin_lang,
             update_service,
             callback_data.author_name
         ),
         reply_markup=create_markup(
             service_id=update_service.id,
             author_name=callback_data.author_name,
-            original_msg=callback_data.original_msg
+            original_msg=callback_data.original_msg,
+            author_lang=config.admin_lang
         )
     )
 
@@ -220,13 +230,13 @@ async def on_reject_chosen(message: Message, state: FSMContext) -> None:
     )
     if message.text is None or len(message.text) == 0:
         await message.answer(
-            get_string("services.moderation.empty_refuse"),
+            get_string(message.from_user.language_code,"services.moderation.empty_refuse"),
             reply_markup=reject_markup()
         )
         return
     if message.text == '🚫Отмена':
         await message.reply(
-            get_string("services.moderation.refuse_cancel"),
+            get_string(message.from_user.language_code,"services.moderation.refuse_cancel"),
             reply_markup=ReplyKeyboardRemove()
         )
         await state.clear()
@@ -238,6 +248,7 @@ async def on_reject_chosen(message: Message, state: FSMContext) -> None:
         await _bot.send_message(
             update_service.owner,
             get_string(
+                message.from_user.language_code,
                 "services.moderation.refused_message",
                 update_service.name
             )
@@ -246,16 +257,18 @@ async def on_reject_chosen(message: Message, state: FSMContext) -> None:
         await _bot.send_message(
             update_service.owner,
             get_string(
+                message.from_user.language_code,
                 "services.moderation.refused_message_text",
                 update_service.name, message.text
             )
         )
-    await message.reply(get_string("services.moderation.refuse_confirm"), reply_markup=ReplyKeyboardRemove())
+    await message.reply(get_string(message.from_user.language_code,"services.moderation.refuse_confirm"), reply_markup=ReplyKeyboardRemove())
     await state.clear()
     await _bot.edit_message_caption(
         chat_id=message.chat.id,
         message_id=callback_data.original_msg,
         caption=create_caption(
+            config.admin_lang,
             update_service,
             callback_data.author_name
         )
@@ -271,13 +284,13 @@ async def on_accept_chosen(message: Message, state: FSMContext) -> None:
     )
     if message.text is None or len(message.text) == 0:
         await message.answer(
-            get_string("services.moderation.empty_accept"),
+            get_string(message.from_user.language_code,"services.moderation.empty_accept"),
             reply_markup=accept_markup()
         )
         return
     if message.text == '🚫Отмена':
         await message.reply(
-            get_string("services.moderation.accept_cancel"),
+            get_string(message.from_user.language_code,"services.moderation.accept_cancel"),
             reply_markup=ReplyKeyboardRemove()
         )
         return
@@ -286,7 +299,7 @@ async def on_accept_chosen(message: Message, state: FSMContext) -> None:
             callback_data.service_id, status='published'
         )
         await message.reply(
-            get_string("services.moderation.accept_confirm"),
+            get_string(message.from_user.language_code,"services.moderation.accept_confirm"),
             reply_markup=ReplyKeyboardRemove()
         )
         await _bot.send_message(
@@ -295,7 +308,7 @@ async def on_accept_chosen(message: Message, state: FSMContext) -> None:
         )
     else:
         await message.reply(
-            get_string("services.moderation.accept_unknown")
+            get_string(message.from_user.language_code,"services.moderation.accept_unknown")
         )
         return
 
@@ -304,6 +317,7 @@ async def on_accept_chosen(message: Message, state: FSMContext) -> None:
         chat_id=message.chat.id,
         message_id=callback_data.original_msg,
         caption=create_caption(
+            config.admin_lang,
             update_service,
             callback_data.author_name
         )
