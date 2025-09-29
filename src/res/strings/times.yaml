@@ -163,18 +163,12 @@ university:
       - days:
           - 0
           - 2
-        times:
-          - start: 09:00
-            end: 13:00
-          - start: 14:00
-            end: 18:00
-      - days:
           - 4
         times:
-          - start: 09:00
+          - start: 11:00
             end: 13:00
           - start: 14:00
-            end: 16:45
+            end: 16:00
   jko:
     - days:
         - 0
