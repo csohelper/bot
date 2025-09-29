@@ -1,3 +1,333 @@
+triggers:
+  cards:
+    - cards
+    - card
+    - карты
+  services:
+    - services
+    - srcs
+    - услуги
+  help:
+    - help
+    - начать
+    - помощь
+    - хелп
+    - команды
+    - комманды
+    - список
+    - помоги
+    - я долбаеб
+    - я долбоебка
+    - я долбоёб
+    - я долбоёбка
+    - я долбаебка
+    - я долбаёбка
+  kek:
+    - кек
+    - kek
+  index:
+    - index
+    - zip
+    - postal
+    - index
+  address:
+    - address
+    - adress
+    - addres
+    - adres
+    - адрес
+    - адресс
+    - адресочек
+  commandant:
+    - commandant
+    - comandant
+    - comandat
+    - коменда
+    - комендант
+    - командант
+    - командантка
+    - комменда
+    - коммендант
+    - коммандант
+    - коммандантка
+  director:
+    - director
+    - заведующий
+    - заведующая
+    - завед
+    - заведа
+  vost:
+    - vostochka
+    - vost
+    - восточка
+  jko:
+    - jko
+    - hud
+    - жко
+    - жк
+    - жилищно коммунальный
+    - жилищно коммунальный отдел
+    - жилищно-коммунальный отдел
+  hr:
+    - hr
+    - human resources
+    - отдел кадров
+  ed:
+    - unified deans
+    - ed
+    - единый деканат
+    - ед
+  polyclinic:
+    - polyclinic
+    - поликлиника
+    - поликлинника
+  accounting:
+    - бухгалтерия
+    - accounting
+  library:
+    - library
+    - библиотека
+  buffet:
+    - bufet
+    - buffet
+    - буфет
+    - столовка
+  week:
+    - week
+    - неделя
+  soft:
+    - soft
+    - софт
+    - программы
+    - программное обеспечение
+    - по
+  shower:
+    - shower
+    - душ
+  kitchen:
+    - kitchen
+    - кухня
+    - кухни
+  laundress:
+    - laundress
+    - прачка
+  linen:
+    - linen
+    - linen exchange
+    - обмен белья
+    - бельё
+    - обменка
+  dean:
+    - деканат
+    - факультет
+    - декан
+  deanit:
+    - it deans
+    - факультет ит
+    - фак ит
+    - деканат ит
+  deanrit:
+    - rit deans
+    - факультет рит
+    - фак рит
+    - деканат рит
+  deannacs:
+    - nacs deans
+    - факультет сисс
+    - фак сисс
+    - деканат сисс
+  deancais:
+    - cais deans
+    - факультет кииб
+    - фак кииб
+    - деканат кииб
+  deandeamc:
+    - deamc deans
+    - факультет цэимк
+    - фак цэимк
+    - деканат цэимк
+  deanforeign:
+    - иностранный отдел
+    - иностранный деканат
+    - иностраный отдел
+    - иностраный деканат
+    - ин отдел
+    - инотдел
+    - индеканат
+    - ин деканат
+  incorrect_director:
+    - заведущий
+    - заведущая
+  depritres:
+    - department of res
+    - department res
+    - res department
+    - кафедра ртс
+  depritreac:
+    - department of reac
+    - department reac
+    - reac department
+    - кафедра рос
+  depritelect:
+    - department of elect
+    - department elect
+    - elect department
+    - кафедра электроники
+  deprittasb:
+    - department of tasb
+    - department tasb
+    - tasb department
+    - кафедра тизв
+  depritratsan:
+    - department of ratsan
+    - department ratsan
+    - ratsan department
+    - кафедра сисрт
+  deprittec:
+    - department of tec
+    - department tec
+    - tec department
+    - кафедра тэц
+  depritphys:
+    - department of phys
+    - department phys
+    - phys department
+    - кафедра физики
+  depritteaa:
+    - department of teaa
+    - department teaa
+    - teaa department
+    - кафедра тэдиа
+  depitmcait:
+    - department of mcait
+    - department mcait
+    - mcait department
+    - кафедра мкиит
+  depitmcis:
+    - department of cis
+    - department cis
+    - cis department
+    - кафедра кис
+  depitnitas:
+    - department of nitas
+    - department nitas
+    - nitas department
+    - кафедра ситис
+  depitma:
+    - department of mathanalysis
+    - department mathanalysis
+    - mathanalysis department
+    - кафедра матанализ
+  depitinf:
+    - department of informatics
+    - department informatics
+    - informatics department
+    - кафедра информатика
+  depitpe:
+    - department of physedu
+    - department physedu
+    - physedu department
+    - кафедра физвосп
+  depitaai:
+    - department of aai
+    - department aai
+    - aai department
+    - кафедра пии
+  depitsp:
+    - department of sp
+    - department sp
+    - sp department
+    - кафедра сп
+  depnacsmts:
+    - department of mts
+    - department mts
+    - mts department
+    - кафедра мтс
+  depnacsgts:
+    - department of gts
+    - department gts
+    - gts department
+    - кафедра нтс
+  depnacsgnass:
+    - department of nass
+    - department nass
+    - nass department
+    - кафедра ссиск
+  depnacsmsami:
+    - department of msami
+    - department msami
+    - msami department
+    - кафедра мсиии
+  depnacsgtc:
+    - department of gtc
+    - department gtc
+    - gtc department
+    - кафедра отс
+  depcaisedet:
+    - department of edet
+    - department edet
+    - edet department
+    - кафедра тэод
+  depcaisis:
+    - department of is
+    - department is
+    - is department
+    - кафедра иб
+  depcaisismaa:
+    - department of ismaa
+    - department ismaa
+    - ismaa department
+    - кафедра исуиа
+  depcaistcs:
+    - department of tcs
+    - department tcs
+    - tcs department
+    - кафедра бтк
+  depcaisptaam:
+    - department of ptaam
+    - department ptaam
+    - ptaam department
+    - кафедра твипм
+  depcaiselsap:
+    - department of elsap
+    - department elsap
+    - elsap department
+    - кафедра эбжиэ
+  depcaisbmt:
+    - department of bmt
+    - department bmt
+    - bmt department
+    - кафедра овп
+  depdeamcdat:
+    - department of dat
+    - department dat
+    - dat department
+    - кафедра цтр
+  depdeamcsrapr:
+    - department of srapr
+    - department srapr
+    - srapr department
+    - кафедра срисо
+  depdeamcdemabt:
+    - department of demabt
+    - department demabt
+    - demabt department
+    - кафедра цэуибт
+  depdeamcphaic:
+    - department of phaic
+    - department phaic
+    - phaic department
+    - кафедра фиимк
+  depdeamcfor:
+    - department of for
+    - department for
+    - for department
+    - кафедра ино
+  depdeamcbcs:
+    - department of bcs
+    - department bcs
+    - bcs department
+    - кафедра би
 commands_list:
   - cards
   - index
@@ -167,8 +497,6 @@ echo_commands:
       - time: university.deans.cais
   - name: deandeamc
     message: echo_commands.deanery.deamc
-    times:
-      - time: university.deans.deamc
   - name: deanforeign
     message: echo_commands.deanery.foreign
     times:

@@ -5,303 +5,35 @@
 #   description: str - Telegram localised description
 
 commands_description:
-  cards:
-    triggers:
-      - cards
-      - card
-    description: Discount cards of all popular store chains
-  services:
-    triggers:
-      - services
-      - srcs
-    description: List of services offered by residents
-  help:
-    triggers:
-      - help
-    description: Help message
-  kek:
-    triggers:
-      - kek
-    description: Doesn’t matter
-  index:
-    triggers:
-      - index
-      - zip
-      - postal
-    description: Dormitory postal code
-  address:
-    triggers:
-      - address
-      - adress
-      - addres
-      - adres
-    description: Dormitory address
-  commandant:
-    triggers:
-      - commandant
-      - comandant
-      - comandat
-    description: Phone number and email of the duty commandant
-  director:
-    triggers:
-      - director
-    description: Information about the head of the dormitory
-  vost:
-    triggers:
-      - vostochka
-      - vost
-    description: Working hours and menu of the cafe
-  jko:
-    triggers:
-      - jko
-      - hud
-    description: Information about the Housing and Utilities Department
-  hr:
-    triggers:
-      - hr
-      - human resources
-    description: Information about the HR Department
-  ed:
-    triggers:
-      - unified deans
-      - ed
-    description: Information about the Unified Deans Office
-  polyclinic:
-    triggers:
-      - polyclinic
-    description: Polyclinic
-  accounting:
-    triggers:
-      - бухгалтерия
-    description: Бухгалтерия
-  library:
-    triggers:
-      - library
-    description: Library
-  buffet:
-    triggers:
-      - bufet
-      - buffet
-    description: Buffet (A) and dining hall (ULK)
-  week:
-    triggers:
-      - week
-    description: Information about the current academic week
-  soft:
-    triggers:
-      - soft
-    description: Useful programs for study
-  shower:
-    triggers:
-      - shower
-    description: Shower schedule
-  kitchen:
-    triggers:
-      - kitchen
-    description: Kitchen schedule
-  laundress:
-    triggers:
-      - laundress
-    description: MPEI laundress
-  linen:
-    triggers:
-      - linen
-      - linen exchange
-    description: Information about linen exchange
-  deanit:
-    triggers:
-      - it deans
-    description: Deans Office of Information Technology
-  deanrit:
-    triggers:
-      - rit deans
-    description: Deans Office of Radio and Television
-  deannacs:
-    triggers:
-      - nacs deans
-    description: Deans Office of Networks and Communication Systems
-  deancais:
-    triggers:
-      - cais deans
-    description: Deans Office of Cybernetics and Information Security
-  deandeamc:
-    triggers:
-      - deamc deans
-    description: Deans Office of Digital Economy and Mass Communications
-  deanforeign:
-    triggers:
-      foreign departament
-    description: Foreign departament
-  depritres:
-    triggers:
-      - department of res
-      - department res
-      - res department
-  depritreac:
-    triggers:
-      - department of reac
-      - department reac
-      - reac department
-  depritelect:
-    triggers:
-      - department of elect
-      - department elect
-      - elect department
-  deprittasb:
-    triggers:
-      - department of tasb
-      - department tasb
-      - tasb department
-  depritratsan:
-    triggers:
-      - department of ratsan
-      - department ratsan
-      - ratsan department
-  deprittec:
-    triggers:
-      - department of tec
-      - department tec
-      - tec department
-  depritphys:
-    triggers:
-      - department of phys
-      - department phys
-      - phys department
-  depritteaa:
-    triggers:
-      - department of teaa
-      - department teaa
-      - teaa department
-  depitmcait:
-    triggers:
-      - department of mcait
-      - department mcait
-      - mcait department
-  depitmcis:
-    triggers:
-      - department of cis
-      - department cis
-      - cis department
-  depitnitas:
-    triggers:
-      - department of nitas
-      - department nitas
-      - nitas department
-  depitma:
-    triggers:
-      - department of mathanalysis
-      - department mathanalysis
-      - mathanalysis department
-  depitinf:
-    triggers:
-      - department of informatics
-      - department informatics
-      - informatics department
-  depitpe:
-    triggers:
-      - department of physedu
-      - department physedu
-      - physedu department
-  depitaai:
-    triggers:
-      - department of aai
-      - department aai
-      - aai department
-  depitsp:
-    triggers:
-      - department of sp
-      - department sp
-      - sp department
-  depnacsmts:
-    triggers:
-      - department of mts
-      - department mts
-      - mts department
-  depnacsgts:
-    triggers:
-      - department of gts
-      - department gts
-      - gts department
-  depnacsgnass:
-    triggers:
-      - department of nass
-      - department nass
-      - nass department
-  depnacsmsami:
-    triggers:
-      - department of msami
-      - department msami
-      - msami department
-  depnacsgtc:
-    triggers:
-      - department of gtc
-      - department gtc
-      - gtc department
-  depcaisedet:
-    triggers:
-      - department of edet
-      - department edet
-      - edet department
-  depcaisis:
-    triggers:
-      - department of is
-      - department is
-      - is department
-  depcaisismaa:
-    triggers:
-      - department of ismaa
-      - department ismaa
-      - ismaa department
-  depcaistcs:
-    triggers:
-      - department of tcs
-      - department tcs
-      - tcs department
-  depcaisptaam:
-    triggers:
-      - department of ptaam
-      - department ptaam
-      - ptaam department
-  depcaiselsap:
-    triggers:
-      - department of elsap
-      - department elsap
-      - elsap department
-  depcaisbmt:
-    triggers:
-      - department of bmt
-      - department bmt
-      - bmt department
-  depdeamcdat:
-    triggers:
-      - department of dat
-      - department dat
-      - dat department
-  depdeamcsrapr:
-    triggers:
-      - department of srapr
-      - department srapr
-      - srapr department
-  depdeamcdemabt:
-    triggers:
-      - department of demabt
-      - department demabt
-      - demabt department
-  depdeamcphaic:
-    triggers:
-      - department of phaic
-      - department phaic
-      - phaic department
-  depdeamcfor:
-    triggers:
-      - department of for
-      - department for
-      - for department
-  depdeamcbcs:
-    triggers:
-      - department of bcs
-      - department bcs
-      - bcs department
+  cards: Discount cards of all popular store chains
+  services: List of services offered by residents
+  help: Help message
+  kek: Doesn’t matter
+  index: Dormitory postal code
+  address: Dormitory address
+  commandant: Phone number and email of the duty commandant
+  director: Information about the head of the dormitory
+  vost: Working hours and menu of the cafe
+  jko: Information about the Housing and Utilities Department
+  hr: Information about the HR Department
+  ed: Information about the Unified Deans Office
+  polyclinic: Polyclinic
+  accounting: Бухгалтерия
+  library: Library
+  buffet: Buffet (A) and dining hall (ULK)
+  week: Information about the current academic week
+  soft: Useful programs for study
+  shower: Shower schedule
+  kitchen: Kitchen schedule
+  laundress: MPEI laundress
+  linen: Information about linen exchange
+  dean: Information of all Deans Offices
+  deanit: Deans Office of Information Technology
+  deanrit: Deans Office of Radio and Television
+  deannacs: Deans Office of Networks and Communication Systems
+  deancais: Deans Office of Cybernetics and Information Security
+  deandeamc: Deans Office of Digital Economy and Mass Communications
+  deanforeign: Foreign departament
 echo_commands:
   start: |
     Hello!
@@ -332,10 +64,9 @@ echo_commands:
     <b>Accounting</b> - location, phone numbers, and working hours (or /accounting)
     <b>Commands / Help</b> - to call up this list (or /help)
     Other commands:
-    <b>Unified Deans</b> (or /ed), <b>IT Deans</b> (or /deanit), 
-    <b>RiT Deans</b> (or /deanrit), <b>NaCS Deans</b> (or /deannacs), 
-    <b>CaIS Deans</b> (or /deancais), <b>DEaMC Deans</b> (or /deandeamc),
-    <b>Foreign Departament</b> (или /deanforeign),
+    <b>Dean</b> (or /dean), <b>Unified Deans</b> (or /ed), <b>IT Deans</b> (or /deanit), 
+    <b>RiT Deans</b> (or /deanrit), <b>NaCS Deans</b> (or /deannacs), <b>CaIS Deans</b> (or /deancais), 
+    <b>DEaMC Deans</b> (or /deandeamc), <b>Foreign Departament</b> (или /deanforeign)
   cards: |
     <b>Discount cards of all popular chains:</b>
     

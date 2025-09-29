@@ -5,277 +5,35 @@
 #   description: str - Telegram localised description
 
 commands_description:
-  cards:
-    triggers:
-      - карты
-    description: Cкидочные карты всех популярных сетей
-  services:
-    triggers:
-      - услуги
-    description: Список услуг от проживающих
-  help:
-    triggers:
-      - начать
-      - помощь
-      - хелп
-      - команды
-      - комманды
-      - список
-      - помоги
-      - я долбаеб
-      - я долбоебка
-      - я долбоёб
-      - я долбоёбка
-      - я долбаебка
-      - я долбаёбка
-    description: Помощь
-  kek:
-    triggers:
-      - kek
-    description: Не важно
-  index:
-    triggers:
-      - index
-    description: Индекс общежития
-  address:
-    triggers:
-      - адрес
-      - адресс
-      - адресочек
-    description: Адрес общежития
-  commandant:
-    triggers:
-      - коменда
-      - комендант
-      - командант
-      - командантка
-      - комменда
-      - коммендант
-      - коммандант
-      - коммандантка
-    description: Номер и почта дежурного комменданта
-  director:
-    triggers:
-      - заведующий
-      - заведующая
-      - завед
-      - заведа
-    description: Информация о заведующем
-  vost:
-    triggers:
-      - восточка
-    description: График работы и меню кафе
-  jko:
-    triggers:
-      - жко
-      - жк
-      - жилищно коммунальный
-      - жилищно коммунальный отдел
-      - жилищно-коммунальный отдел
-    description: Информация о ЖКО
-  hr:
-    triggers:
-      -
-    description: Информация об Отделе Кадров
-  ed:
-    triggers:
-      - отдел кадров
-    description: Информация о Едином Деканате
-  polyclinic:
-    triggers:
-      - поликлиника
-      - поликлинника
-    description: Поликлиника
-  accounting:
-    triggers:
-      - accounting
-    description: Accounting
-  library:
-    triggers:
-      - библиотека
-    description: Библиотека
-  buffet:
-    triggers:
-      - буфет
-      - столовка
-    description: Буфет (А) и столовая (УЛК)
-  week:
-    triggers:
-      -
-    description: Информация о текущей учебной неделе
-  soft:
-    triggers:
-      - софт
-      - программы
-      - программное обеспечение
-      - по
-    description: Полезные программы для учебы
-  shower:
-    triggers:
-      - душ
-    description: График работы душа
-  kitchen:
-    triggers:
-      - кухня
-      - кухни
-    description: График работы кухни
-  laundress:
-    triggers:
-      - прачка
-    description: Прачка МЭИ
-  linen:
-    triggers:
-      - обмен белья
-      - бельё
-      - обменка
-    description: Информация об обмене белья
-  deanit:
-    triggers:
-      - факультет ит
-      - фак ит
-      - деканат ит
-    description: Деканат Информационные Технологии
-  deanrit:
-    triggers:
-      - факультет рит
-      - фак рит
-      - деканат рит
-    description: Деканат Радио и Телевидение
-  deannacs:
-    triggers:
-      - факультет сисс
-      - фак сисс
-      - деканат сисс
-    description: Деканат Сети и Системы Связи
-  deancais:
-    triggers:
-      - факультет кииб
-      - фак кииб
-      - деканат кииб
-    description: Деканат Кибернетика и Информационная Безопасность
-  deandeamc:
-    triggers:
-      - факультет цэимк
-      - фак цэимк
-      - деканат цэимк
-    description: Деканат Цифровая Экономика и Массовые Коммуникации
-  deanforeign:
-    triggers:
-      - иностранный отдел
-      - иностранный деканат
-      - иностраный отдел
-      - иностраный деканат
-      - ин отдел
-      - инотдел
-      - индеканат
-      - ин деканат
-    description: Иностранный отдел
-  incorrect_director:
-    triggers:
-      - заведущий
-      - заведущая
-  depritres:
-    triggers:
-      - кафедра ртс
-  depritreac:
-    triggers:
-      - кафедра рос
-  depritelect:
-    triggers:
-      - кафедра электроники
-  deprittasb:
-    triggers:
-      - кафедра тизв
-  depritratsan:
-    triggers:
-      - кафедра сисрт
-  deprittec:
-    triggers:
-      - кафедра тэц
-  depritphys:
-    triggers:
-      - кафедра физики
-  depritteaa:
-    triggers:
-      - кафедра тэдиа
-  depitmcait:
-    triggers:
-      - кафедра мкиит
-  depitmcis:
-    triggers:
-      - кафедра кис
-  depitnitas:
-    triggers:
-      - кафедра ситис
-  depitma:
-    triggers:
-      - кафедра матанализ
-  depitinf:
-    triggers:
-      - кафедра информатика
-  depitpe:
-    triggers:
-      - кафедра физвосп
-  depitaai:
-    triggers:
-      - кафедра пии
-  depitsp:
-    triggers:
-      - кафедра сп
-  depnacsmts:
-    triggers:
-      - кафедра мтс
-  depnacsgts:
-    triggers:
-      - кафедра нтс
-  depnacsgnass:
-    triggers:
-      - кафедра ссиск
-  depnacsmsami:
-    triggers:
-      - кафедра мсиии
-  depnacsgtc:
-    triggers:
-      - кафедра отс
-  depcaisedet:
-    triggers:
-      - кафедра тэод
-  depcaisis:
-    triggers:
-      - кафедра иб
-  depcaisismaa:
-    triggers:
-      - кафедра исуиа
-  depcaistcs:
-    triggers:
-      - кафедра бтк
-  depcaisptaam:
-    triggers:
-      - кафедра твипм
-  depcaiselsap:
-    triggers:
-      - кафедра эбжиэ
-  depcaisbmt:
-    triggers:
-      - кафедра овп
-  depdeamcdat:
-    triggers:
-      - кафедра цтр
-  depdeamcsrapr:
-    triggers:
-      - кафедра срисо
-  depdeamcdemabt:
-    triggers:
-      - кафедра цэуибт
-  depdeamcphaic:
-    triggers:
-      - кафедра фиимк
-  depdeamcfor:
-    triggers:
-      - кафедра ино
-  depdeamcbcs:
-    triggers:
-      - кафедра би
+  cards: Cкидочные карты всех популярных сетей
+  services: Список услуг от проживающих
+  help: Помощь
+  kek: Не важно
+  index: Индекс общежития
+  address: Адрес общежития
+  commandant: Номер и почта дежурного комменданта
+  director: Информация о заведующем
+  vost: График работы и меню кафе
+  jko: Информация о ЖКО
+  hr: Информация об Отделе Кадров
+  ed: Информация о Едином Деканате
+  polyclinic: Поликлиника
+  accounting: Accounting
+  library: Библиотека
+  buffet: Буфет (А) и столовая (УЛК)
+  week: Информация о текущей учебной неделе
+  soft: Полезные программы для учебы
+  shower: График работы душа
+  kitchen: График работы кухни
+  laundress: Прачка МЭИ
+  linen: Информация об обмене белья
+  dean: Информация о всех деканатах
+  deanit: Деканат Информационные Технологии
+  deanrit: Деканат Радио и Телевидение
+  deannacs: Деканат Сети и Системы Связи
+  deancais: Деканат Кибернетика и Информационная Безопасность
+  deandeamc: Деканат Цифровая Экономика и Массовые Коммуникации
+  deanforeign: Иностранный отдел
 echo_commands:
   start: |
     Привет!
@@ -306,9 +64,9 @@ echo_commands:
     <b>Бухгалтерия</b> - расположение, номера и график (или /accounting)
     <b>Команды / Помощь</b> - для вызова данного списка (или /help)
     Остальные команды:
-    <b>Единый Деканат</b> (или /ed), <b>Деканат ИТ</b> (или /deanit), <b>Деканат РиТ</b> (или /deanrit), 
-    <b>Деканат СиСС</b> (или /deannacs), <b>Деканат КиИБ</b> (или /deancais), <b>Деканат ЦЭиМК</b> (или /deandeamc),
-    <b>Иностранный Отдел</b> (или /deanforeign),
+    <b>Деканат</b> (или /dean), <b>Единый Деканат</b> (или /ed), <b>Деканат ИТ</b> (или /deanit),
+    <b>Деканат РиТ</b> (или /deanrit), <b>Деканат СиСС</b> (или /deannacs), <b>Деканат КиИБ</b> (или /deancais),
+    <b>Деканат ЦЭиМК</b> (или /deandeamc), <b>Иностранный Отдел</b> (или /deanforeign)
   cards: |
     <b>Скидочные карты всех популярных сетей:</b>
 

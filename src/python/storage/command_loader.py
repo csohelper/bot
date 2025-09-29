@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 import yaml
 from pydantic import BaseModel, Field
@@ -29,6 +29,7 @@ class EchoCommandModel(BaseModel):
 
 
 class CommandsInfoModel(BaseModel):
+    triggers: Dict[str, List[str]] = Field(default_factory=dict)
     commands_list: List[str] = Field(default_factory=list)
     echo_commands: List[EchoCommandModel] = Field(default_factory=list)
 
@@ -64,8 +65,8 @@ def get_telegram_commands_list() -> List[TelegramCommandsInfo]:
 
 def __get_lang_telegram_commands_info(lang: str | None) -> TelegramCommandsInfo:
     command_list = []
-    for command_name in  __commands_info.commands_list:
-        description = get_string(lang, f"commands_description.{command_name}.description")
+    for command_name in __commands_info.commands_list:
+        description = get_string(lang, f"commands_description.{command_name}")
         if not description or description.strip() == "":
             logger.warning(f"Command {command_name} in {lang} has no description. Skipping.")
             continue
@@ -100,12 +101,13 @@ class EchoCommand:
 
 
 def get_all_triggers(command: str) -> List[str]:
-    result = []
-    for lang in list_langs():
-        triggers = get_object(lang, f"commands_description.{command}.triggers")
-        if triggers:
-            result.extend(triggers)
-    return list(filter(None, set(result)))
+    if command not in __commands_info.triggers:
+        return []
+    return list(filter(
+        None, set(
+            __commands_info.triggers[command]
+        )
+    ))
 
 
 def get_echo_commands() -> List[EchoCommand]:
