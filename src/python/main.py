@@ -1,5 +1,7 @@
 import asyncio
+import json
 import platform
+from dataclasses import asdict
 
 from aiogram import Bot, Dispatcher, F, Router
 from aiogram.client.default import DefaultBotProperties
@@ -10,11 +12,12 @@ from aiogram.types.link_preview_options import LinkPreviewOptions
 from redis.asyncio import from_url
 
 from python import anecdote_poller, join_refuser
-from python.handlers import echo_commands, images_echo_commands, kek_command, admin_commands
+from python.handlers import echo_commands, kek_command, admin_commands
 from python.handlers.services_handlers import add_service_commands, list_services_command, moderate_service, \
     join_service
 from python.logger import logger
-from python.storage import strings
+from python.storage import strings, command_loader
+from python.storage.command_loader import TelegramCommandsInfo
 from python.storage.config import config
 from python.storage.database import open_database_pool, close_database_pool
 from python.storage.repository import services_repository, users_repository, anecdotes_repository
@@ -36,12 +39,16 @@ async def default_private_handler(message: Message):
     )
 
 
-async def set_commands(commands_dict, lang: str | None):
+async def set_commands(info: TelegramCommandsInfo):
+    commands = []
+    for l in info.commands_list:
+        commands.append(BotCommand(
+            command=l.name,
+            description=l.description,
+        ))
     await bot.set_my_commands(
-        [
-            BotCommand(command=x['command'], description=x['description']) for x in commands_dict
-        ],
-        language_code=lang,
+        commands=commands,
+        language_code=info.lang,
     )
 
 
@@ -63,7 +70,6 @@ async def main() -> None:
     dp = Dispatcher(storage=storage)
     dp.include_routers(
         echo_commands.router,
-        images_echo_commands.router,
         kek_command.router,
         add_service_commands.router,
         list_services_command.router,
@@ -94,9 +100,13 @@ async def main() -> None:
         if config.refuser.enabled:
             asyncio.create_task(await_and_run(10, join_refuser.refuser_loop_check))
 
-        await set_commands(get_object(None, "commands"), None)
-        for lang in strings.list_langs():
-            await set_commands(get_object(lang, "commands"), lang)
+        commands_list = command_loader.get_telegram_commands_list()
+        # print(json.dumps([asdict(cmd) for cmd in commands_list], indent=4, ensure_ascii=False))
+        for commands in commands_list :
+            try:
+                await set_commands(commands)
+            except Exception as e:
+                logger.error(e)
 
     @dp.shutdown()
     async def on_shutdown() -> None:

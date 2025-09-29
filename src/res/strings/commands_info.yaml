@@ -1,0 +1,231 @@
+commands_list:
+  - cards
+  - index
+  - address
+  - director
+  - jko
+  - hr
+  - polyclinic
+  - library
+  - services
+  - vost
+  - buffet
+  - week
+  - soft
+  - shower
+  - kitchen
+  - laundress
+  - linen
+  - accounting
+  - help
+  - ed
+  - deanit
+  - deanrit
+  - deannacs
+  - deancais
+  - deandeamc
+  - deanforeign
+echo_commands:
+  - name: help
+    message: echo_commands.help
+  - name: index
+    message: echo_commands.index
+  - name: address
+    message: echo_commands.address
+  - name: director
+    message: echo_commands.director
+    times:
+      - time: dorm.director
+  - name: commandant
+    message: echo_commands.commandant
+  - name: jko
+    message: echo_commands.jko
+    times:
+      - time: university.jko
+  - name: hr
+    message: echo_commands.hr
+    times:
+      - time: university.hr.working
+      - key: working_status_certificate
+        time: university.hr.certificate
+  - name: soft
+    message: echo_commands.soft
+  - name: library
+    message: echo_commands.library
+    times:
+      - time: university.library.working
+      - key: working_status_clients
+        time: university.library.clients
+  - name: shower
+    message: echo_commands.shower
+    times:
+      - time: dorm.shower
+  - name: kitchen
+    message: echo_commands.kitchen
+    times:
+      - time: dorm.kitchen
+  - name: polyclinic
+    message: echo_commands.polyclinic
+    times:
+      - time: polyclinic
+  - name: accounting
+    message: echo_commands.accounting
+    times:
+      - time: university.accounting
+  - name: dean
+    message: echo_commands.deanery.default
+  - name: ed
+    message: echo_commands.deanery.ed
+    times:
+      - time: university.deans.ed
+  - name: it
+    message: echo_commands.deanery.it
+    times:
+      - time: university.deans.it
+  - name: rit
+    message: echo_commands.deanery.rit
+    times:
+      - time: university.deans.rit
+  - name: nacs
+    message: echo_commands.deanery.nacs
+    times:
+      - time: university.deans.nacs
+  - name: cais
+    message: echo_commands.deanery.cais
+    times:
+      - time: university.deans.cais
+  - name: deamc
+    message: echo_commands.deanery.deamc
+    times:
+      - time: university.deans.deamc
+  - name: deanforeign
+    message: echo_commands.deanery.foreign
+    times:
+      - time: university.deans.foreign
+  - name: vost
+    message: echo_commands.cafe_vost
+    times:
+      - time: university.cafe.vost
+    images:
+      caption_above: true
+      files:
+        - src/res/images/cafe_vost.jpg
+  - name: buffet
+    message: echo_commands.cafe_buffet
+    times:
+      - time: university.cafe.buffet
+    images:
+      caption_above: true
+      files:
+        - src/res/images/cafe_buffet.jpg
+  - name: linen
+    message: echo_commands.linen
+    times:
+      - time: dorm.linen
+    images:
+      caption_above: true
+      files:
+        - src/res/images/linen.jpg
+  - name: laundress
+    message: echo_commands.laundress
+    times:
+      - time: laundress
+    images:
+      files:
+        - src/res/images/laundress/1.jpg
+        - src/res/images/laundress/2.jpg
+  - name: cards
+    message: echo_commands.cards
+    images:
+      files:
+        - src/res/images/cards/1.jpg
+        - src/res/images/cards/2.jpg
+        - src/res/images/cards/3.jpg
+        - src/res/images/cards/4.jpg
+        - src/res/images/cards/5.jpg
+        - src/res/images/cards/6.jpg
+        - src/res/images/cards/7.jpg
+        - src/res/images/cards/8.jpg
+        - src/res/images/cards/9.jpg
+  - name: incorrect_director
+    message: echo_commands.incorrect_director
+  - name: deanit
+    message: echo_commands.deanery.it
+  - name: deanrit
+    message: echo_commands.deanery.rit
+  - name: deannacs
+    message: echo_commands.deanery.nacs
+  - name: deancais
+    message: echo_commands.deanery.cais
+  - name: deandeamc
+    message: echo_commands.deanery.deamc
+  - name: deanforeign
+    message: echo_commands.deanery.foreign
+  - name: depritres
+    message: echo_commands.departments.rit.res
+  - name: depritreac
+    message: echo_commands.departments.rit.reac
+  - name: depritelect
+    message: echo_commands.departments.rit.electronics
+  - name: deprittasb
+    message: echo_commands.departments.rit.tasb
+  - name: depritratsan
+    message: echo_commands.departments.rit.ratsan
+  - name: deprittec
+    message: echo_commands.departments.rit.tec
+  - name: depritphys
+    message: echo_commands.departments.rit.physics
+  - name: depritteaa
+    message: echo_commands.departments.rit.teaa
+  - name: depitmcait
+    message: echo_commands.departments.it.mcait
+  - name: depitmcis
+    message: echo_commands.departments.it.cis
+  - name: depitnitas
+    message: echo_commands.departments.it.nitas
+  - name: depitma
+    message: echo_commands.departments.it.ma
+  - name: depitinf
+    message: echo_commands.departments.it.informatics
+  - name: depitpe
+    message: echo_commands.departments.it.pe
+  - name: depitaai
+    message: echo_commands.departments.it.aai
+  - name: depitsp
+    message: echo_commands.departments.it.sp
+  - name: depmts
+    message: echo_commands.departments.nacs.mts
+  - name: depgts
+    message: echo_commands.departments.nacs.gts
+  - name: depgnass
+    message: echo_commands.departments.nacs.gnass
+  - name: depmsami
+    message: echo_commands.departments.nacs.msami
+  - name: depgtc
+    message: echo_commands.departments.nacs.gtc
+  - name: depedet
+    message: echo_commands.departments.cais.edet
+  - name: depis
+    message: echo_commands.departments.cais.is
+  - name: depismaa
+    message: echo_commands.departments.cais.ismaa
+  - name: deptcs
+    message: echo_commands.departments.cais.tcs
+  - name: depptaam
+    message: echo_commands.departments.cais.ptaam
+  - name: depelsap
+    message: echo_commands.departments.cais.elsap
+  - name: depbmt
+    message: echo_commands.departments.cais.bmt
+  - name: depdat
+    message: echo_commands.departments.deamc.dat
+  - name: depsrapr
+    message: echo_commands.departments.deamc.srapr
+  - name: depdemabt
+    message: echo_commands.departments.deamc.demabt
+  - name: depphaic
+    message: echo_commands.departments.deamc.phaic
+  - name: depfor
+    message: echo_commands.departments.deamc.for
+  - name: depbcs
+    message: echo_commands.departments.deamc.bcs

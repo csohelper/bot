@@ -1,3 +1,12 @@
+# FORMAT
+# Path.Command: List[Obj]
+#   - Time info: Obj
+#       days: List[int] (day index of week)
+#       times: List[Obj]
+#         - Time range: Obj:
+#             start: time
+#             end: time
+
 dorm:
   director:
     - days:
@@ -252,7 +261,7 @@ university:
         times:
           - start: 9:00
             end: 18:00
-    bufet:
+    buffet:
       - days:
           - 0
           - 1

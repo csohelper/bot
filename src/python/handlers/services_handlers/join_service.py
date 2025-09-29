@@ -50,6 +50,7 @@ async def join_request(update: ChatJoinRequest, bot: Bot, state: FSMContext) -> 
     send = await bot.send_message(
         update.from_user.id,
         get_string(
+            update.from_user.language_code,
             "user_service.greeting_start",
             config.refuser.request_life_hours
         ),
@@ -300,6 +301,7 @@ async def on_picture_chosen(message: Message, state: FSMContext) -> None:
     await message.reply_photo(
         photo=largest_photo.file_id,
         caption=get_string(
+            message.from_user.language_code,
             "user_service.confirm",
             await state.get_value("name"),
             await state.get_value("surname"),
@@ -434,12 +436,17 @@ async def callbacks_moderate_buttons(
                     database_user.fullname,
                     database_user.username,
                     database_user.user_id,
-                    get_string(callback.from_user.language_code,
-                               "user_service.moderation.request_status.on_moderation"),
+                    get_string(
+                        callback.from_user.language_code,
+                               "user_service.moderation.request_status.on_moderation"
+                    ),
                     database_user.name,
                     database_user.surname,
                     database_user.room,
-                    get_string(callback.from_user.language_code, 'user_service.moderation.actions.accept_confirm')
+                    get_string(
+                        callback.from_user.language_code,
+                        'user_service.moderation.actions.accept_confirm'
+                    )
                 ),
                 reply_markup=InlineKeyboardBuilder().row(
                     InlineKeyboardButton(
@@ -468,12 +475,17 @@ async def callbacks_moderate_buttons(
                     database_user.fullname,
                     database_user.username,
                     database_user.user_id,
-                    get_string(callback.from_user.language_code,
-                               "user_service.moderation.request_status.on_moderation"),
+                    get_string(
+                        callback.from_user.language_code,
+                               "user_service.moderation.request_status.on_moderation"
+                    ),
                     database_user.name,
                     database_user.surname,
                     database_user.room,
-                    get_string(callback.from_user.language_code, 'user_service.moderation.actions.refuse_confirm')
+                    get_string(
+                        callback.from_user.language_code,
+                        'user_service.moderation.actions.refuse_confirm'
+                    )
                 ),
                 reply_markup=InlineKeyboardBuilder().row(
                     InlineKeyboardButton(
@@ -516,12 +528,17 @@ async def on_join_accept(
                     database_user.fullname,
                     database_user.username,
                     database_user.user_id,
-                    get_string(callback.from_user.language_code,
-                               "user_service.moderation.request_status.on_moderation"),
+                    get_string(
+                        callback.from_user.language_code,
+                               "user_service.moderation.request_status.on_moderation"
+                    ),
                     database_user.name,
                     database_user.surname,
                     database_user.room,
-                    get_string(callback.from_user.language_code, 'user_service.moderation.actions.choose')
+                    get_string(
+                        callback.from_user.language_code,
+                        'user_service.moderation.actions.choose'
+                    )
                 ),
                 reply_markup=InlineKeyboardBuilder().row(InlineKeyboardButton(
                     text='🚫Отклонить',
@@ -555,6 +572,7 @@ async def on_join_accept(
                     database_user.username,
                     database_user.user_id,
                     get_string(
+                        callback.from_user.language_code,
                         "user_service.moderation.request_status.approved.username",
                         callback.from_user.username
                     ) if callback.from_user.username else get_string(
@@ -632,24 +650,26 @@ async def refuse_user(reason: str | None, state: FSMContext, from_user: User) ->
     if from_user.username:
         if reason:
             status = get_string(
+                config.admin_lang,
                 "user_service.moderation.request_status.refused.username.commented",
                 from_user.username, reason
             )
         else:
             status = get_string(
+                config.admin_lang,
                 "user_service.moderation.request_status.refused.username.nocomment",
                 from_user.username
             )
     else:
         if reason:
             status = get_string(
-                from_user.language_code,
+                config.admin_lang,
                 "user_service.moderation.request_status.refused.nousername.commented",
                 from_user.id, from_user.full_name, reason
             )
         else:
             status = get_string(
-                from_user.language_code,
+                config.admin_lang,
                 "user_service.moderation.request_status.refused.nousername.nocomment",
                 from_user.id, from_user.full_name
             )
@@ -658,7 +678,7 @@ async def refuse_user(reason: str | None, state: FSMContext, from_user: User) ->
         chat_id=config.chat_config.admin_chat_id,
         message_id=callback_data.message,
         caption=new_request_message(
-            from_user.language_code,
+            config.admin_lang,
             database_user.fullname,
             database_user.username,
             database_user.user_id,

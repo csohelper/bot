@@ -1,18 +1,51 @@
+from os import path
 from pathlib import Path
-from typing import Any
+from typing import Any, List
 
 import yaml
+from pydantic import BaseModel, Field
 
-__locale_dir = Path("src/res/strings/locale")
+__info_path = 'src/res/strings/locale/lang.yaml'
+__untranslatable_path = 'src/res/strings/locale/untranslatable.yaml'
+__locale_dir = "src/res/strings/locale/lang"
 
-__locales = {}
 
-for file in __locale_dir.glob("*.yaml"):
-    with file.open("r", encoding="utf-8") as f:
-        __stem = file.stem
+class LangModel(BaseModel):
+    file: str = Field()
+    langs: List[str] = Field(default_factory=list)
+
+
+class LangsInfoModel(BaseModel):
+    default: str = Field(default='en')
+    lang_files: List[LangModel] = Field(default_factory=list)
+
+
+def __load_lang_info():
+    with Path(__info_path).open("r", encoding="utf-8") as f:
+        raw_data = yaml.safe_load(f) or {}
+
+    return LangsInfoModel(**raw_data)
+
+
+def __load_locales():
+    result = {}
+    for lang_file in __lang_info.lang_files:
+        try:
+            with open(path.join(__locale_dir, lang_file.file + ".yaml"), "r", encoding="utf-8") as f:
+                load = yaml.safe_load(f)
+                for lang in lang_file.langs:
+                    result[lang] = load
+        except FileNotFoundError:
+            continue
+    with Path(__untranslatable_path).open("r", encoding="utf-8") as f:
         load = yaml.safe_load(f)
-        for __lang in __stem.split('_'):
-            __locales[__lang] = load
+        result["untranslatable"] = load
+    return result
+
+
+__lang_info = __load_lang_info()
+
+__locales = __load_locales()
 
 
 def __get_locale_string(locale: str, key: str, *args: Any, **kwargs: Any) -> str | None:
@@ -50,10 +83,12 @@ def get_string(locale: str | None, key: str, *args: Any, **kwargs: Any) -> str |
     :return: Отформатированная строка, найденная в соответсвующей локали
     """
     if locale is None:
-        locale = "default"
+        locale = __lang_info.default
     result = __get_locale_string(locale, key, *args, **kwargs)
+    if result is None and locale != __lang_info.default:
+        result = __get_locale_string(__lang_info.default, key, *args, **kwargs)
     if result is None:
-        result = __get_locale_string("default", key, *args, **kwargs)
+        result = __get_locale_string("untranslatable", key, *args, **kwargs)
     return result
 
 
@@ -70,16 +105,18 @@ def __get_locale_object(locale: str, path: str) -> Any | None:
 
 def list_langs() -> list[str]:
     langs = list(__locales.keys())
-    langs.remove("default")
+    langs.remove("untranslatable")
     return langs
 
 
 def get_object(locale: str | None, key: str) -> Any | None:
     if locale is None:
-        locale = "default"
+        locale = __lang_info.default
     result = __get_locale_object(locale, key)
+    if result is None and locale != __lang_info.default:
+        result = __get_locale_object(__lang_info.default, key)
     if result is None:
-        result = __get_locale_object("default", key)
+        result = __get_locale_object("untranslatable", key)
     return result
 
 
@@ -106,8 +143,10 @@ def __get_locale_strings(locale: str | None, path: str, *args: Any) -> list[str]
 
 def get_strings(locale: str | None, key: str, *args: Any) -> list[str] | None:
     if locale is None:
-        locale = "default"
+        locale = __lang_info.default
     result = __get_locale_strings(locale, key, *args)
+    if result is None and locale != __lang_info.default:
+        result = __get_locale_strings(__lang_info.default, key, *args)
     if result is None:
-        result = __get_locale_strings("default", key, *args)
+        result = __get_locale_strings("untranslatable", key, *args)
     return result

@@ -1,0 +1,9 @@
+default: en
+lang_files:
+  - file: en
+    langs:
+      - en
+  - file: ru
+    langs:
+      - ru
+      - br

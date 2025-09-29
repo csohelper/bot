@@ -1,56 +1,281 @@
-commands:
-  - command: cards
+# Commands format
+# "Command Name (/command_name)": Obj
+#   triggers: List
+#     - Text command: str
+#   description: str - Telegram localised description
+
+commands_description:
+  cards:
+    triggers:
+      - карты
     description: Cкидочные карты всех популярных сетей
-  - command: services
+  services:
+    triggers:
+      - услуги
     description: Список услуг от проживающих
-  - command: help
+  help:
+    triggers:
+      - начать
+      - помощь
+      - хелп
+      - команды
+      - комманды
+      - список
+      - помоги
+      - я долбаеб
+      - я долбоебка
+      - я долбоёб
+      - я долбоёбка
+      - я долбаебка
+      - я долбаёбка
     description: Помощь
-  - command: kek
+  kek:
+    triggers:
+      - kek
     description: Не важно
-  - command: index
+  index:
+    triggers:
+      - index
     description: Индекс общежития
-  - command: address
+  address:
+    triggers:
+      - адрес
+      - адресс
+      - адресочек
     description: Адрес общежития
-  - command: commandant
+  commandant:
+    triggers:
+      - коменда
+      - комендант
+      - командант
+      - командантка
+      - комменда
+      - коммендант
+      - коммандант
+      - коммандантка
     description: Номер и почта дежурного комменданта
-  - command: director
+  director:
+    triggers:
+      - заведующий
+      - заведующая
+      - завед
+      - заведа
     description: Информация о заведующем
-  - command: vost
+  vost:
+    triggers:
+      - восточка
     description: График работы и меню кафе
-  - command: jko
+  jko:
+    triggers:
+      - жко
+      - жк
+      - жилищно коммунальный
+      - жилищно коммунальный отдел
+      - жилищно-коммунальный отдел
     description: Информация о ЖКО
-  - command: hr
+  hr:
+    triggers:
+      -
     description: Информация об Отделе Кадров
-  - command: ed
+  ed:
+    triggers:
+      - отдел кадров
     description: Информация о Едином Деканате
-  - command: polyclinic
+  polyclinic:
+    triggers:
+      - поликлиника
+      - поликлинника
     description: Поликлиника
-  - command: library
+  accounting:
+    triggers:
+      - accounting
+    description: Accounting
+  library:
+    triggers:
+      - библиотека
     description: Библиотека
-  - command: bufet
+  buffet:
+    triggers:
+      - буфет
+      - столовка
     description: Буфет (А) и столовая (УЛК)
-  - command: week
+  week:
+    triggers:
+      -
     description: Информация о текущей учебной неделе
-  - command: soft
+  soft:
+    triggers:
+      - софт
+      - программы
+      - программное обеспечение
+      - по
     description: Полезные программы для учебы
-  - command: shower
+  shower:
+    triggers:
+      - душ
     description: График работы душа
-  - command: kitchen
+  kitchen:
+    triggers:
+      - кухня
+      - кухни
     description: График работы кухни
-  - command: laundress
+  laundress:
+    triggers:
+      - прачка
     description: Прачка МЭИ
-  - command: linen
+  linen:
+    triggers:
+      - обмен белья
+      - бельё
+      - обменка
     description: Информация об обмене белья
-  - command: deanit
+  deanit:
+    triggers:
+      - факультет ит
+      - фак ит
+      - деканат ит
     description: Деканат Информационные Технологии
-  - command: deanrit
+  deanrit:
+    triggers:
+      - факультет рит
+      - фак рит
+      - деканат рит
     description: Деканат Радио и Телевидение
-  - command: deannacs
+  deannacs:
+    triggers:
+      - факультет сисс
+      - фак сисс
+      - деканат сисс
     description: Деканат Сети и Системы Связи
-  - command: deancais
+  deancais:
+    triggers:
+      - факультет кииб
+      - фак кииб
+      - деканат кииб
     description: Деканат Кибернетика и Информационная Безопасность
-  - command: deandeamc
+  deandeamc:
+    triggers:
+      - факультет цэимк
+      - фак цэимк
+      - деканат цэимк
     description: Деканат Цифровая Экономика и Массовые Коммуникации
+  deanforeign:
+    triggers:
+      - иностранный отдел
+      - иностранный деканат
+      - иностраный отдел
+      - иностраный деканат
+      - ин отдел
+      - инотдел
+      - индеканат
+      - ин деканат
+    description: Иностранный отдел
+  incorrect_director:
+    triggers:
+      - заведущий
+      - заведущая
+  depritres:
+    triggers:
+      - кафедра ртс
+  depritreac:
+    triggers:
+      - кафедра рос
+  depritelect:
+    triggers:
+      - кафедра электроники
+  deprittasb:
+    triggers:
+      - кафедра тизв
+  depritratsan:
+    triggers:
+      - кафедра сисрт
+  deprittec:
+    triggers:
+      - кафедра тэц
+  depritphys:
+    triggers:
+      - кафедра физики
+  depritteaa:
+    triggers:
+      - кафедра тэдиа
+  depitmcait:
+    triggers:
+      - кафедра мкиит
+  depitmcis:
+    triggers:
+      - кафедра кис
+  depitnitas:
+    triggers:
+      - кафедра ситис
+  depitma:
+    triggers:
+      - кафедра матанализ
+  depitinf:
+    triggers:
+      - кафедра информатика
+  depitpe:
+    triggers:
+      - кафедра физвосп
+  depitaai:
+    triggers:
+      - кафедра пии
+  depitsp:
+    triggers:
+      - кафедра сп
+  depmts:
+    triggers:
+      - кафедра мтс
+  depgts:
+    triggers:
+      - кафедра нтс
+  depgnass:
+    triggers:
+      - кафедра ссиск
+  depmsami:
+    triggers:
+      - кафедра мсиии
+  depgtc:
+    triggers:
+      - кафедра отс
+  depedet:
+    triggers:
+      - кафедра тэод
+  depis:
+    triggers:
+      - кафедра иб
+  depismaa:
+    triggers:
+      - кафедра исуиа
+  deptcs:
+    triggers:
+      - кафедра бтк
+  depptaam:
+    triggers:
+      - кафедра твипм
+  depelsap:
+    triggers:
+      - кафедра эбжиэ
+  depbmt:
+    triggers:
+      - кафедра овп
+  depdat:
+    triggers:
+      - кафедра цтр
+  depsrapr:
+    triggers:
+      - кафедра срисо
+  depdemabt:
+    triggers:
+      - кафедра цэуибт
+  depphaic:
+    triggers:
+      - кафедра фиимк
+  depfor:
+    triggers:
+      - кафедра ино
+  depbcs:
+    triggers:
+      - кафедра би
 echo_commands:
   start: |
     Привет!
@@ -71,7 +296,7 @@ echo_commands:
     <b>Библиотека</b> - вся информация о ней (или /library)
     <b>Услуги</b> - список услуг от проживающих (или /services)
     <b>Восточка</b> - график работы и меню кафе (или /vost)
-    <b>Буфет</b> - Буфет (А) и столовая (УЛК) (или /bufet)
+    <b>Буфет</b> - Буфет (А) и столовая (УЛК) (или /buffet)
     <b>Неделя</b> - информация о текущей учебной неделе (или /week)
     <b>Софт</b> - полезные программы для учебы (или /soft)
     <b>Душ</b> - график работы (или /shower)
@@ -82,7 +307,8 @@ echo_commands:
     <b>Команды / Помощь</b> - для вызова данного списка (или /help)
     Остальные команды:
     <b>Единый Деканат</b> (или /ed), <b>Деканат ИТ</b> (или /deanit), <b>Деканат РиТ</b> (или /deanrit), 
-    <b>Деканат СиСС</b> (или /deannacs), <b>Деканат КиИБ</b> (или /deancais), <b>Деканат ЦЭиМК</b> (или /deandeamc)
+    <b>Деканат СиСС</b> (или /deannacs), <b>Деканат КиИБ</b> (или /deancais), <b>Деканат ЦЭиМК</b> (или /deandeamc),
+    <b>Иностранный Отдел</b> (или /deanforeign),
   cards: |
     <b>Скидочные карты всех популярных сетей:</b>
 
@@ -688,7 +914,7 @@ echo_commands:
     {working_status}
     
     <u>Меню:</u>
-  cafe_bufet: |
+  cafe_buffet: |
     <b>Столовая в УЛК и на 3-м Гл. Корпуса</b>
     <u>График работы:</u>
     ПН-ПТ 08:00 - 17:00
@@ -732,7 +958,6 @@ echo_commands:
     <a href="https://yandex.ru/maps/-/CHWdN8JD">ул. Лапина, 1</a>
     
     {working_status}
-  incorrect_lang: https://market.yandex.ru/cc/7a4iZW
   linen: |
     <b>Обмен белья</b>
     ПН 10:00 - 17:00
@@ -762,50 +987,6 @@ echo_commands:
       <span class="tg-spoiler">(Алгоритм подбора сделан для работы на картошке, не оббесудьте)</span>
     only_group: |
       <b>Команда предназначена для использования в группе</b>
-bad_words:
-  - хуй
-  - хуи
-  - хуек
-  - хуец
-  - хуила
-  - хуесос
-  - пизда
-  - пиздец
-  - пёзд
-  - ебать
-  - ебало
-  - еблан
-  - ебанат
-  - ебучий
-  - ебашь
-  - долбоеб
-  - долбаеб
-  - даун
-  - мудак
-  - мразь
-  - гандон
-  - презерватив
-  - шлюха
-  - шалава
-  - блядь
-  - бля
-  - блядина
-  - сучка
-  - сука
-  - ублюдок
-  - урод
-  - козел
-  - чмо
-  - петух
-  - пидор
-  - пидорас
-  - гомик
-  - гондон
-  - жопа
-  - срака
-  - срать
-  - обоссыш
-  - обосрался
 admin_commands:
   admin_not_install: Администратор бота не установлен
   not_admin: Вы не являетесь администратором бота

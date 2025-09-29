@@ -22,6 +22,8 @@ class ChatConfig(BaseModel):
     owner: int = Field(default=0)
     chat_id: int = Field(default=-1000000000000)
     admin_chat_id: int = Field(default=-1000000000000)
+    admin_lang: str = Field(default="ru")
+    default_lang: str = Field(default="en")
 
 
 class TelegramConfig(BaseModel):
@@ -53,6 +55,7 @@ class LoggerConfig(BaseModel):
     console_level: str = Field(default='info')
     file_level: str = Field(default='debug')
     aiogram_level: str = Field(default='info')
+
 
 
 class AppConfig(BaseModel):

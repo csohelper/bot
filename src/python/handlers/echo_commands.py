@@ -11,137 +11,109 @@ from aiogram.utils.payload import decode_payload
 from .services_handlers.add_service_commands import on_addservice
 from .services_handlers.join_service import on_accept_join_process
 from ..logger import logger
+from ..storage.command_loader import get_echo_commands, EchoCommand, TimeInfo
 from ..storage.config import config, save_config
 from ..storage.strings import get_string, get_strings
-from aiogram.types import Message
-from aiogram.filters import Command, CommandStart, CommandObject
+from aiogram.types import Message, InputMediaPhoto, FSInputFile
+from aiogram.filters import Command, CommandStart, CommandObject, BaseFilter
 from .. import utils
 from ..storage.times import get_time_status
 
 router = Router()
 
 
-@dataclass(frozen=True)
-class WorkingKey:
-    time_address: str
-    key: str = 'working_status'
+echo_commands = get_echo_commands()
 
 
-@dataclass(frozen=True)
-class EchoCommand:
-    command: str
-    text: list[str]
-    response: str
-    working_status: List[WorkingKey] = field(default_factory=list)
+def build_kwargs(working_status: List[TimeInfo], lang: str) -> dict[str, str]:
+    status_ = {wk.key: get_time_status(wk.time, lang) for wk in working_status}
+    return status_
 
 
-commands = [
-    EchoCommand("index", ["индекс"], 'echo_commands.index'),
-    EchoCommand("address", ["адрес", "адресс", "адресочек"], 'echo_commands.address'),
-    EchoCommand(
-        "director", ["заведующий", "заведующая", "завед", "заведа"], 'echo_commands.director',
-        [WorkingKey('dorm.director')]
-    ),
-    EchoCommand(
-        "commandant",
-        ["коменда", "комендант", "командант", "командантка", "комменда", "коммендант", "коммандант", "коммандантка"],
-        'echo_commands.commandant'
-    ),
-    EchoCommand(
-        "jko",
-        ["жко", "жк", "жилищно коммунальный", "жилищно коммунальный отдел", "жилищно-коммунальный отдел"],
-        'echo_commands.jko', [WorkingKey('university.jko')]
-    ),
-    EchoCommand(
-        "hr", ["отдел кадров"], 'echo_commands.hr',
-        [WorkingKey('university.hr.working'), WorkingKey('university.hr.certificate', 'working_status_certificate')]
-    ),
-    EchoCommand("soft", ["софт", "программы", "программное обеспечение", "ПО"], 'echo_commands.soft'),
-    EchoCommand(
-        "library", ["библиотека"], 'echo_commands.library',
-        [WorkingKey('university.library.working'), WorkingKey('university.library.clients', 'working_status_clients')]
-    ),
-    EchoCommand("shower", ["душ"], 'echo_commands.shower', [WorkingKey('dorm.shower')]),
-    EchoCommand("kitchen", ["кухня"], 'echo_commands.kitchen', [WorkingKey('dorm.kitchen')]),
-    EchoCommand("polyclinic", ["поликлиника"], 'echo_commands.polyclinic', [WorkingKey('polyclinic')]),
-    EchoCommand("accounting", ["бухгалтерия"], 'echo_commands.accounting', [WorkingKey('university.accounting')]),
+class TriggerFilter(BaseFilter):
+    def __init__(self, triggers: list[str]):
+        self.triggers = [t.lower() for t in triggers]
 
-    EchoCommand("dean", ["деканат"], 'echo_commands.deanery.default'),
-    EchoCommand("ed", ["ед", "единый деканат"], 'echo_commands.deanery.ed', [WorkingKey('university.deans.ed')]),
-    EchoCommand("deanit", ["деканат ит"], 'echo_commands.deanery.it', [WorkingKey('university.deans.it')]),
-    EchoCommand("deanrit", ["деканат рит"], 'echo_commands.deanery.rit', [WorkingKey('university.deans.rit')]),
-    EchoCommand("deannacs", ["деканат сисс"], 'echo_commands.deanery.nacs', [WorkingKey('university.deans.nacs')]),
-    EchoCommand("deancais", ["деканат кииб"], 'echo_commands.deanery.cais', [WorkingKey('university.deans.cais')]),
-    EchoCommand("deandeamc", ["деканат цэимк"], 'echo_commands.deanery.deamc'),
-    EchoCommand(
-        "deanforeign", ["иностранный деканат", "иностранный отдел"], 'echo_commands.deanery.foreign',
-        [WorkingKey('university.deans.foreign')]
-    ),
-
-    EchoCommand("depritres", ["кафедра ртс"], 'echo_commands.departments.rit.res'),
-    EchoCommand("depritreac", ["кафедра рос"], 'echo_commands.departments.rit.reac'),
-    EchoCommand("depritelect", ["кафедра электроники"], 'echo_commands.departments.rit.electronics'),
-    EchoCommand("deprittasb", ["кафедра тизв"], 'echo_commands.departments.rit.tasb'),
-    EchoCommand("depritratsan", ["кафедра сисрт"], 'echo_commands.departments.rit.ratsan'),
-    EchoCommand("deprittec", ["кафедра тэц"], 'echo_commands.departments.rit.tec'),
-    EchoCommand("depritphys", ["кафедра физики"], 'echo_commands.departments.rit.physics'),
-    EchoCommand("depritteaa", ["кафедра тэдиа"], 'echo_commands.departments.rit.teaa'),
-
-    EchoCommand("depitmcait", ["кафедра мкиит"], 'echo_commands.departments.it.mcait'),
-    EchoCommand("depitmcis", ["кафедра кис"], 'echo_commands.departments.it.cis'),
-    EchoCommand("depitnitas", ["кафедра ситис"], 'echo_commands.departments.it.nitas'),
-    EchoCommand("depitma", ["кафедра матанализ"], 'echo_commands.departments.it.ma'),
-    EchoCommand("depitinf", ["кафедра информатика"], 'echo_commands.departments.it.informatics'),
-    EchoCommand("depitpe", ["кафедра физвосп"], 'echo_commands.departments.it.pe'),
-    EchoCommand("depitaai", ["кафедра пии"], 'echo_commands.departments.it.aai'),
-    EchoCommand("depitsp", ["кафедра сп"], 'echo_commands.departments.it.sp'),
-
-    EchoCommand("depmts", ["кафедра мтс"], 'echo_commands.departments.nacs.mts'),
-    EchoCommand("depgts", ["кафедра нтс"], 'echo_commands.departments.nacs.gts'),
-    EchoCommand("depgnass", ["кафедра ссиск"], 'echo_commands.departments.nacs.gnass'),
-    EchoCommand("depmsami", ["кафедра мсиии"], 'echo_commands.departments.nacs.msami'),
-    EchoCommand("depgtc", ["кафедра отс"], 'echo_commands.departments.nacs.gtc'),
-
-    EchoCommand("depedet", ["кафедра тэод"], 'echo_commands.departments.cais.edet'),
-    EchoCommand("depis", ["кафедра иб"], 'echo_commands.departments.cais.is'),
-    EchoCommand("depismaa", ["кафедра исуиа"], 'echo_commands.departments.cais.ismaa'),
-    EchoCommand("deptcs", ["кафедра бтк"], 'echo_commands.departments.cais.tcs'),
-    EchoCommand("depptaam", ["кафедра твипм"], 'echo_commands.departments.cais.ptaam'),
-    EchoCommand("depelsap", ["кафедра эбжиэ"], 'echo_commands.departments.cais.elsap'),
-    EchoCommand("depbmt", ["кафедра овп"], 'echo_commands.departments.cais.bmt'),
-
-    EchoCommand("depdat", ["кафедра ЦТР"], 'echo_commands.departments.deamc.dat'),
-    EchoCommand("depsrapr", ["кафедра СРиСО"], 'echo_commands.departments.deamc.srapr'),
-    EchoCommand("depdemabt", ["кафедра ЦЭУиБТ"], 'echo_commands.departments.deamc.demabt'),
-    EchoCommand("depphaic", ["кафедра ФИиМК"], 'echo_commands.departments.deamc.phaic'),
-    EchoCommand("depfor", ["кафедра ИНО"], 'echo_commands.departments.deamc.for'),
-    EchoCommand("depbcs", ["кафедра БИ"], 'echo_commands.departments.deamc.bcs')
-]
+    async def __call__(self, message: Message) -> bool:
+        return bool(message.text and message.text.lower() in self.triggers)
 
 
-def build_kwargs(working_status: List[WorkingKey], lang: str) -> dict[str, str]:
-    return {
-        wk.key: get_time_status(wk.time_address, lang)
-        for wk in working_status
-    }
+images_caches: dict[str, list[str]] = {}
 
 
-def make_handler(command_info: EchoCommand):
-    @router.message(Command(command_info.command))
-    @router.message(lambda message, cmd=command: message.text and message.text.lower() in cmd.text)
+def make_image_handler(echo_command: EchoCommand):
+    @router.message(Command(echo_command.name))
+    @router.message(TriggerFilter(echo_command.triggers))
     async def echo_command_handler(message: Message) -> None:
-        print(message.from_user.language_code)
+        global images_caches
+        while True:
+            if (
+                    echo_command.name not in images_caches or
+                    images_caches[echo_command.name] is None or
+                    len(images_caches[echo_command.name]) == 0
+            ):
+                media = [
+                    InputMediaPhoto(
+                        media=FSInputFile(x),
+                        show_caption_above_media=echo_command.images.caption_above
+                    ) for x in echo_command.images.files
+                ]
+                media[0].caption = get_string(
+                    message.from_user.language_code,
+                    echo_command.message_path,
+                    **build_kwargs(echo_command.times, message.from_user.language_code)
+                )
+                sent = await message.reply_media_group(media=media)
+
+                images_caches[echo_command.name] = []
+                for msg in sent:
+                    if msg.photo:
+                        largest_photo = msg.photo[-1]
+                        images_caches[echo_command.name].append(largest_photo.file_id)
+            else:
+                try:
+                    media = [
+                        InputMediaPhoto(
+                            media=file_id,
+                            show_caption_above_media=echo_command.images.caption_above
+                        ) for file_id in images_caches[echo_command.name]
+                    ]
+                    media[0].caption = get_string(
+                        message.from_user.language_code, echo_command.message_path,
+                        **build_kwargs(echo_command.times, message.from_user.language_code)
+                    )
+                    await message.reply_media_group(media=media)
+                except Exception as e:
+                    logger.error(f"{e}")
+                    images_caches[echo_command.name] = []
+                    continue
+            break
+
+    return echo_command_handler
+
+
+def make_text_handler(echo_command: EchoCommand):
+    @router.message(Command(echo_command.name))
+    @router.message(TriggerFilter(echo_command.triggers))
+    async def echo_command_handler(message: Message) -> None:
         await message.reply(get_string(
             message.from_user.language_code,
-            command_info.response,
-            **build_kwargs(command_info.working_status, message.from_user.language_code)
+            echo_command.message_path,
+            **build_kwargs(echo_command.times, message.from_user.language_code)
         ))
 
     return echo_command_handler
 
 
-for command in commands:
-    make_handler(command)
+def make_handler(echo_command: EchoCommand):
+    if echo_command.images and len(echo_command.images.files) > 0:
+        make_image_handler(echo_command)
+    else:
+        make_text_handler(echo_command)
+
+
+for echo_command in echo_commands:
+    make_handler(echo_command)
 
 
 @router.message(CommandStart(deep_link=True))
@@ -168,15 +140,6 @@ async def command_start_handler(message: Message) -> None:
         config.chat_config.owner = message.from_user.id
         save_config(config)
         return
-
-
-@router.message(Command("help", "commands", "comands"))
-@router.message(lambda message: message.text and message.text.lower() in [
-    "начать", "помощь", "хелп", "команды", "комманды", "список", "помоги", "я долбаеб", "я долбоебка", "я долбаёб",
-    "я долбоёбка", "я долбаебка", "я долбаёбка"
-])
-async def command_help_handler(message: Message) -> None:
-    await message.reply(get_string(message.from_user.language_code, 'echo_commands.help'))
 
 
 @router.message(Command("mei"))
@@ -231,10 +194,3 @@ async def command_week_handler(message: Message) -> None:
             week_number
         )
     )
-
-
-@router.message(lambda message: message.text and message.text.lower() in ["заведущий", "заведущая"])
-async def command_week_handler(message: Message) -> None:
-    await message.reply(get_string(
-        message.from_user.language_code, 'echo_commands.incorrect_lang'
-    ))
