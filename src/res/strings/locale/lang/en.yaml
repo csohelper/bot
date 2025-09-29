@@ -132,6 +132,176 @@ commands_description:
     triggers:
       foreign departament
     description: Foreign departament
+  depritres:
+    triggers:
+      - department of res
+      - department res
+      - res department
+  depritreac:
+    triggers:
+      - department of reac
+      - department reac
+      - reac department
+  depritelect:
+    triggers:
+      - department of elect
+      - department elect
+      - elect department
+  deprittasb:
+    triggers:
+      - department of tasb
+      - department tasb
+      - tasb department
+  depritratsan:
+    triggers:
+      - department of ratsan
+      - department ratsan
+      - ratsan department
+  deprittec:
+    triggers:
+      - department of tec
+      - department tec
+      - tec department
+  depritphys:
+    triggers:
+      - department of phys
+      - department phys
+      - phys department
+  depritteaa:
+    triggers:
+      - department of teaa
+      - department teaa
+      - teaa department
+  depitmcait:
+    triggers:
+      - department of mcait
+      - department mcait
+      - mcait department
+  depitmcis:
+    triggers:
+      - department of cis
+      - department cis
+      - cis department
+  depitnitas:
+    triggers:
+      - department of nitas
+      - department nitas
+      - nitas department
+  depitma:
+    triggers:
+      - department of mathanalysis
+      - department mathanalysis
+      - mathanalysis department
+  depitinf:
+    triggers:
+      - department of informatics
+      - department informatics
+      - informatics department
+  depitpe:
+    triggers:
+      - department of physedu
+      - department physedu
+      - physedu department
+  depitaai:
+    triggers:
+      - department of aai
+      - department aai
+      - aai department
+  depitsp:
+    triggers:
+      - department of sp
+      - department sp
+      - sp department
+  depnacsmts:
+    triggers:
+      - department of mts
+      - department mts
+      - mts department
+  depnacsgts:
+    triggers:
+      - department of gts
+      - department gts
+      - gts department
+  depnacsgnass:
+    triggers:
+      - department of nass
+      - department nass
+      - nass department
+  depnacsmsami:
+    triggers:
+      - department of msami
+      - department msami
+      - msami department
+  depnacsgtc:
+    triggers:
+      - department of gtc
+      - department gtc
+      - gtc department
+  depcaisedet:
+    triggers:
+      - department of edet
+      - department edet
+      - edet department
+  depcaisis:
+    triggers:
+      - department of is
+      - department is
+      - is department
+  depcaisismaa:
+    triggers:
+      - department of ismaa
+      - department ismaa
+      - ismaa department
+  depcaistcs:
+    triggers:
+      - department of tcs
+      - department tcs
+      - tcs department
+  depcaisptaam:
+    triggers:
+      - department of ptaam
+      - department ptaam
+      - ptaam department
+  depcaiselsap:
+    triggers:
+      - department of elsap
+      - department elsap
+      - elsap department
+  depcaisbmt:
+    triggers:
+      - department of bmt
+      - department bmt
+      - bmt department
+  depdeamcdat:
+    triggers:
+      - department of dat
+      - department dat
+      - dat department
+  depdeamcsrapr:
+    triggers:
+      - department of srapr
+      - department srapr
+      - srapr department
+  depdeamcdemabt:
+    triggers:
+      - department of demabt
+      - department demabt
+      - demabt department
+  depdeamcphaic:
+    triggers:
+      - department of phaic
+      - department phaic
+      - phaic department
+  depdeamcfor:
+    triggers:
+      - department of for
+      - department for
+      - for department
+  depdeamcbcs:
+    triggers:
+      - department of bcs
+      - department bcs
+      - bcs department
 echo_commands:
   start: |
     Hello!
@@ -285,11 +455,11 @@ echo_commands:
       
       {working_status}
       
-      <b>Department MTS</b> (or /depmts)
-      <b>Department GTS</b> (or /depgts)
-      <b>Department NaCS</b> (or /depgnass)
-      <b>Department MSaMI</b> (or /depmsami)
-      <b>Department GTC</b> (or /depgtc)
+      <b>Department MTS</b> (or /depnacsmts)
+      <b>Department GTS</b> (or /depnacsgts)
+      <b>Department NaCS</b> (or /depnacsgnass)
+      <b>Department MSaMI</b> (or /depnacsmsami)
+      <b>Department GTC</b> (or /depnacsgtc)
     rit: |
       <b><a href="https://mtuci.ru/dep/305/">Dean’s Office of Radio and Television</a></b>
       (Радио и Телевидение)
@@ -334,13 +504,13 @@ echo_commands:
       
       {working_status}
       
-      <b>Department EDET</b> (or /depedet)
-      <b>Department IS</b> (or /depis)
-      <b>Department ISaMA</b> (or /depismaa)
-      <b>Department TCS</b> (or /deptcs)
-      <b>Department PTAAM</b> (or /depptaam)
-      <b>Department ELSAP</b> (or /depelsap)
-      <b>Department BMT</b> (or /depebmt)
+      <b>Department EDET</b> (or /depcaisedet)
+      <b>Department IS</b> (or /depcaisis)
+      <b>Department ISaMA</b> (or /depcaisismaa)
+      <b>Department TCS</b> (or /depcaistcs)
+      <b>Department PTAAM</b> (or /depcaisptaam)
+      <b>Department ELSAP</b> (or /depcaiselsap)
+      <b>Department BMT</b> (or /depcaisebmt)
     deamc: |
       <b><a href="https://mtuci.ru/dep/307">Dean’s Office of Digital Economy and Mass Communications</a></b>
       (Цифровая Экономика и Массовые Коммуникации)
@@ -353,12 +523,12 @@ echo_commands:
       +7(499)192-85-00
       e.v.vahovskiy@mtuci.ru
       
-      <b>Department DAT</b> (or /depdat)
-      <b>Department SRAPR</b> (or /depsrapr)
-      <b>Department DEMABT</b> (or /depdemabt)
-      <b>Department PHAIC</b> (or /depphaic)
-      <b>Department FOR</b> (or /depfor)
-      <b>Department BCS</b> (or /depbcs)
+      <b>Department DAT</b> (or /depdeamcdat)
+      <b>Department SRAPR</b> (or /depdeamcsrapr)
+      <b>Department DEMABT</b> (or /depdeamcdemabt)
+      <b>Department PHAIC</b> (or /depdeamcphaic)
+      <b>Department FOR</b> (or /depdeamcfor)
+      <b>Department BCS</b> (or /depdeamcbcs)
     foreign: |
       <b><a href="https://mtuci.ru/education/intern_edu/">Department for Foreign Students Affairs</a></b>
       (Отдел по работе с иностранными учащимися)

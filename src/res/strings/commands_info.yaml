@@ -193,39 +193,39 @@ echo_commands:
     message: echo_commands.departments.it.aai
   - name: depitsp
     message: echo_commands.departments.it.sp
-  - name: depmts
+  - name: depnacsmts
     message: echo_commands.departments.nacs.mts
-  - name: depgts
+  - name: depnacsgts
     message: echo_commands.departments.nacs.gts
-  - name: depgnass
+  - name: depnacsgnass
     message: echo_commands.departments.nacs.gnass
-  - name: depmsami
+  - name: depnacsmsami
     message: echo_commands.departments.nacs.msami
-  - name: depgtc
+  - name: depnacsgtc
     message: echo_commands.departments.nacs.gtc
-  - name: depedet
+  - name: depcaisedet
     message: echo_commands.departments.cais.edet
-  - name: depis
+  - name: depcaisis
     message: echo_commands.departments.cais.is
-  - name: depismaa
+  - name: depcaisismaa
     message: echo_commands.departments.cais.ismaa
-  - name: deptcs
+  - name: depcaistcs
     message: echo_commands.departments.cais.tcs
-  - name: depptaam
+  - name: depcaisptaam
     message: echo_commands.departments.cais.ptaam
-  - name: depelsap
+  - name: depcaiselsap
     message: echo_commands.departments.cais.elsap
-  - name: depbmt
+  - name: depcaisbmt
     message: echo_commands.departments.cais.bmt
-  - name: depdat
+  - name: depdeamcdat
     message: echo_commands.departments.deamc.dat
-  - name: depsrapr
+  - name: depdeamcsrapr
     message: echo_commands.departments.deamc.srapr
-  - name: depdemabt
+  - name: depdeamcdemabt
     message: echo_commands.departments.deamc.demabt
-  - name: depphaic
+  - name: depdeamcphaic
     message: echo_commands.departments.deamc.phaic
-  - name: depfor
+  - name: depdeamcfor
     message: echo_commands.departments.deamc.for
-  - name: depbcs
+  - name: depdeamcbcs
     message: echo_commands.departments.deamc.bcs

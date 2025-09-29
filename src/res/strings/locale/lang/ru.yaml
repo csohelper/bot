@@ -222,58 +222,58 @@ commands_description:
   depitsp:
     triggers:
       - кафедра сп
-  depmts:
+  depnacsmts:
     triggers:
       - кафедра мтс
-  depgts:
+  depnacsgts:
     triggers:
       - кафедра нтс
-  depgnass:
+  depnacsgnass:
     triggers:
       - кафедра ссиск
-  depmsami:
+  depnacsmsami:
     triggers:
       - кафедра мсиии
-  depgtc:
+  depnacsgtc:
     triggers:
       - кафедра отс
-  depedet:
+  depcaisedet:
     triggers:
       - кафедра тэод
-  depis:
+  depcaisis:
     triggers:
       - кафедра иб
-  depismaa:
+  depcaisismaa:
     triggers:
       - кафедра исуиа
-  deptcs:
+  depcaistcs:
     triggers:
       - кафедра бтк
-  depptaam:
+  depcaisptaam:
     triggers:
       - кафедра твипм
-  depelsap:
+  depcaiselsap:
     triggers:
       - кафедра эбжиэ
-  depbmt:
+  depcaisbmt:
     triggers:
       - кафедра овп
-  depdat:
+  depdeamcdat:
     triggers:
       - кафедра цтр
-  depsrapr:
+  depdeamcsrapr:
     triggers:
       - кафедра срисо
-  depdemabt:
+  depdeamcdemabt:
     triggers:
       - кафедра цэуибт
-  depphaic:
+  depdeamcphaic:
     triggers:
       - кафедра фиимк
-  depfor:
+  depdeamcfor:
     triggers:
       - кафедра ино
-  depbcs:
+  depdeamcbcs:
     triggers:
       - кафедра би
 echo_commands:
@@ -428,11 +428,11 @@ echo_commands:
       
       {working_status}
       
-      <b>Кафедра МТС</b> (или /depmts)
-      <b>Кафедра НТС</b> (или /depgts)
-      <b>Кафедра ССиСК</b> (или /depgnass)
-      <b>Кафедра МСиИИ</b> (или /depmsami)
-      <b>Кафедра ОТС</b> (или /depgtc)
+      <b>Кафедра МТС</b> (или /depnacsmts)
+      <b>Кафедра НТС</b> (или /depnacsgts)
+      <b>Кафедра ССиСК</b> (или /depnacsgnass)
+      <b>Кафедра МСиИИ</b> (или /depnacsmsami)
+      <b>Кафедра ОТС</b> (или /depnacsgtc)
     rit: |
       <b><a href="https://mtuci.ru/dep/305/">Деканат «Радио и Телевидение»</a></b>
       (Radio and Television)
@@ -477,13 +477,13 @@ echo_commands:
       
       {working_status}
       
-      <b>Кафедра ТЭОД</b> (или /depedet)
-      <b>Кафедра ИБ</b> (или /depis)
-      <b>Кафедра ИСУиА</b> (или /depismaa)
-      <b>Кафедра БТК</b> (или /deptcs)
-      <b>Кафедра ТВиПМ</b> (или /depptaam)
-      <b>Кафедра ЭБЖиЭ</b> (или /depelsap)
-      <b>Кафедра ОВП</b> (или /depebmt)
+      <b>Кафедра ТЭОД</b> (или /depcaisedet)
+      <b>Кафедра ИБ</b> (или /depcaisis)
+      <b>Кафедра ИСУиА</b> (или /depcaisismaa)
+      <b>Кафедра БТК</b> (или /depcaistcs)
+      <b>Кафедра ТВиПМ</b> (или /depcaisptaam)
+      <b>Кафедра ЭБЖиЭ</b> (или /depcaiselsap)
+      <b>Кафедра ОВП</b> (или /depcaisebmt)
     deamc: |
       <b><a href="https://mtuci.ru/dep/307">Деканат «Цифровая Экономика и Массовые Коммуникации»</a></b>
       (Digital Economy and Mass Communications)
@@ -496,12 +496,12 @@ echo_commands:
       +7(499)192-85-00
       e.v.vahovskiy@mtuci.ru
       
-      <b>Кафедра ЦТР</b> (или /depdat)
-      <b>Кафедра СРиСО</b> (или /depsrapr)
-      <b>Кафедра ЦЭУиБТ</b> (или /depdemabt)
-      <b>Кафедра ФИиМК</b> (или /depphaic)
-      <b>Кафедра ИНО</b> (или /depfor)
-      <b>Кафедра БИ</b> (или /depbcs)
+      <b>Кафедра ЦТР</b> (или /depdeamcdat)
+      <b>Кафедра СРиСО</b> (или /depdeamcsrapr)
+      <b>Кафедра ЦЭУиБТ</b> (или /depdeamcdemabt)
+      <b>Кафедра ФИиМК</b> (или /depdeamcphaic)
+      <b>Кафедра ИНО</b> (или /depdeamcfor)
+      <b>Кафедра БИ</b> (или /depdeamcbcs)
     foreign: |
       <b><a href="https://mtuci.ru/education/intern_edu/">Отдел по работе с иностранными учащимися</a></b>
       (Department for Foreign Students Affairs)
