@@ -151,16 +151,28 @@ echo_commands:
     message: echo_commands.incorrect_director
   - name: deanit
     message: echo_commands.deanery.it
+    times:
+      - time: university.deans.it
   - name: deanrit
     message: echo_commands.deanery.rit
+    times:
+      - time: university.deans.rit
   - name: deannacs
     message: echo_commands.deanery.nacs
+    times:
+      - time: university.deans.nacs
   - name: deancais
     message: echo_commands.deanery.cais
+    times:
+      - time: university.deans.cais
   - name: deandeamc
     message: echo_commands.deanery.deamc
+    times:
+      - time: university.deans.deamc
   - name: deanforeign
     message: echo_commands.deanery.foreign
+    times:
+      - time: university.deans.foreign
   - name: depritres
     message: echo_commands.departments.rit.res
   - name: depritreac
