@@ -274,22 +274,22 @@ async def process_create_service(message: Message, state: FSMContext) -> None:
     )
 
     keyboard = InlineKeyboardBuilder().row(InlineKeyboardButton(
-        text='Изменить название',
+        text=get_string(message.from_user.language_code, "services.add_command.edit_buttons.edit_name"),
         callback_data='a'
     )).row(InlineKeyboardButton(
-        text='Изменить описание',
+        text=get_string(message.from_user.language_code, "services.add_command.edit_buttons.edit_description"),
         callback_data='a'
     )).row(InlineKeyboardButton(
-        text='Изменить цену',
+        text=get_string(message.from_user.language_code, "services.add_command.edit_buttons.edit_cost"),
         callback_data='a'
     )).row(InlineKeyboardButton(
-        text='Изменить ед. цены',
+        text=get_string(message.from_user.language_code, "services.add_command.edit_buttons.edit_cost_per"),
         callback_data='a'
     )).row(InlineKeyboardButton(
-        text='Изменить обложку',
+        text=get_string(message.from_user.language_code, "services.add_command.edit_buttons.edit_image"),
         callback_data='a'
     )).row(InlineKeyboardButton(
-        text='Опубликовать',
+        text=get_string(message.from_user.language_code, "services.add_command.edit_buttons.publish"),
         callback_data='a'
     )).as_markup()
 
@@ -300,42 +300,42 @@ async def process_create_service(message: Message, state: FSMContext) -> None:
     )
 
     update_keyboard = InlineKeyboardBuilder().row(InlineKeyboardButton(
-        text='Изменить название',
+        text=get_string(message.from_user.language_code, "services.add_command.edit_buttons.edit_name"),
         callback_data=EditServiceCallbackFactory(
             original_msg=reply.message_id,
             service_id=service.id or 0,
             action='change_name'
         ).pack()
     )).row(InlineKeyboardButton(
-        text='Изменить описание',
+        text=get_string(message.from_user.language_code, "services.add_command.edit_buttons.edit_description"),
         callback_data=EditServiceCallbackFactory(
             original_msg=reply.message_id,
             service_id=service.id or 0,
             action='change_description'
         ).pack()
     )).row(InlineKeyboardButton(
-        text='Изменить цену',
+        text=get_string(message.from_user.language_code, "services.add_command.edit_buttons.edit_cost"),
         callback_data=EditServiceCallbackFactory(
             original_msg=reply.message_id,
             service_id=service.id or 0,
             action='change_cost'
         ).pack()
     )).row(InlineKeyboardButton(
-        text='Изменить ед. цены',
+        text=get_string(message.from_user.language_code, "services.add_command.edit_buttons.edit_cost_per"),
         callback_data=EditServiceCallbackFactory(
             original_msg=reply.message_id,
             service_id=service.id or 0,
             action='change_cost_per'
         ).pack()
     )).row(InlineKeyboardButton(
-        text='Изменить обложку',
+        text=get_string(message.from_user.language_code, "services.add_command.edit_buttons.edit_image"),
         callback_data=EditServiceCallbackFactory(
             original_msg=reply.message_id,
             service_id=service.id or 0,
             action='change_image'
         ).pack()
     )).row(InlineKeyboardButton(
-        text='Опубликовать',
+        text=get_string(message.from_user.language_code, "services.add_command.edit_buttons.publish"),
         callback_data=EditServiceCallbackFactory(
             original_msg=reply.message_id,
             service_id=service.id or 0,
@@ -403,7 +403,8 @@ async def callbacks_edit_service(
                     )
                 )
             )
-            await moderate_service.send_to_moderation(service, callback.from_user.full_name, callback.from_user.language_code)
+            await moderate_service.send_to_moderation(service, callback.from_user.full_name,
+                                                      callback.from_user.language_code)
 
     await callback.answer()
 
@@ -416,44 +417,44 @@ class EditServiceStates(StatesGroup):
     edit_picture_state = State()
 
 
-def create_preview_keyboard(original_msg: int, service_id: int) -> InlineKeyboardMarkup:
+def create_preview_keyboard(original_msg: int, service_id: int, lang) -> InlineKeyboardMarkup:
     return InlineKeyboardBuilder().row(InlineKeyboardButton(
-        text='Изменить название',
+        text=get_string(lang, "services.add_command.edit_buttons.edit_name"),
         callback_data=EditServiceCallbackFactory(
             original_msg=original_msg,
             service_id=service_id,
             action='change_name'
         ).pack()
     )).row(InlineKeyboardButton(
-        text='Изменить описание',
+        text=get_string(lang, "services.add_command.edit_buttons.edit_description"),
         callback_data=EditServiceCallbackFactory(
             original_msg=original_msg,
             service_id=service_id,
             action='change_description'
         ).pack()
     )).row(InlineKeyboardButton(
-        text='Изменить цену',
+        text=get_string(lang, "services.add_command.edit_buttons.edit_cost"),
         callback_data=EditServiceCallbackFactory(
             original_msg=original_msg,
             service_id=service_id,
             action='change_cost'
         ).pack()
     )).row(InlineKeyboardButton(
-        text='Изменить ед. цены',
+        text=get_string(lang, "services.add_command.edit_buttons.edit_cost_per"),
         callback_data=EditServiceCallbackFactory(
             original_msg=original_msg,
             service_id=service_id,
             action='change_cost_per'
         ).pack()
     )).row(InlineKeyboardButton(
-        text='Изменить обложку',
+        text=get_string(lang, "services.add_command.edit_buttons.edit_image"),
         callback_data=EditServiceCallbackFactory(
             original_msg=original_msg,
             service_id=service_id,
             action='change_image'
         ).pack()
     )).row(InlineKeyboardButton(
-        text='Опубликовать',
+        text=get_string(lang, "services.add_command.edit_buttons.publish"),
         callback_data=EditServiceCallbackFactory(
             original_msg=original_msg,
             service_id=service_id,
@@ -488,7 +489,7 @@ async def update_preview_text(
             ),
             chat_id=chat,
             message_id=preview_message,
-            reply_markup=create_preview_keyboard(preview_message, service.id)
+            reply_markup=create_preview_keyboard(preview_message, service.id, lang)
         )
     else:
         await _bot.edit_message_caption(
@@ -503,7 +504,7 @@ async def update_preview_text(
                     lang, 'services.service_no_description'
                 )
             ),
-            reply_markup=create_preview_keyboard(preview_message, service.id)
+            reply_markup=create_preview_keyboard(preview_message, service.id, lang)
         )
 
 
@@ -512,7 +513,10 @@ async def update_preview_text(
 )
 async def on_name_edit(message: Message, state: FSMContext) -> None:
     if message.text is None or message.text.strip() == '':
-        reply = await message.reply('Incorrect name')
+        reply = await message.reply(get_string(
+            message.from_user.language_code,
+            "services.add_command.incorrect_input.name"
+        ))
         await asyncio.sleep(3)
         await reply.delete()
         await message.delete()
@@ -534,7 +538,10 @@ async def on_name_edit(message: Message, state: FSMContext) -> None:
 )
 async def on_description_edit(message: Message, state: FSMContext) -> None:
     if message.text is None or message.text.strip() == '':
-        reply = await message.reply('Incorrect description. Send /empty or some text')
+        reply = await message.reply(get_string(
+            message.from_user.language_code,
+            "services.add_command.incorrect_input.description"
+        ))
         await asyncio.sleep(3)
         await reply.delete()
         await message.delete()
@@ -562,7 +569,7 @@ async def on_description_edit(message: Message, state: FSMContext) -> None:
 async def on_cost_edit(message: Message, state: FSMContext) -> None:
     if not message.text or not message.text.isdigit() or int(message.text) <= 0:
         reply = await message.reply(
-            text=get_string(message.from_user.language_code, 'services.add_command.cost_not_int')
+            text=get_string(message.from_user.language_code, 'services.add_command.incorrect_input.cost_not_int')
         )
         await asyncio.sleep(3)
         await reply.delete()
@@ -570,7 +577,7 @@ async def on_cost_edit(message: Message, state: FSMContext) -> None:
         return
     elif len(message.text) > 6:
         reply = await message.reply(
-            text=get_string(message.from_user.language_code, 'services.add_command.cost_too_big')
+            text=get_string(message.from_user.language_code, 'services.add_command.incorrect_input.cost_too_big')
         )
         await asyncio.sleep(3)
         await reply.delete()
@@ -595,7 +602,10 @@ async def on_cost_edit(message: Message, state: FSMContext) -> None:
 async def on_cost_per_edit(message: Message, state: FSMContext) -> None:
     if not message.text or not (1 <= len(message.text) <= 6):
         reply = await message.reply(
-            text=get_string(message.from_user.language_code, 'services.add_command.cost_per_incorrect')
+            text=get_string(
+                message.from_user.language_code, 'services.add_command.incorrect_input.cost_per_incorrect',
+                1, 6
+            )
         )
         await asyncio.sleep(3)
         await reply.delete()
@@ -627,9 +637,9 @@ async def on_picture_edit(message: Message, state: FSMContext) -> None:
         return
 
     if not message.photo:
-        reply = await message.reply(
-            get_string(message.from_user.language_code, "services.add_command.not_photo_and_empty")
-        )
+        reply = await message.reply(get_string(
+            message.from_user.language_code, "services.add_command.incorrect_input.not_photo_and_empty"
+        ))
         await asyncio.sleep(3)
         await reply.delete()
         await message.delete()

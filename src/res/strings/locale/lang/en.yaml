@@ -1107,20 +1107,13 @@ services:
     without_description: 🖼️ No description
     choose_cost: |
       Now enter the cost of the service in rubles per unit
-    cost_not_int: |
-      It must be a positive integer
-    cost_too_big: Price is too high
     choose_cost_per: |
       Great! Now enter the name of the unit of the product (max 6 characters)
       For example, if your cost is per Sheet, per Hour, per Piece — enter <code>Sheet</code>, <code>Hour</code>, <code>Piece</code>
-    cost_per_incorrect: |
-      Incorrect unit format. It must be 1..6 characters long
     choose_picture: |
       Great!
       Now you can send a photo (cover) for your service
     without_picture: 🖼️ No cover
-    not_photo_and_empty: |
-      Please send either a cover photo for the service or use the /empty command to continue
     preview: |
       🗒️Preview
       
@@ -1148,6 +1141,20 @@ services:
       <u><b>Service</b></u>: {0}
       <u><b>Cost</b></u>: {1}₽ / {2}
       <u><b>Description</b></u>: {3}
+    edit_buttons:
+      edit_name: ✍️ Edit name
+      edit_description: ✍️ Edit description
+      edit_cost: ✍️ Edit price
+      edit_cost_per: ✍️ Edit unit
+      edit_image: ✍️ Edit cover
+      publish: 📤 Publish
+    incorrect_input:
+      name: ⚠️ Invalid name format. Please send the service name as text
+      description: ⚠️ Invalid description format. Send either a text message or /empty to skip
+      cost_not_int: ⚠️ It must be a positive integer
+      cost_too_big: ⚠️ Price is too high
+      cost_per_incorrect: ⚠️ Incorrect unit format. It must be {0}..{1} characters long
+      not_photo_and_empty: ⚠️ Please send either a cover photo for the service or use the /empty command to continue
   service_no_description: 🚫 Not set
   moderation:
     preview: |
