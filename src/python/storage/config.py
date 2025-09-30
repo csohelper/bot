@@ -57,6 +57,10 @@ class LoggerConfig(BaseModel):
     aiogram_level: str = Field(default='info')
 
 
+class BlacklistedChat(BaseModel):
+    chat_id: int = Field()
+    topics: list[int | None] | None = Field(default=None)
+
 
 class AppConfig(BaseModel):
     admin_lang: str = Field(default="ru")
@@ -68,6 +72,7 @@ class AppConfig(BaseModel):
     anecdote: AnecdoteConfig = Field(default_factory=AnecdoteConfig)
     chat_config: ChatConfig = Field(default_factory=ChatConfig)
     refuser: RefuserConfig = Field(default_factory=RefuserConfig)
+    blacklisted: list[BlacklistedChat] = Field(default_factory=list)
 
 
 CONFIG_PATH = Path("storage/config.yaml")

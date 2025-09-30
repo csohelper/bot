@@ -15,6 +15,7 @@ from python.handlers.services_handlers import add_service_commands
 from python.logger import logger
 from python.storage.repository import services_repository
 from python.storage.strings import get_string
+from python.utils import check_blacklisted
 
 _bot_username: str
 _bot: Bot
@@ -143,6 +144,8 @@ async def add_service_button(callback: types.CallbackQuery, state: FSMContext):
 @router.message(Command("services"))
 @router.message(lambda message: message.text and message.text.lower() in ["услуги"])
 async def command_services_handler(message: Message) -> None:
+    if await check_blacklisted(message):
+        return
     builder, page, pages = await parse_folder_keyboard(message.from_user.language_code, "/",
                                                        is_pm=message.chat.type == 'private')
 

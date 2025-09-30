@@ -1,7 +1,9 @@
 import asyncio
+from asyncio import sleep
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 
+from python.storage.config import config
 from python.storage.strings import get_string
 
 
@@ -60,7 +62,7 @@ def get_week_number(current_date: datetime) -> int:
 
 
 from aiogram import Bot
-from aiogram.types import ChatMember
+from aiogram.types import ChatMember, Message, ReactionTypeEmoji
 
 
 async def is_user_in_chat(bot: Bot, chat_id: int | str, user_id: int) -> bool:
@@ -210,3 +212,21 @@ class TimeDelta:
                     "time.format.past.unknown",
                     d=self.days, h=self.hours, m=self.minutes, s=self.seconds, u=self.microseconds,
                 )
+
+
+async def check_blacklisted(message: Message) -> bool:
+    for chat in config.blacklisted:
+        if message.chat.id == chat.chat_id:
+            if chat.topics:
+                for topic in chat.topics:
+                    if topic == message.message_thread_id:
+                        await message.react([ReactionTypeEmoji(emoji="👎")])
+                        await sleep(3)
+                        await message.delete()
+                        return True
+                return False
+            await message.react([ReactionTypeEmoji(emoji="👎")])
+            await sleep(3)
+            await message.delete()
+            return True
+    return False

@@ -1,26 +1,24 @@
-import asyncio
 import datetime
 import random
-from dataclasses import dataclass, field
 from typing import List
 
-from aiogram import Router, F
+from aiogram import Router
+from aiogram.filters import Command, CommandStart, CommandObject, BaseFilter
 from aiogram.fsm.context import FSMContext
+from aiogram.types import Message, InputMediaPhoto, FSInputFile
 from aiogram.utils.payload import decode_payload
 
 from .services_handlers.add_service_commands import on_addservice
 from .services_handlers.join_service import on_accept_join_process
+from .. import utils
 from ..logger import logger
 from ..storage.command_loader import get_echo_commands, EchoCommand, TimeInfo
 from ..storage.config import config, save_config
 from ..storage.strings import get_string, get_strings
-from aiogram.types import Message, InputMediaPhoto, FSInputFile
-from aiogram.filters import Command, CommandStart, CommandObject, BaseFilter
-from .. import utils
 from ..storage.times import get_time_status
+from ..utils import check_blacklisted
 
 router = Router()
-
 
 echo_commands = get_echo_commands()
 
@@ -45,6 +43,8 @@ def make_image_handler(echo_command: EchoCommand):
     @router.message(Command(echo_command.name))
     @router.message(TriggerFilter(echo_command.triggers))
     async def echo_command_handler(message: Message) -> None:
+        if await check_blacklisted(message):
+            return
         global images_caches
         while True:
             if (
@@ -96,6 +96,8 @@ def make_text_handler(echo_command: EchoCommand):
     @router.message(Command(echo_command.name))
     @router.message(TriggerFilter(echo_command.triggers))
     async def echo_command_handler(message: Message) -> None:
+        if await check_blacklisted(message):
+            return
         await message.reply(get_string(
             message.from_user.language_code,
             echo_command.message_path,
@@ -118,6 +120,8 @@ for echo_command in echo_commands:
 
 @router.message(CommandStart(deep_link=True))
 async def command_start_handler(message: Message, command: CommandObject, state: FSMContext) -> None:
+    if await check_blacklisted(message):
+        return
     args = command.args
     payload = decode_payload(args)
     logger.debug(payload)
@@ -133,6 +137,8 @@ async def command_start_handler(message: Message, command: CommandObject, state:
 
 @router.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
+    if await check_blacklisted(message):
+        return
     await message.reply(get_string(message.from_user.language_code, 'echo_commands.start'))
 
     if message.chat.type == "private" and config.chat_config.owner == 0:
@@ -145,6 +151,8 @@ async def command_start_handler(message: Message) -> None:
 @router.message(Command("mei"))
 @router.message(lambda message: message.text and message.text.lower() in ["мэи", "меи"])
 async def command_mei_handler(message: Message) -> None:
+    if await check_blacklisted(message):
+        return
     await message.reply(
         random.choice(
             get_strings(message.from_user.language_code, 'echo_commands.mei')
@@ -155,6 +163,8 @@ async def command_mei_handler(message: Message) -> None:
 @router.message(Command("meishniky"))
 @router.message(lambda message: message.text and message.text.lower() in ["мэишники", "меишники"])
 async def command_meishniky_handler(message: Message) -> None:
+    if await check_blacklisted(message):
+        return
     await message.reply(
         random.choice(
             get_strings(message.from_user.language_code, 'echo_commands.meishniky')
@@ -165,6 +175,8 @@ async def command_meishniky_handler(message: Message) -> None:
 @router.message(Command("mai"))
 @router.message(lambda message: message.text and message.text.lower() in ["маи"])
 async def command_mai_handler(message: Message) -> None:
+    if await check_blacklisted(message):
+        return
     await message.reply(
         random.choice(
             get_strings(message.from_user.language_code, 'echo_commands.mai')
@@ -175,6 +187,8 @@ async def command_mai_handler(message: Message) -> None:
 @router.message(Command("maishniki"))
 @router.message(lambda message: message.text and message.text.lower() in ["маишники", "маёвцы"])
 async def command_maishniky_handler(message: Message) -> None:
+    if await check_blacklisted(message):
+        return
     await message.reply(
         random.choice(
             get_strings(message.from_user.language_code, 'echo_commands.maishniky')
@@ -185,6 +199,8 @@ async def command_maishniky_handler(message: Message) -> None:
 @router.message(Command("week"))
 @router.message(lambda message: message.text and message.text.lower() in ["неделя"])
 async def command_week_handler(message: Message) -> None:
+    if await check_blacklisted(message):
+        return
     week_number = utils.get_week_number(datetime.datetime.now())
     await message.reply(
         get_string(

@@ -12,6 +12,7 @@ from .. import anecdote_poller
 from ..logger import logger
 from ..storage.config import config
 from ..storage.strings import get_string
+from ..utils import check_blacklisted, await_and_run
 
 router = Router()
 _bot: Bot
@@ -27,6 +28,8 @@ async def init(bot: Bot):
 @router.message(Command("kek"))
 @router.message(lambda message: message.text and message.text.lower() in ["kek", "кек"])
 async def command_anecdote_handler(message: Message) -> None:
+    if await check_blacklisted(message):
+        return
     if message.chat.type not in ['group', 'supergroup']:
         await message.reply(get_string(
             message.from_user.language_code, 'echo_commands.kek.only_group'
