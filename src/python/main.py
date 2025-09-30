@@ -1,7 +1,5 @@
 import asyncio
-import json
 import platform
-from dataclasses import asdict
 
 from aiogram import Bot, Dispatcher, F, Router
 from aiogram.client.default import DefaultBotProperties
@@ -14,15 +12,14 @@ from redis.asyncio import from_url
 from python import anecdote_poller, join_refuser
 from python.handlers import echo_commands, kek_command, admin_commands
 from python.handlers.services_handlers import add_service_commands, list_services_command, moderate_service, \
-    join_service
+    join_service, my_services_command
 from python.logger import logger
-from python.storage import strings, command_loader
+from python.storage import command_loader
 from python.storage.command_loader import TelegramCommandsInfo
 from python.storage.config import config
 from python.storage.database import open_database_pool, close_database_pool
 from python.storage.repository import services_repository, users_repository, anecdotes_repository
-from python.storage.strings import __get_locale_object, get_string, get_object
-from python.storage.times import get_time
+from python.storage.strings import get_string
 from python.utils import await_and_run
 
 bot: Bot
@@ -88,6 +85,7 @@ async def main() -> None:
         bot_username = str((await bot.get_me()).username)
         await add_service_commands.init(bot_username=bot_username, bot=bot)
         await list_services_command.init(bot_username=bot_username, bot=bot)
+        await my_services_command.init(bot_username=bot_username, bot=bot)
         await moderate_service.init(bot_username=bot_username, bot=bot)
         await admin_commands.init(bot_username=bot_username, bot=bot)
         await join_refuser.init(bot=bot, storage=dp.storage)
@@ -102,7 +100,7 @@ async def main() -> None:
 
         commands_list = command_loader.get_telegram_commands_list()
         # print(json.dumps([asdict(cmd) for cmd in commands_list], indent=4, ensure_ascii=False))
-        for commands in commands_list :
+        for commands in commands_list:
             try:
                 await set_commands(commands)
             except Exception as e:

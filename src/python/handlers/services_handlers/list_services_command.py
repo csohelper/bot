@@ -1,6 +1,7 @@
 import base64
 import io
 import urllib.parse
+from enum import Enum
 
 from aiogram import Bot, Router
 from aiogram import types
@@ -11,11 +12,12 @@ from aiogram.types import InaccessibleMessage, InlineKeyboardButton, InputMediaP
 from aiogram.utils.deep_linking import create_start_link
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from python.handlers.services_handlers import add_service_commands
+from python.handlers.services_handlers import add_service_commands, my_services_command
 from python.logger import logger
 from python.storage.repository import services_repository
 from python.storage.strings import get_string
 from python.utils import check_blacklisted
+from aiogram.filters.callback_data import CallbackData
 
 _bot_username: str
 _bot: Bot
@@ -29,11 +31,14 @@ async def init(bot_username: str, bot: Bot):
 
 router = Router()
 
-from aiogram.filters.callback_data import CallbackData
+
+class ServicesActions(Enum):
+    ADD_SERVICE = "add_service"
+    MY_SERVICES = "my_services"
 
 
-class AddServiceHandlerFactory(CallbackData, prefix="addserive"):
-    pass
+class ServicesHandlerFactory(CallbackData, prefix="servicesbuttons"):
+    action: ServicesActions
 
 
 class ServicesCallbackFactory(CallbackData, prefix="services"):
@@ -54,17 +59,24 @@ async def parse_folder_keyboard(lang: str, path: str, offset=0, is_pm=False) -> 
         if is_pm:
             builder.row(
                 InlineKeyboardButton(
-                    text=get_string(lang, "services.add_button.title"),
-                    callback_data=AddServiceHandlerFactory().pack()
+                    text=get_string(lang, "services.add_button"),
+                    callback_data=ServicesHandlerFactory(action=ServicesActions.ADD_SERVICE).pack()
                 )
             )
         else:
             builder.row(
                 InlineKeyboardButton(
-                    text=get_string(lang, "services.add_button.title"),
+                    text=get_string(lang, "services.add_button"),
                     url=await create_start_link(_bot, 'addservice', encode=True)
                 )
             )
+    if is_pm:
+        builder.row(
+            InlineKeyboardButton(
+                text=get_string(lang, "services.my_services"),
+                callback_data=ServicesHandlerFactory(action=ServicesActions.MY_SERVICES).pack()
+            )
+        )
 
     if len(services) > PAGE_SIZE:
         l = services[offset:offset + PAGE_SIZE]
@@ -74,7 +86,7 @@ async def parse_folder_keyboard(lang: str, path: str, offset=0, is_pm=False) -> 
     for service in l:
         if service.is_folder:
             button_path = service.folder_dest
-            text = get_string(lang,"services.folder_button", service.name)
+            text = get_string(lang, "services.folder_button", service.name)
         else:
             button_path = service.service_id
             text = get_string(
@@ -134,11 +146,20 @@ async def parse_folder_keyboard(lang: str, path: str, offset=0, is_pm=False) -> 
     return builder, offset // PAGE_SIZE + 1, len(services) // PAGE_SIZE + 1
 
 
-@router.callback_query(AddServiceHandlerFactory.filter())
-async def add_service_button(callback: types.CallbackQuery, state: FSMContext):
-    if callback.message:
+@router.callback_query(ServicesHandlerFactory.filter())
+async def add_service_button(
+        callback: types.CallbackQuery,
+        callback_data: ServicesHandlerFactory,
+        state: FSMContext
+):
+    if not callback.message:
+        return
+    if callback_data.action == ServicesActions.ADD_SERVICE:
         await callback.answer()
         await add_service_commands.on_addservice(callback.message, state, callback.from_user.language_code)
+    elif callback_data.action == ServicesActions.MY_SERVICES:
+        await my_services_command.on_my_services(callback.message, state, callback.from_user.language_code)
+        await callback.answer()
 
 
 @router.message(Command("services"))
@@ -251,13 +272,13 @@ async def callbacks_num_change_fab(
             callback.message.chat.type == 'private'
         )
 
-        caption_lines = [get_string(callback.from_user.language_code,"services.folder_caption.header").strip()]
+        caption_lines = [get_string(callback.from_user.language_code, "services.folder_caption.header").strip()]
         strip_path = callback_data.path.strip("/")
         if strip_path:
             caption_lines.append(
-                get_string(callback.from_user.language_code,'services.folder_caption.folder.sep').join(
+                get_string(callback.from_user.language_code, 'services.folder_caption.folder.sep').join(
                     get_string(
-                        callback.from_user.language_code,'services.folder_caption.folder.title', part
+                        callback.from_user.language_code, 'services.folder_caption.folder.title', part
                     ) for part in strip_path.split("/")
                 ).strip()
             )
