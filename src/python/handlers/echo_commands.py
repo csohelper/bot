@@ -191,7 +191,7 @@ async def command_maishniky_handler(message: Message) -> None:
         return
     await message.reply(
         random.choice(
-            get_strings(message.from_user.language_code, 'echo_commands.maishniky')
+ get_strings(message.from_user.language_code, 'echo_commands.maishniky')
         )
     )
 
@@ -204,6 +204,7 @@ async def command_week_handler(message: Message) -> None:
     week_number = utils.get_week_number(datetime.datetime.now())
     await message.reply(
         get_string(
+            message.from_user.language_code,
             'echo_commands.week',
             get_strings(message.from_user.language_code, 'echo_commands.week_types_up_down')[week_number % 2],
             get_strings(message.from_user.language_code, 'echo_commands.week_types_even')[week_number % 2],
