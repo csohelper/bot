@@ -137,7 +137,7 @@ async def parse_folder_keyboard(lang: str, path: str, offset=0, is_pm=False) -> 
 async def add_service_button(callback: types.CallbackQuery, state: FSMContext):
     if callback.message:
         await callback.answer()
-        await add_service_commands.on_addservice(callback.message, state)
+        await add_service_commands.on_addservice(callback.message, state, callback.from_user.language_code)
 
 
 @router.message(Command("services"))
@@ -157,7 +157,7 @@ async def command_services_handler(message: Message) -> None:
         )
 
     await message.reply_photo(
-        photo=FSInputFile('./src/res/images/empty_service.jpg'),
+        photo=FSInputFile('./src/res/images/services/header.jpg'),
         caption='\n'.join(caption_lines),
         reply_markup=builder.as_markup()
     )
@@ -206,7 +206,7 @@ async def callbacks_num_change_fab(
                 image_stream = io.BytesIO(image_bytes)
                 media = BufferedInputFile(image_stream.read(), filename=f"{service.id}.jpg")
             else:
-                media = FSInputFile('./src/res/images/empty_service.jpg')
+                media = FSInputFile('./src/res/images/services/no_image.jpg')
             await callback.message.edit_media(
                 InputMediaPhoto(
                     media=media,
@@ -270,14 +270,14 @@ async def callbacks_num_change_fab(
         try:
             await callback.message.edit_media(
                 InputMediaPhoto(
-                    media=FSInputFile('./src/res/images/empty_service.jpg'),
+                    media=FSInputFile('./src/res/images/services/header.jpg'),
                     caption='\n'.join(caption_lines)
                 ),
                 reply_markup=new_keyboard.as_markup()
             )
         except Exception as e:
             await callback.message.edit_caption(
-                photo=FSInputFile('./src/res/images/empty_service.jpg'),
+                photo=FSInputFile('./src/res/images/services/header.jpg'),
                 caption='\n'.join(caption_lines),
                 reply_markup=new_keyboard.as_markup()
             )

@@ -124,7 +124,7 @@ async def command_start_handler(message: Message, command: CommandObject, state:
 
     match payload:
         case 'addservice':
-            await on_addservice(message, state)
+            await on_addservice(message, state, message.from_user.language_code)
         case _ if payload == get_string(message.from_user.language_code, "user_service.greeting_button_start_payload"):
             await on_accept_join_process(message, state)
         case _:

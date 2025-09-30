@@ -100,7 +100,7 @@ async def send_to_moderation(service: Service, sender_name: str, sender_lang) ->
         image_stream = io.BytesIO(image_bytes)
         media = BufferedInputFile(image_stream.read(), filename=f"preview.jpg")
     else:
-        media = FSInputFile('./src/res/images/empty_service.jpg')
+        media = FSInputFile('./src/res/images/services/no_image.jpg')
 
     reply = await _bot.send_photo(
         chat_id=config.chat_config.admin_chat_id,

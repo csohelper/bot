@@ -91,7 +91,10 @@ triggers:
     - bufet
     - buffet
     - буфет
+  canteen:
+    - canteen
     - столовка
+    - столовая
   week:
     - week
     - неделя
@@ -340,6 +343,7 @@ commands_list:
   - services
   - vost
   - buffet
+  - canteen
   - week
   - soft
   - shower
@@ -443,11 +447,23 @@ echo_commands:
   - name: buffet
     message: echo_commands.cafe_buffet
     times:
-      - time: university.cafe.buffet
+      - key: working_status_a
+        time: university.cafe.buffet.a
+      - key: working_status_n
+        time: university.cafe.buffet.n
     images:
       caption_above: true
       files:
         - src/res/images/cafe_buffet.jpg
+  - name: canteen
+    message: echo_commands.cafe_canteen
+    times:
+      - time: university.cafe.canteen
+    images:
+      caption_above: true
+      files:
+        - src/res/images/canteen/1.jpg
+        - src/res/images/canteen/2.jpg
   - name: linen
     message: echo_commands.linen
     times:

@@ -20,7 +20,8 @@ commands_description:
   polyclinic: Polyclinic
   accounting: Бухгалтерия
   library: Library
-  buffet: Buffet (A) and dining hall (ULK)
+  buffet: Buffet in ULK-1, A-3, N-326
+  canteen: Canteen in N-317
   week: Information about the current academic week
   soft: Useful programs for study
   shower: Shower schedule
@@ -55,6 +56,7 @@ echo_commands:
     <b>Services</b> - list of services from residents (or /services)
     <b>Vostochka</b> - working hours and café menu (or /vost)
     <b>Buffet</b> - Buffet (A) and dining hall (ULK) (or /buffet)
+    <b>Canteen</b> - Canteen в Н-317 (или /canteen)
     <b>Week</b> - information about the current academic week (or /week)
     <b>Soft</b> - useful programs for study (or /soft)
     <b>Shower</b> - working hours (or /shower)
@@ -684,12 +686,23 @@ echo_commands:
     
     <u>Menu:</u>
   cafe_buffet: |
-    <b>Buffet in ULK and 3rd Main Building</b>
-    (Столовая в УЛК и на 3-м Гл. Корпуса)
+    <b>Buffet in ULK-1, A-3, N-326</b>
+    (Буфет в УЛК-1, А-3, Н-3)
     <u>Working hours:</u>
-    Mon-Fri 08:00 - 17:00
-    {working_status}
+    Mon-Fri 08:00 - 17:00 (A-3, ULK-1)
+    {working_status_a}
+    Mon-Fri 08:00 - 17:00 (N-3)
+    {working_status_n}
     
+    <u>Menu:</u>
+  cafe_canteen: |
+    <b>Canteen in N-317</b>
+    (Столовая в Н-317)
+    <u>Working hours:</u>
+    MON-THU 10:00 - 16:00
+    FRI             10:00 - 15:00
+    {working_status}
+
     <u>Menu:</u>
   week: |
     {0} week ({1}) - #{2}

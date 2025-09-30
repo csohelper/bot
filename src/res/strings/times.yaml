@@ -256,15 +256,40 @@ university:
           - start: 9:00
             end: 18:00
     buffet:
+      a:
+        - days:
+            - 0
+            - 1
+            - 2
+            - 3
+            - 4
+          times:
+            - start: 8:00
+              end: 17:00
+      n:
+        - days:
+            - 0
+            - 1
+            - 2
+            - 3
+            - 4
+          times:
+            - start: 10:00
+              end: 17:00
+    canteen:
       - days:
           - 0
           - 1
           - 2
           - 3
+        times:
+          - start: 10:00
+            end: 16:00
+      - days:
           - 4
         times:
-          - start: 8:00
-            end: 17:00
+          - start: 10:00
+            end: 15:00
 polyclinic:
   - days:
       - 0

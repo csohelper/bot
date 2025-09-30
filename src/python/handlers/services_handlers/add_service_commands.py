@@ -41,22 +41,24 @@ class AddServiceStates(StatesGroup):
 
 
 @router.message(StateFilter(None), Command("addservice"))
-async def on_addservice(message: Message, state: FSMContext) -> None:
+async def on_addservice(message: Message, state: FSMContext, lang=None) -> None:
+    if lang is None:
+        lang = message.from_user.language_code
     if message.chat.type != 'private':
         await message.answer(
-            text=get_string(message.from_user.language_code, 'services.add_command.not_private').strip(),
+            text=get_string(lang, 'services.add_command.not_private').strip(),
             reply_markup=InlineKeyboardBuilder().row(
                 InlineKeyboardButton(
-                    text=get_string(message.from_user.language_code, 'services.add_command.goto_pm'),
+                    text=get_string(lang, 'services.add_command.goto_pm'),
                     url=await create_start_link(_bot, 'addservice', encode=True)
                 )
             ).as_markup()
         )
         return
     await message.reply(
-        text=get_string(message.from_user.language_code, 'services.add_command.greeting'),
+        text=get_string(lang, 'services.add_command.greeting'),
         reply_markup=ReplyKeyboardBuilder().row(
-            KeyboardButton(text=get_string(message.from_user.language_code, 'services.add_command.cancel_button'))
+            KeyboardButton(text=get_string(lang, 'services.add_command.cancel_button'))
         ).as_markup(resize_keyboard=True, one_time_keyboard=False)
     )
     await state.set_state(AddServiceStates.choosing_name_state)
@@ -242,7 +244,7 @@ async def process_create_service(message: Message, state: FSMContext) -> None:
         image_stream = io.BytesIO(image_bytes)
         media = BufferedInputFile(image_stream.read(), filename=f"preview.jpg")
     else:
-        media = FSInputFile('./src/res/images/empty_service.jpg')
+        media = FSInputFile('./src/res/images/services/no_image.jpg')
 
     if not message.from_user:
         return
@@ -296,7 +298,7 @@ async def process_create_service(message: Message, state: FSMContext) -> None:
     reply = await message.reply_photo(
         photo=media,
         caption=caption,
-        reply_markup=keyboard
+        reply_markup=ReplyKeyboardRemove(),
     )
 
     update_keyboard = InlineKeyboardBuilder().row(InlineKeyboardButton(
@@ -343,7 +345,7 @@ async def process_create_service(message: Message, state: FSMContext) -> None:
         ).pack()
     ))
     await reply.edit_reply_markup(
-        reply_markup=update_keyboard.as_markup()  # type: ignore
+        reply_markup=update_keyboard.as_markup()
     )
 
 
@@ -473,7 +475,7 @@ async def update_preview_text(
             image_stream = io.BytesIO(image_bytes)
             media = BufferedInputFile(image_stream.read(), filename=f"{service.id}.jpg")
         else:
-            media = FSInputFile('./src/res/images/empty_service.jpg')
+            media = FSInputFile('./src/res/images/services/no_image.jpg')
         await _bot.edit_message_media(
             media=InputMediaPhoto(
                 media=media,
