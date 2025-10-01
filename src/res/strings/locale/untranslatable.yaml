@@ -168,3 +168,5 @@ bad_words:
   - срать
   - обоссыш
   - обосрался
+user_service:
+  greeting_button_start_payload: process_join_agreed

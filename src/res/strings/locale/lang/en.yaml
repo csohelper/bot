@@ -806,8 +806,7 @@ time:
       s: "≈{0}s ago"
       u: "≈{0}µs ago"
 services:
-  add_button:
-    title: Add Service 📝
+  add_button: Add Service 📝
   service_button: |
     {0} - {1}rub / {2} ➡️
   folder_button: 📂 {0}
@@ -969,7 +968,6 @@ user_service:
     Please choose one of the options: ✅ Start or ❌ Cancel
   greeting_button_start: ✅ Start
   greeting_button_cancel: ❌ Cancel
-  greeting_button_start_payload: process_join_agreed
   on_cancel: |
     ❌ Review procedure canceled. To repeat it, you will need to submit the application again.
   select_room: |

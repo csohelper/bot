@@ -954,7 +954,6 @@ user_service:
     Пожалуйста, выбери один из вариантов: ✅ Начать или ❌ Отмена
   greeting_button_start: ✅ Начать
   greeting_button_cancel: ❌ Отмена
-  greeting_button_start_payload: process_join_agreed
   on_cancel: |
     ❌ Процедура рассмотрения отменена. Для её повторения необходимо будет заново подать заявку
   select_room: |
