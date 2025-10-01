@@ -493,6 +493,7 @@ echo_commands:
         - src/res/images/cards/7.jpg
         - src/res/images/cards/8.jpg
         - src/res/images/cards/9.jpg
+        - src/res/images/cards/10.jpg
   - name: incorrect_director
     message: echo_commands.incorrect_director
   - name: deanit
