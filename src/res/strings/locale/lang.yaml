@@ -1,3 +1,10 @@
+# FORMAT
+# default: lang name
+# lang_files: List[Obj]
+#   - Lang: Obj
+#       file: str - Yaml file without .yaml
+#       langs: list[str] - 2-chars lang code
+
 default: en
 lang_files:
   - file: en
