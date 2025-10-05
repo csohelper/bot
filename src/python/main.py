@@ -10,7 +10,7 @@ from aiogram.types.link_preview_options import LinkPreviewOptions
 from redis.asyncio import from_url
 
 from python import anecdote_poller, join_refuser
-from python.handlers import echo_commands, kek_command, admin_commands
+from python.handlers import echo_commands, kek_command, admin_commands, hype_collector
 from python.handlers.services_handlers import add_service_commands, list_services_command, moderate_service, \
     join_service, my_services_command
 from python.logger import logger
@@ -73,6 +73,7 @@ async def main() -> None:
         moderate_service.router,
         admin_commands.router,
         join_service.router,
+        hype_collector.router,
         default_router  # Must be in ending
     )
 
@@ -90,6 +91,7 @@ async def main() -> None:
         await admin_commands.init(bot_username=bot_username, bot=bot)
         await join_refuser.init(bot=bot, storage=dp.storage)
         await join_service.init(bot=bot)
+        await hype_collector.init(bot_username=bot_username, bot=bot)
         await services_repository.init_database_module()
         await anecdotes_repository.init_database_module()
         await users_repository.init_database_module()

@@ -168,5 +168,10 @@ bad_words:
   - срать
   - обоссыш
   - обосрался
-user_service:
-  greeting_button_start_payload: process_join_agreed
+payloads:
+  greeting_button: process_join_agreed
+  hype_collector_start: init_hype_collector
+hype_collector:
+  greeting: |
+    Саси хуй
+  start: Принять участие

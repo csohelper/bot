@@ -349,6 +349,8 @@ triggers:
     - department bcs
     - bcs department
     - кафедра би
+  hype_collector_greeting:
+    - хайп коллектор
 commands_list:
   - cards
   - index

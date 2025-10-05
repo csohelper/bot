@@ -8,6 +8,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, InputMediaPhoto, FSInputFile
 from aiogram.utils.payload import decode_payload
 
+from .hype_collector import start_collector_command
 from .services_handlers.add_service_commands import on_addservice
 from .services_handlers.join_service import on_accept_join_process
 from .. import utils
@@ -129,7 +130,9 @@ async def command_start_handler(message: Message, command: CommandObject, state:
     match payload:
         case 'addservice':
             await on_addservice(message, state, message.from_user.language_code)
-        case _ if payload == get_string(message.from_user.language_code, "user_service.greeting_button_start_payload"):
+        case _ if payload == get_string(None, "payloads.hype_collector_start"):
+            await start_collector_command(message, state)
+        case _ if payload == get_string(None, "payloads.greeting_button"):
             await on_accept_join_process(message, state)
         case _:
             logger.error(f"Can't handle start payload - Args: {args}, Payload: {payload}")
@@ -191,7 +194,7 @@ async def command_maishniky_handler(message: Message) -> None:
         return
     await message.reply(
         random.choice(
- get_strings(message.from_user.language_code, 'echo_commands.maishniky')
+            get_strings(message.from_user.language_code, 'echo_commands.maishniky')
         )
     )
 
