@@ -172,6 +172,26 @@ payloads:
   greeting_button: process_join_agreed
   hype_collector_start: init_hype_collector
 hype_collector:
-  greeting: |
+  announce: |
     Саси хуй
   start: Принять участие
+  greeting: |
+    Для принятия участия в оценке самой хайповой комнаты, необходимо будет сначала ответить на 2 простых вопроса
+    Начнём?
+  greeting_button: ✅ Приступить
+  send_room: Отправьте номер своей комнаты (эта информация останется только у администрации)
+  room_incorrect: Отправьте 3-цифирный номер комнаты
+  send_contact: Отправьте контакт для обратной связи (информация только для администрации)
+  send_contact_button: Отправить контакт
+  send_photos: Отправьте фотографии своей комнаты
+  cancel_button: ❌ Отмена
+  canceled: Ввод анкеты прерван. Чтобы повторить, нажмите заново на кнопку
+  contact:
+    default: |
+      @{username}
+    nousername: |
+      <a href="tg://user?id={userid}">{fullname}</a>
+  sent: |
+    ✅ Анкета отправлена, позже будет голосование среди Необщажной Ассоциации Хайпа и наших резидентов
+    <b>Комната</b>: {room}
+    <b>Автор</b>: {author}

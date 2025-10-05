@@ -71,7 +71,7 @@ def __get_locale_string(locale: str, key: str, *args: Any, **kwargs: Any) -> str
         raise RuntimeError("Isn't string")
 
 
-def get_string(locale: str | None, key: str, *args: Any, **kwargs: Any) -> str | None:
+def get_string(locale: str | None, key: str, *args: str | int, **kwargs: str | int) -> str | None:
     """
     Получает строку по пути в локализации и подставляет переданные аргументы.
     Если не будет найдена - будет возвращено из default локали
@@ -90,6 +90,15 @@ def get_string(locale: str | None, key: str, *args: Any, **kwargs: Any) -> str |
     if result is None:
         result = __get_locale_string("untranslatable", key, *args, **kwargs)
     return result
+
+
+def get_string_variants(key: str, *args: Any, **kwargs: Any) -> list[str]:
+    langs = list(__locales.keys())
+    return [
+        s
+        for lang in langs
+        if (s := __get_locale_string(lang, key, *args, **kwargs)) is not None
+    ]
 
 
 def __get_locale_object(locale: str, path: str) -> Any | None:
