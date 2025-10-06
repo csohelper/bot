@@ -18,7 +18,7 @@ from python.storage import command_loader
 from python.storage.command_loader import TelegramCommandsInfo
 from python.storage.config import config
 from python.storage.database import open_database_pool, close_database_pool
-from python.storage.repository import services_repository, users_repository, anecdotes_repository
+from python.storage.repository import services_repository, users_repository, anecdotes_repository, hype_repository
 from python.storage.strings import get_string
 from python.utils import await_and_run
 
@@ -95,6 +95,7 @@ async def main() -> None:
         await services_repository.init_database_module()
         await anecdotes_repository.init_database_module()
         await users_repository.init_database_module()
+        await hype_repository.init_database_module()
         if config.anecdote.enabled:
             asyncio.create_task(await_and_run(10, anecdote_poller.anecdote_loop_check))
         if config.refuser.enabled:

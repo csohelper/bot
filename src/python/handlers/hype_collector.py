@@ -14,6 +14,8 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 from aiogram_media_group import media_group_handler
 
 from python.storage.command_loader import get_all_triggers
+from python.storage.config import config
+from python.storage.repository import hype_repository
 from python.storage.strings import get_string, get_string_variants
 
 router = Router()
@@ -226,7 +228,7 @@ async def on_contact(message: Message, state: FSMContext):
 @router.message(HypeStates.sending_photos, F.media_group_id, F.content_type.in_({'photo'}))
 @media_group_handler
 async def on_multiple_photos(messages: List[types.Message], state: FSMContext):
-    await proccess_photos(messages, state)
+    await process_photos(messages, state)
 
 
 @router.message(HypeStates.sending_photos)
@@ -253,7 +255,7 @@ async def on_single_photo(message: Message, state: FSMContext):
             ).as_markup(resize_keyboard=True, one_time_keyboard=False)
         )
     else:
-        await proccess_photos([message], state)
+        await process_photos([message], state)
 
 
 async def download_photos(messages: List[types.Message]) -> list[str]:
@@ -296,18 +298,37 @@ async def parse_contact(from_user: User):
         )
 
 
-async def proccess_photos(messages: List[types.Message], state: FSMContext):
-    photos = await download_photos(messages)
-    await state.update_data(photos=photos)
-    caption = get_string(
-        messages[-1].from_user.language_code,
-        'hype_collector.sent',
-        room=await state.get_value('room'),
-        author=await parse_contact(messages[-1].from_user)
+async def process_photos(messages: List[types.Message], state: FSMContext):
+    download = await download_photos(messages)
+    await state.update_data(photos=download)
+    contact = TelegramContact(**await state.get_value('contact'))
+    form_id = await hype_repository.insert_form(
+        messages[-1].from_user.id,
+        messages[-1].from_user.username,
+        contact.phone_number,
+        contact.vcard,
+        messages[-1].from_user.full_name,
+        download
     )
     photos = [
         types.InputMediaPhoto(media=m.photo[-1].file_id)
         for m in messages
     ]
-    photos[-1].caption = caption
+    photos[-1].caption = get_string(
+        messages[-1].from_user.language_code,
+        'hype_collector.sent',
+        room=await state.get_value('room'),
+        author=await parse_contact(messages[-1].from_user)
+    )
     await messages[-1].reply_media_group(photos)
+    photos[-1].caption = get_string(
+        messages[-1].from_user.language_code,
+        'hype_collector.new_form',
+        room=await state.get_value('room'),
+        author=await parse_contact(messages[-1].from_user),
+        id=form_id
+    )
+    await _bot.send_media_group(
+        config.chat_config.hype_chat_id,
+        photos
+    )
