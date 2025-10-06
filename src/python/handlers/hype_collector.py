@@ -53,6 +53,7 @@ class HypeStates(StatesGroup):
     sending_room = State()
     sending_contact = State()
     sending_photos = State()
+    sending_confirm = State()
 
 
 async def start_collector_command(message: Message, state: FSMContext):
@@ -258,22 +259,16 @@ async def on_single_photo(message: Message, state: FSMContext):
         await process_photos([message], state)
 
 
-async def download_photos(messages: List[types.Message]) -> list[str]:
+async def download_photos(file_ids: List[str]) -> list[str]:
     """
     Скачивает все фото из списка сообщений и возвращает список Base64 строк.
     """
     base64_photos = []
 
-    for msg in messages:
-        if not msg.photo:
-            continue  # пропускаем сообщения без фото
-
-        # Берём самое большое фото ([-1])
-        photo = msg.photo[-1]
-
+    for file_id in file_ids:
         # Скачиваем файл
-        file = await msg.bot.get_file(photo.file_id)
-        file_bytes = await msg.bot.download_file(file.file_path)
+        file = await _bot.get_file(file_id)
+        file_bytes = await _bot.download_file(file.file_path)
 
         # Преобразуем в base64
         photo_b64 = base64.b64encode(file_bytes.read()).decode('utf-8')
@@ -299,36 +294,101 @@ async def parse_contact(from_user: User):
 
 
 async def process_photos(messages: List[types.Message], state: FSMContext):
-    download = await download_photos(messages)
-    await state.update_data(photos=download)
-    contact = TelegramContact(**await state.get_value('contact'))
-    form_id = await hype_repository.insert_form(
-        messages[-1].from_user.id,
-        messages[-1].from_user.username,
-        contact.phone_number,
-        contact.vcard,
-        messages[-1].from_user.full_name,
-        download
-    )
+    await state.update_data(photos=[
+        x.photo[-1].file_id for x in messages
+    ])
     photos = [
         types.InputMediaPhoto(media=m.photo[-1].file_id)
         for m in messages
     ]
     photos[-1].caption = get_string(
         messages[-1].from_user.language_code,
-        'hype_collector.sent',
+        'hype_collector.preview_caption',
         room=await state.get_value('room'),
         author=await parse_contact(messages[-1].from_user)
     )
     await messages[-1].reply_media_group(photos)
-    photos[-1].caption = get_string(
-        messages[-1].from_user.language_code,
-        'hype_collector.new_form',
-        room=await state.get_value('room'),
-        author=await parse_contact(messages[-1].from_user),
-        id=form_id
+    await messages[-1].answer(
+        get_string(
+            messages[-1].from_user.language_code,
+            'hype_collector.send_confirm'
+        ),
+        reply_markup=ReplyKeyboardBuilder().row(
+            KeyboardButton(text=get_string(
+                messages[-1].from_user.language_code, "hype_collector.send_button"
+            )),
+            KeyboardButton(text=get_string(
+                messages[-1].from_user.language_code, "hype_collector.cancel_button"
+            ))
+        ).as_markup(resize_keyboard=True, one_time_keyboard=False)
     )
-    await _bot.send_media_group(
-        config.chat_config.hype_chat_id,
-        photos
-    )
+    await state.set_state(HypeStates.sending_confirm)
+
+
+@router.message(HypeStates.sending_confirm)
+async def aaa(message: Message, state: FSMContext):
+    if message.text in get_string_variants("hype_collector.cancel_button"):
+        await message.reply(
+            get_string(
+                message.from_user.language_code,
+                'hype_collector.canceled'
+            ),
+            reply_markup=ReplyKeyboardRemove()
+        )
+        await state.clear()
+    elif message.text not in get_string_variants("hype_collector.send_button"):
+        await message.reply(
+            get_string(
+                message.from_user.language_code,
+                'hype_collector.sent_confirm',
+                room=await state.get_value('room'),
+                author=await parse_contact(message.from_user)
+            ),
+            reply_markup=ReplyKeyboardBuilder().row(
+                KeyboardButton(text=get_string(
+                    message.from_user.language_code, "hype_collector.send_button"
+                )),
+                KeyboardButton(text=get_string(
+                    message.from_user.language_code, "hype_collector.cancel_button"
+                ))
+            ).as_markup(resize_keyboard=True, one_time_keyboard=False)
+        )
+    else:
+        file_ids: list[str] = await state.get_value('photos')
+        download = await download_photos(file_ids)
+
+        contact = TelegramContact(**await state.get_value('contact'))
+        form_id = await hype_repository.insert_form(
+            message.from_user.id,
+            message.from_user.username,
+            contact.phone_number,
+            contact.vcard,
+            message.from_user.full_name,
+            download
+        )
+
+        photos = [
+            types.InputMediaPhoto(media=file_id)
+            for file_id in file_ids
+        ]
+
+        photos[-1].caption = get_string(
+            message.from_user.language_code,
+            'hype_collector.new_form',
+            room=await state.get_value('room'),
+            author=await parse_contact(message.from_user),
+            id=form_id
+        )
+        await _bot.send_media_group(
+            config.chat_config.hype_chat_id,
+            photos
+        )
+        await message.reply(
+            get_string(
+                message.from_user.language_code,
+                'hype_collector.sent',
+                room=await state.get_value('room'),
+                author=await parse_contact(message.from_user)
+            ),
+            reply_markup=ReplyKeyboardRemove()
+        )

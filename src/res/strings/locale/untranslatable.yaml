@@ -191,11 +191,15 @@ hype_collector:
       @{username}
     nousername: |
       <a href="tg://user?id={userid}">{fullname}</a>
-  sent: |
-    ✅ Анкета отправлена, позже будет голосование среди Необщажной Ассоциации Хайпа и наших резидентов
+  preview_caption: |
     <b>Комната</b>: {room}
     <b>Автор</b>: {author}
+  send_confirm: |
+    ⚠️ Подтвердите отправку анкеты администрации
+  sent: |
+    ✅ Анкета отправлена
   new_form: |
     Новая анкета #{id}
     <b>Комната</b>: {room}
     <b>Автор</b>: {author}
+  send_button: ✅ Отправить
