@@ -30,6 +30,8 @@ class ChatConfig(BaseModel):
 class TelegramConfig(BaseModel):
     token: str = Field(default="0000000000:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
     parse_mode: str = Field(default="HTML")
+    local_server: str = Field(default="http://telegram-bot-api:8081")
+    download_server: str = Field(default="http://nginx:8082")
 
 
 class AnecdoteConfig(BaseModel):

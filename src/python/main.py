@@ -3,6 +3,8 @@ import platform
 
 from aiogram import Bot, Dispatcher, F, Router
 from aiogram.client.default import DefaultBotProperties
+from aiogram.client.session.aiohttp import AiohttpSession
+from aiogram.client.telegram import TelegramAPIServer
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.storage.redis import RedisStorage
 from aiogram.types import BotCommand, Message, ReplyKeyboardRemove
@@ -51,13 +53,18 @@ async def set_commands(info: TelegramCommandsInfo):
 
 async def main() -> None:
     global bot, dp
+
+    session = AiohttpSession(
+        api=TelegramAPIServer.from_base(config.telegram.local_server)
+    )
     bot = Bot(
         token=config.telegram.token,
         default=DefaultBotProperties(
             parse_mode=config.telegram.parse_mode,
             link_preview=LinkPreviewOptions(is_disabled=True),
             disable_notification=True
-        )
+        ),
+        session=session
     )
     if config.redis_config.enabled:
         redis = from_url(config.redis_config.url, decode_responses=config.redis_config.decode_responses)

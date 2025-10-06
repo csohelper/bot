@@ -23,7 +23,8 @@ async def init_database_module() -> None:
                 CREATE TABLE IF NOT EXISTS hype_photos (
                     id SERIAL PRIMARY KEY,
                     form_id INT NOT NULL REFERENCES hype_forms(id) ON DELETE CASCADE,
-                    photo TEXT NOT NULL
+                    media TEXT NOT NULL,
+                    mime TEXT NOT NULL
                 );
             """
             logger.debug(query)
@@ -37,7 +38,10 @@ async def insert_form(
         phone: str | None,
         vcard: str | None,
         fullname: str,
-        photos_b64: list[str]
+        photos_b64: list[str],
+        photo_mime: str,
+        video_b64: str | None,
+        video_mime: str | None
 ) -> int:
     async with database.get_db_connection() as conn:
         async with conn.cursor() as cur:
@@ -54,13 +58,16 @@ async def insert_form(
             form_id = form_id_row[0]
 
             query_photo = """
-                INSERT INTO hype_photos (form_id, photo)
-                VALUES (%s, %s)
+                INSERT INTO hype_photos (form_id, media, mime)
+                VALUES (%s, %s, %s)
             """
             logger.debug(query_photo)
             for photo_b64 in photos_b64:
-                values = (form_id, photo_b64)
-                logger.debug(values)
+                values = (form_id, photo_b64, photo_mime)
+                await cur.execute(query_photo, values)
+
+            if video_b64 and video_mime:
+                values = (form_id, video_b64, video_mime)
                 await cur.execute(query_photo, values)
 
             await conn.commit()
