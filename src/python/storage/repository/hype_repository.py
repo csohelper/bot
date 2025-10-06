@@ -1,0 +1,67 @@
+from mailbox import Message
+
+from python.logger import logger
+from python.storage import database
+
+
+async def init_database_module() -> None:
+    async with database.get_db_connection() as conn:
+        async with conn.cursor() as cur:
+            query = """
+                CREATE TABLE IF NOT EXISTS hype_forms (
+                    id SERIAL PRIMARY KEY,
+                    userid BIGINT NOT NULL,
+                    username TEXT,
+                    phone TEXT,
+                    vcard TEXT,
+                    fullname TEXT NOT NULL
+                );
+            """
+            logger.debug(query)
+            await cur.execute(query)
+            query = """
+                CREATE TABLE IF NOT EXISTS hype_photos (
+                    id SERIAL PRIMARY KEY,
+                    form_id INT NOT NULL REFERENCES hype_forms(id) ON DELETE CASCADE,
+                    photo TEXT NOT NULL
+                );
+            """
+            logger.debug(query)
+            await cur.execute(query)
+            await conn.commit()
+
+
+async def insert_form(
+        userid: int,
+        username: str | None,
+        phone: str | None,
+        vcard: str | None,
+        fullname: str,
+        photos_b64: list[str]
+) -> int:
+    async with database.get_db_connection() as conn:
+        async with conn.cursor() as cur:
+            query_form = """
+                INSERT INTO hype_forms (userid, username, phone, vcard, fullname)
+                VALUES (%s, %s, %s, %s, %s)
+                RETURNING id
+            """
+            values = (userid, username, phone, vcard, fullname)
+            logger.debug(query_form)
+            logger.debug(values)
+            await cur.execute(query_form, values)
+            form_id_row = await cur.fetchone()
+            form_id = form_id_row[0]
+
+            query_photo = """
+                INSERT INTO hype_photos (form_id, photo)
+                VALUES (%s, %s)
+            """
+            logger.debug(query_photo)
+            for photo_b64 in photos_b64:
+                values = (form_id, photo_b64)
+                logger.debug(values)
+                await cur.execute(query_photo, values)
+
+            await conn.commit()
+            return form_id

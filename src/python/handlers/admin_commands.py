@@ -61,6 +61,27 @@ async def init_admin(message: Message) -> None:
     await message.delete()
 
 
+@router.message(Command("inithype"))
+async def init_admin(message: Message) -> None:
+    if not config.chat_config.owner:
+        reply = await message.reply(get_string(message.from_user.language_code, "admin_commands.admin_not_install"))
+        await sleep(3)
+        await reply.delete()
+        await message.delete()
+        return
+    if config.chat_config.owner != message.from_user.id:
+        reply = await message.reply(get_string(message.from_user.language_code, "admin_commands.not_admin"))
+        await sleep(3)
+        await reply.delete()
+        await message.delete()
+        return
+    await message.react([ReactionTypeEmoji(emoji="🤝")])
+    config.chat_config.hype_chat_id = message.chat.id
+    save_config(config)
+    await sleep(3)
+    await message.delete()
+
+
 def find_chat(blacklisted: list[BlacklistedChat], chat_id: int) -> BlacklistedChat | None:
     for chat in blacklisted:
         if chat.chat_id == chat_id:

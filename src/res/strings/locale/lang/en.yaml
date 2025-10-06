@@ -1,8 +1,5 @@
-# Commands format
-# "Command Name (/command_name)": Obj
-#   triggers: List
-#     - Text command: str
-#   description: str - Telegram localised description
+# FORMAT
+# "Command Name (/command_name)": Telegram Hint Description
 
 commands_description:
   cards: Discount cards of all popular store chains

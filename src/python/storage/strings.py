@@ -5,6 +5,8 @@ from typing import Any, List
 import yaml
 from pydantic import BaseModel, Field
 
+from python.logger import logger
+
 __info_path = 'src/res/strings/locale/lang.yaml'
 __untranslatable_path = 'src/res/strings/locale/untranslatable.yaml'
 __locale_dir = "src/res/strings/locale/lang"
@@ -71,7 +73,7 @@ def __get_locale_string(locale: str, key: str, *args: Any, **kwargs: Any) -> str
         raise RuntimeError("Isn't string")
 
 
-def get_string(locale: str | None, key: str, *args: Any, **kwargs: Any) -> str | None:
+def get_string(locale: str | None, key: str, *args: str | int, **kwargs: str | int) -> str | None:
     """
     Получает строку по пути в локализации и подставляет переданные аргументы.
     Если не будет найдена - будет возвращено из default локали
@@ -87,9 +89,20 @@ def get_string(locale: str | None, key: str, *args: Any, **kwargs: Any) -> str |
     result = __get_locale_string(locale, key, *args, **kwargs)
     if result is None and locale != __lang_info.default:
         result = __get_locale_string(__lang_info.default, key, *args, **kwargs)
+        if result is not None:
+            logger.debug(f"Using default locale for {locale}")
     if result is None:
         result = __get_locale_string("untranslatable", key, *args, **kwargs)
     return result
+
+
+def get_string_variants(key: str, *args: Any, **kwargs: Any) -> list[str]:
+    langs = list(__locales.keys())
+    return [
+        s
+        for lang in langs
+        if (s := __get_locale_string(lang, key, *args, **kwargs)) is not None
+    ]
 
 
 def __get_locale_object(locale: str, path: str) -> Any | None:

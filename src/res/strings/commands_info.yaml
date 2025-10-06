@@ -1,3 +1,21 @@
+# FORMAT
+# triggers: dict
+#   command_name: list[str] - list of triggers, what be used in scope with /command
+#     - command_trigger
+# commands_list: list[str]
+#   - name: str - Name what were visible in telegram / hint
+# echo_commands: list[Obj]
+#   - command: Obj
+#       name: str
+#       message: str - message code in lang files
+#       times: list[obj] - default = []
+#         - key: str - default "working_status"
+#         - time: str - time code in times.yaml
+#       images: Obj
+#         caption_above: bool - default = False
+#         files: list[str]
+#           - image file src/res/...
+
 triggers:
   cards:
     - cards
@@ -331,6 +349,8 @@ triggers:
     - department bcs
     - bcs department
     - кафедра би
+  hype_collector_greeting:
+    - хайп коллектор
 commands_list:
   - cards
   - index

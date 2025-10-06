@@ -59,7 +59,7 @@ async def join_request(update: ChatJoinRequest, bot: Bot, state: FSMContext) -> 
                 text=get_string(update.from_user.language_code, "user_service.greeting_button_start"),
                 url=await create_start_link(
                     _bot,
-                    get_string(update.from_user.language_code, "user_service.greeting_button_start_payload"),
+                    get_string(update.from_user.language_code, "payloads.greeting_button"),
                     encode=True
                 )
             )

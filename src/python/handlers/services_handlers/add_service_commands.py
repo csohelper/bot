@@ -295,10 +295,11 @@ async def process_create_service(message: Message, state: FSMContext) -> None:
         callback_data='a'
     )).as_markup()
 
+
     reply = await message.reply_photo(
         photo=media,
         caption=caption,
-        reply_markup=ReplyKeyboardRemove(),
+        reply_markup=keyboard,
     )
 
     update_keyboard = InlineKeyboardBuilder().row(InlineKeyboardButton(

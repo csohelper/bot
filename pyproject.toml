@@ -6,18 +6,19 @@ authors = ["Slava Petrov <slavapmk@gmail.com>"]
 packages = [{ include = "python", from = "src" }]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.11"
 aiogram = "^3.20.0"
-pydantic = "^2.11.7"
+pydantic = "^2.11.10"
 dynaconf = "^3.2.11"
 psycopg = {extras = ["async", "binary", "pool"], version = "^3.2.10"}
-pyyaml = "^6.0.2"
+pyyaml = "^6.0.3"
 pymorphy2 = "^0.9.1"
-beautifulsoup4 = "^4.13.4"
+beautifulsoup4 = "^4.14.2"
 requests = "^2.32.4"
 setuptools = "^80.9.0"
-redis = "^5.0.8"
-poetry-core = "^2.2.0"
+redis = "^6.4.0"
+poetry-core = "^2.2.1"
+aiogram-media-group = "^0.5.1"
 
 [build-system]
 requires = ["poetry-core"]
