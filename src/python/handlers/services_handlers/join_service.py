@@ -337,10 +337,10 @@ async def on_send_chosen(message: Message, state: FSMContext) -> None:
         )
         await users_repository.mark_request_processed(message.from_user.id)
     elif message.text == "✅Отправить":
-        await users_repository.delete_users_by_user_id(message.from_user.id)
+        await users_repository.delete_residents_by_user_id(message.from_user.id)
         await users_repository.mark_request_processed(message.from_user.id)
         image = await state.get_value("image")
-        insert_id = await users_repository.add_user(
+        insert_id = await users_repository.add_resident(
             user_id=message.from_user.id,
             username=message.from_user.username,
             fullname=message.from_user.full_name,
@@ -427,7 +427,7 @@ async def callbacks_moderate_buttons(
 ) -> None:
     if not callback.message:
         return
-    database_user = await users_repository.get_user_by_id(callback_data.database_id)
+    database_user = await users_repository.get_resident_by_id(callback_data.database_id)
     match callback_data.action:
         case "accept":
             await callback.message.edit_caption(
@@ -519,7 +519,7 @@ async def on_join_accept(
 ) -> None:
     if not callback.message:
         return
-    database_user = await users_repository.get_user_by_id(callback_data.database_id)
+    database_user = await users_repository.get_resident_by_id(callback_data.database_id)
     match callback_data.action:
         case ModerateButtonsAction.CANCEL:
             await callback.message.edit_caption(
@@ -558,7 +558,7 @@ async def on_join_accept(
             )
             await state.clear()
         case ModerateButtonsAction.ACCEPT_CONFIRM:
-            database_user = await users_repository.get_user_by_id(callback_data.database_id)
+            database_user = await users_repository.get_resident_by_id(callback_data.database_id)
             await _bot.approve_chat_join_request(
                 config.chat_config.chat_id,
                 database_user.user_id
@@ -590,7 +590,7 @@ async def on_join_accept(
                 database_user.user_id,
                 get_string(callback.from_user.language_code, "user_service.moderation.user_answer.accepted")
             )
-            await users_repository.update_user_fields(
+            await users_repository.update_resident_fields(
                 callback_data.database_id,
                 status="accept",
                 processed_by=callback.from_user.id,
@@ -642,7 +642,7 @@ async def refuse_user(reason: str | None, state: FSMContext, from_user: User) ->
     callback_data: ModerateButtonsFactory = ModerateButtonsFactory.unpack(
         await state.get_value("callback_data")
     )
-    database_user = await users_repository.get_user_by_id(callback_data.database_id)
+    database_user = await users_repository.get_resident_by_id(callback_data.database_id)
     await _bot.decline_chat_join_request(
         config.chat_config.chat_id,
         database_user.user_id
@@ -689,7 +689,7 @@ async def refuse_user(reason: str | None, state: FSMContext, from_user: User) ->
         ),
         reply_markup=None
     )
-    await users_repository.update_user_fields(
+    await users_repository.update_resident_fields(
         callback_data.database_id,
         status="refuse",
         processed_by=from_user.id,

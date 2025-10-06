@@ -1,3 +1,4 @@
+import asyncio
 from dataclasses import dataclass
 from datetime import datetime
 from tkinter import Image
@@ -8,7 +9,7 @@ from python.storage import database
 
 
 @dataclass(frozen=True)
-class User:
+class Resident:
     id: int
     user_id: int
     username: str
@@ -31,6 +32,17 @@ async def init_database_module() -> None:
         async with conn.cursor() as cur:
             query = """
                 CREATE TABLE IF NOT EXISTS users (
+                    id SERIAL PRIMARY KEY,
+                    user_id BIGINT NOT NULL UNIQUE,
+                    username TEXT NOT NULL,
+                    fullname TEXT NOT NULL,
+                    lang TEXT
+                )
+            """
+            logger.debug(query)
+            await cur.execute(query)
+            query = """
+                CREATE TABLE IF NOT EXISTS residents (
                     id SERIAL PRIMARY KEY,
                     user_id BIGINT NOT NULL UNIQUE,
                     username TEXT,
@@ -65,7 +77,37 @@ async def init_database_module() -> None:
             await conn.commit()
 
 
-async def add_user(
+@dataclass(frozen=True, slots=True)
+class UserRecord:
+    user_id: int
+    username: Optional[str]
+    fullname: str
+    lang: Optional[str]
+
+
+async def check_user(user: UserRecord):
+    async def _task():
+        async with database.get_db_connection() as conn:
+            async with conn.cursor() as cur:
+                query = """
+                    INSERT INTO users (user_id, username, fullname, lang)
+                    VALUES (%s, %s, %s, %s)
+                    ON CONFLICT (user_id) DO UPDATE
+                      SET username = EXCLUDED.username,
+                          fullname = EXCLUDED.fullname,
+                          lang = EXCLUDED.lang
+                """
+                await cur.execute(
+                    query,
+                    (user.user_id, user.username, user.fullname, user.lang)
+                )
+                await conn.commit()
+
+    # Запускаем без await — фоново
+    asyncio.create_task(_task())
+
+
+async def add_resident(
         user_id: int,
         username: str | None,
         fullname: str,
@@ -74,11 +116,11 @@ async def add_user(
         room: int | None = None,
         image: str | None = None,
         status: str = "waiting",
-        lang: str|None = None,
+        lang: str | None = None,
 ) -> int:
     """
-    Добавляет пользователя в таблицу users или обновляет его данные.
-    Возвращает id (PRIMARY KEY) из таблицы users.
+    Добавляет пользователя в таблицу residents или обновляет его данные.
+    Возвращает id (PRIMARY KEY) из таблицы residents.
 
     :param user_id: Telegram user_id
     :param username: username (без @)
@@ -89,12 +131,12 @@ async def add_user(
     :param status: Статус (по умолчанию 'waiting')
     :param image: Изображение подтверждения в base64 (JPG)
     :param lang: Код языка пользователя
-    :return: id записи в таблице users
+    :return: id записи в таблице residents
     """
     async with database.get_db_connection() as conn:
         async with conn.cursor() as cur:
             query = """
-                INSERT INTO users (user_id, username, fullname, name, surname, room, status, image, lang)
+                INSERT INTO residents (user_id, username, fullname, name, surname, room, status, image, lang)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING id
             """
@@ -107,7 +149,7 @@ async def add_user(
             return row[0]
 
 
-async def get_user_by_id(user_id: int) -> User | None:
+async def get_resident_by_id(user_id: int) -> Resident | None:
     """
     Возвращает пользователя из таблицы users по его id (PRIMARY KEY).
 
@@ -120,7 +162,7 @@ async def get_user_by_id(user_id: int) -> User | None:
                 SELECT id, user_id, username, fullname, name, surname, room, status,
                        processed_by, processed_by_fullname, processed_by_username,
                        refuse_reason, created_at, image, lang
-                FROM users
+                FROM residents
                 WHERE id = %s
             """
             logger.debug(query)
@@ -134,7 +176,7 @@ async def get_user_by_id(user_id: int) -> User | None:
             if not row:
                 return None
 
-            return User(
+            return Resident(
                 id=row[0],
                 user_id=row[1],
                 username=row[2],
@@ -160,7 +202,7 @@ ALLOWED_USER_FIELDS = {
 }
 
 
-async def update_user_fields(id: int, **fields) -> Optional[User]:
+async def update_resident_fields(id: int, **fields) -> Optional[Resident]:
     """
     Обновляет указанные поля пользователя в таблице users.
     Возвращает объект User после обновления или None, если запись не найдена
@@ -176,7 +218,7 @@ async def update_user_fields(id: int, **fields) -> Optional[User]:
     values.append(id)
 
     query = f"""
-        UPDATE users
+        UPDATE residents
         SET {set_clause}
         WHERE id = %s
         RETURNING id, user_id, username, fullname, name, surname, room, status,
@@ -194,7 +236,7 @@ async def update_user_fields(id: int, **fields) -> Optional[User]:
             await conn.commit()
 
             if row:
-                return User(
+                return Resident(
                     id=row[0],
                     user_id=row[1],
                     username=row[2],
@@ -214,14 +256,14 @@ async def update_user_fields(id: int, **fields) -> Optional[User]:
             return None
 
 
-async def delete_user_by_user_id(user_id: int) -> bool:
+async def delete_resident_by_user_id(user_id: int) -> bool:
     """
     Удаляет пользователя из таблицы users по Telegram user_id.
     Возвращает True, если запись существовала и была удалена, иначе False.
     """
     async with database.get_db_connection() as conn:
         async with conn.cursor() as cur:
-            query = "DELETE FROM users WHERE user_id = %s RETURNING id"
+            query = "DELETE FROM residents WHERE user_id = %s RETURNING id"
             logger.debug(query)
             logger.debug(user_id)
             await cur.execute(
@@ -233,14 +275,14 @@ async def delete_user_by_user_id(user_id: int) -> bool:
             return row is not None
 
 
-async def delete_users_by_user_id(user_id: int) -> int:
+async def delete_residents_by_user_id(user_id: int) -> int:
     """
     Удаляет все записи из таблицы users с указанным Telegram user_id.
     Возвращает количество удалённых строк.
     """
     async with database.get_db_connection() as conn:
         async with conn.cursor() as cur:
-            query = "DELETE FROM users WHERE user_id = %s"
+            query = "DELETE FROM residents WHERE user_id = %s"
             logger.debug(query)
             logger.debug((user_id,))
             await cur.execute(

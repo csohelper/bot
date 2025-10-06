@@ -15,6 +15,7 @@ from .. import utils
 from ..logger import logger
 from ..storage.command_loader import get_echo_commands, EchoCommand, TimeInfo
 from ..storage.config import config, save_config
+from ..storage.repository.users_repository import check_user, UserRecord
 from ..storage.strings import get_string, get_strings
 from ..storage.times import get_time_status
 from ..utils import check_blacklisted
@@ -46,6 +47,13 @@ def make_image_handler(echo_command: EchoCommand):
     async def echo_command_handler(message: Message) -> None:
         if await check_blacklisted(message):
             return
+        if message.chat.type == "private":
+            await check_user(UserRecord(
+                message.from_user.id,
+                message.from_user.username,
+                message.from_user.full_name,
+                message.from_user.language_code,
+            ))
         global images_caches
         while True:
             if (
@@ -99,6 +107,13 @@ def make_text_handler(echo_command: EchoCommand):
     async def echo_command_handler(message: Message) -> None:
         if await check_blacklisted(message):
             return
+        if message.chat.type == "private":
+            await check_user(UserRecord(
+                message.from_user.id,
+                message.from_user.username,
+                message.from_user.full_name,
+                message.from_user.language_code,
+            ))
         await message.reply(get_string(
             message.from_user.language_code,
             echo_command.message_path,
