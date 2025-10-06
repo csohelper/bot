@@ -33,7 +33,10 @@ async def init(bot_username: str, bot: Bot):
 @router.message(lambda message: message.text and message.text.lower() in get_all_triggers('hype_collector_greeting'))
 async def greet(message: Message):
     await message.answer(
-        get_string(None, 'hype_collector.announce'),
+        get_string(
+            None, 'hype_collector.announce',
+            date='25.10.25'
+        ),
         reply_markup=InlineKeyboardBuilder().row(
             InlineKeyboardButton(
                 text=get_string(None, 'hype_collector.start'),
