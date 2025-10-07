@@ -268,6 +268,21 @@ async def on_description(message: Message, state: FSMContext):
         await state.clear()
     elif message.text in get_string_variants("hype_collector.skip_description"):
         await state.update_data(description=None)
+    elif len(message.text) == 0:
+        await message.reply(
+            get_string(
+                message.from_user.language_code,
+                'hype_collector.description_empty'
+            ),
+            reply_markup=ReplyKeyboardBuilder().row(
+                KeyboardButton(text=get_string(
+                    message.from_user.language_code, "hype_collector.skip_description"
+                )),
+                KeyboardButton(text=get_string(
+                    message.from_user.language_code, "hype_collector.cancel_button"
+                )),
+            ).as_markup(resize_keyboard=True, one_time_keyboard=False)
+        )
     else:
         await state.update_data(description=message.text)
 
