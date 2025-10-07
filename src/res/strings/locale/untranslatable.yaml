@@ -203,10 +203,8 @@ hype_collector:
   cancel_button: ❌ Отмена
   canceled: ❌ Ввод анкеты прерван. Чтобы повторить, нажмите заново на кнопку в чате
   contact:
-    default: |
-      @{username}
-    nousername: |
-      <a href="tg://user?id={userid}">{fullname}</a>
+    default: '@{username}'
+    nousername: '<a href="tg://user?id={userid}">{fullname}</a>'
   preview_caption: |
     <b>Комната</b>: {room}
     <b>Автор</b>: {author}
