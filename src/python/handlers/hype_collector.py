@@ -1,13 +1,15 @@
 import base64
 import mimetypes
+from asyncio import sleep
 from dataclasses import dataclass, asdict
 from io import BytesIO
 from string import capwords
-from typing import Optional, List
+from typing import Optional, List, Callable, Awaitable
 
 import aiofiles
 import aiohttp
 from aiogram import Router, Bot, F, types
+from aiogram.exceptions import TelegramBadRequest, TelegramRetryAfter
 from aiogram.filters import state
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
@@ -17,6 +19,7 @@ from aiogram.utils.deep_linking import create_start_link
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 from aiogram_media_group import media_group_handler
 
+from python.logger import logger
 from python.storage.command_loader import get_all_triggers
 from python.storage.config import config
 from python.storage.repository import hype_repository
@@ -132,7 +135,7 @@ async def on_room(message: Message, state: FSMContext):
         await message.reply(
             get_string(
                 message.from_user.language_code,
-                'hype_collector.send_room'
+                'hype_collector.room_incorrect'
             ),
             reply_markup=ReplyKeyboardBuilder().row(
                 KeyboardButton(text=get_string(
@@ -142,6 +145,20 @@ async def on_room(message: Message, state: FSMContext):
         )
     else:
         room = int(message.text)
+        if room // 100 > 5 or room % 100 > 40:
+            await message.reply(
+                get_string(
+                    message.from_user.language_code,
+                    'hype_collector.room_not_exists'
+                ),
+                reply_markup=ReplyKeyboardBuilder().row(
+                    KeyboardButton(text=get_string(
+                        message.from_user.language_code, "hype_collector.cancel_button"
+                    )),
+                ).as_markup(resize_keyboard=True, one_time_keyboard=False)
+            )
+            return
+
         await state.update_data(room=room)
         await state.set_state(HypeStates.sending_contact)
         await message.reply(
@@ -269,14 +286,17 @@ async def on_single_photo(message: Message, state: FSMContext):
         await process_photos([message], state)
 
 
-async def download_photos(file_ids: List[str]) -> List[str]:
+async def download_photos(
+        file_ids: List[str],
+        progress_callback: Optional[Callable[[int, int], Awaitable[None]]] = None
+) -> List[str]:
     """
     Скачивает все фото или видео из списка file_ids через nginx и возвращает список Base64-строк.
     """
     base64_photos = []
-
+    await progress_callback(0, len(file_ids))
     async with aiohttp.ClientSession() as session:
-        for file_id in file_ids:
+        for i, file_id in enumerate(file_ids):
             try:
                 # Получаем информацию о файле через nginx
                 file: File = await _bot.get_file(file_id)
@@ -298,9 +318,10 @@ async def download_photos(file_ids: List[str]) -> List[str]:
                 base64_photos.append(photo_b64)
 
             except Exception as e:
-                print(f"Ошибка при скачивании file_id={file_id}: {str(e)}")
+                logger.error(f"Ошибка при скачивании file_id={file_id}: {str(e)}")
                 continue  # Пропускаем ошибочный файл
 
+            await progress_callback(i + 1, len(file_ids))
     return base64_photos
 
 
@@ -350,40 +371,59 @@ async def process_photos(messages: List[types.Message], state: FSMContext):
 
 VIDEO_MAX_SIZE = 128
 
-from io import BytesIO, BufferedIOBase
-import mimetypes
-import base64
 
-
-async def download_video(file_id: str | None) -> str | None:
+async def download_video(file_id: str | None,
+                         progress_callback: Optional[Callable[[int], Awaitable[None]]] = None) -> str | None:
     """
-    Скачивает видео через nginx (local Telegram Bot API) и возвращает Base64 и MIME-тип.
-    """
-    # URL nginx (порт 8082 из вашего docker-compose)
-    # Токен бота (хардкод для примера, лучше брать из конфига)
+    Downloads a video through nginx (local Telegram Bot API) and returns Base64 encoded data.
+    Calls the progress_callback with the download percentage (only on change).
 
-    # Получаем информацию о файле
+    Args:
+        file_id: The Telegram file ID to download.
+        progress_callback: Optional callback function to report download progress (percentage).
+
+    Returns:
+        Base64 encoded string of the video or None if file_id is invalid.
+    """
     if not file_id:
         return None
 
+    # Get file information
     file_info: File = await _bot.get_file(file_id)
 
     # file_path: /var/lib/telegram-bot-api/<token>/videos/file_0.mp4
-    # Обрезаем префикс, чтобы получить относительный путь: <token>/videos/file_0.mp4
+    # Strip prefix to get relative path: <token>/videos/file_0.mp4
     relative_path = file_info.file_path.lstrip('/var/lib/telegram-bot-api/')
 
-    # Формируем URL для скачивания через nginx
+    # Form the download URL for nginx
     download_url = f"{config.telegram.download_server}/file/{relative_path}"
-    print(download_url)
 
-    # Скачиваем файл через aiohttp
+    # Download file with progress tracking
     async with aiohttp.ClientSession() as session:
         async with session.get(download_url) as response:
             if response.status != 200:
-                raise Exception(f"Ошибка скачивания: {response.status}, URL: {download_url}")
-            data_bytes = await response.read()
+                raise Exception(f"Download error: {response.status}, URL: {download_url}")
 
-    # Кодируем в Base64
+            # Get total size of the file (if available)
+            total_size = int(response.headers.get('Content-Length', 0))
+            downloaded = 0
+            last_reported_percentage = -1  # Track last reported percentage to avoid duplicates
+            data_bytes = bytearray()
+
+            # Read response in chunks to track progress
+            chunk_size = 1024 * 1024  # 1MB chunks
+            async for chunk in response.content.iter_chunked(chunk_size):
+                data_bytes.extend(chunk)
+                downloaded += len(chunk)
+
+                # Calculate and report progress if total_size is known
+                if total_size > 0 and progress_callback:
+                    percentage = int((downloaded / total_size) * 100)
+                    if percentage != last_reported_percentage:
+                        last_reported_percentage = percentage
+                        await progress_callback(percentage)
+
+    # Encode to Base64
     return base64.b64encode(data_bytes).decode("utf-8")
 
 
@@ -491,6 +531,42 @@ async def create_confirm(message: Message, state: FSMContext):
     )
 
 
+async def video_callback_handler(percentage: int, wait_msg: Message, user_message: Message) -> None:
+    """
+    Coroutine to handle download progress updates by editing wait_msg or sending a new message if editing fails.
+    """
+    if percentage % 5 != 0 or percentage < 2:
+        return
+    text = get_string(
+        user_message.from_user.language_code,
+        "hype_collector.downloading_video_progress",
+        progress=percentage
+    )
+    try:
+        await wait_msg.edit_text(text)
+    except TelegramRetryAfter:
+        pass
+    except TelegramBadRequest as e:
+        logger.error(f"Cannot edit message: {e}")
+
+
+async def photo_callback_handler(download: int, count: int, wait_msg: Message, user_message: Message) -> None:
+    """
+    Coroutine to handle download progress updates by editing wait_msg or sending a new message if editing fails.
+    """
+    text = get_string(
+        user_message.from_user.language_code,
+        "hype_collector.downloading_photo_progress",
+        download, count
+    )
+    try:
+        await wait_msg.edit_text(text)
+    except TelegramRetryAfter:
+        pass
+    except TelegramBadRequest as e:
+        logger.error(f"Cannot edit message: {e}")
+
+
 @router.message(HypeStates.sending_confirm)
 async def process_confirm(message: Message, state: FSMContext):
     if message.text in get_string_variants("hype_collector.cancel_button"):
@@ -527,12 +603,44 @@ async def process_confirm(message: Message, state: FSMContext):
             ),
             reply_markup=ReplyKeyboardRemove()
         )
-        print(await state.get_value('video'))
-        video = await download_video(await state.get_value('video'))
-        video_mime = await state.get_value('video_mime')
+        await wait_msg.delete()
+        wait_msg = await message.reply(
+            get_string(
+                message.from_user.language_code,
+                "hype_collector.downloading_photo",
+            )
+        )
 
-        file_ids: list[str] = await state.get_value('photos')
-        files = await download_photos(file_ids)
+        photo_ids: list[str] = await state.get_value('photos')
+        photo_files = await download_photos(
+            photo_ids,
+            lambda download, count: photo_callback_handler(download, count, wait_msg, message)
+        )
+
+        video_file = None
+        video_id: str | None = await state.get_value('video')
+        video_mime = await state.get_value('video_mime')
+        if video_mime:
+            await wait_msg.edit_text(
+                get_string(
+                    message.from_user.language_code,
+                    "hype_collector.downloading_video",
+                )
+            )
+            video_file = await download_video(
+                video_id,
+                progress_callback=lambda progress: video_callback_handler(progress, wait_msg, message)
+            )
+
+        while True:
+            try:
+                await wait_msg.edit_text(get_string(
+                    message.from_user.language_code,
+                    "hype_collector.processing",
+                ))
+                break
+            except TelegramRetryAfter:
+                await sleep(1)
 
         contact = TelegramContact(**await state.get_value('contact'))
         form_id = await hype_repository.insert_form(
@@ -541,22 +649,21 @@ async def process_confirm(message: Message, state: FSMContext):
             contact.phone_number,
             contact.vcard,
             message.from_user.full_name,
-            files,
+            photo_files,
             "image/jpeg",
-            video,
+            video_file,
             video_mime
         )
-        await wait_msg.delete()
 
         medias: list[types.InputMediaPhoto | types.InputMediaVideo] = [
             types.InputMediaPhoto(media=file_id)
-            for file_id in file_ids
+            for file_id in photo_ids
         ]
-        if video:
+        if video_id:
             medias.insert(
                 0,
                 types.InputMediaVideo(
-                    media=video
+                    media=video_id
                 )
             )
         medias[-1].caption = get_string(
@@ -570,11 +677,17 @@ async def process_confirm(message: Message, state: FSMContext):
             config.chat_config.hype_chat_id,
             medias
         )
-        await message.reply(
-            get_string(
-                message.from_user.language_code,
-                'hype_collector.sent',
-                room=await state.get_value('room'),
-                author=await parse_contact(message.from_user)
-            )
-        )
+
+        while True:
+            try:
+                await wait_msg.edit_text(
+                    get_string(
+                        message.from_user.language_code,
+                        'hype_collector.sent',
+                        room=await state.get_value('room'),
+                        author=await parse_contact(message.from_user)
+                    )
+                )
+                break
+            except TelegramRetryAfter:
+                await sleep(1)
