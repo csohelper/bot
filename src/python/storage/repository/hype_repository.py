@@ -14,7 +14,8 @@ async def init_database_module() -> None:
                     username TEXT,
                     phone TEXT,
                     vcard TEXT,
-                    fullname TEXT NOT NULL
+                    fullname TEXT NOT NULL,
+                    description TEXT
                 );
             """
             logger.debug(query)
@@ -41,16 +42,17 @@ async def insert_form(
         photos_b64: list[str],
         photo_mime: str,
         video_b64: str | None,
-        video_mime: str | None
+        video_mime: str | None,
+        description: str | None
 ) -> int:
     async with database.get_db_connection() as conn:
         async with conn.cursor() as cur:
             query_form = """
-                INSERT INTO hype_forms (userid, username, phone, vcard, fullname)
-                VALUES (%s, %s, %s, %s, %s)
+                INSERT INTO hype_forms (userid, username, phone, vcard, fullname, description)
+                VALUES (%s, %s, %s, %s, %s, %s)
                 RETURNING id
             """
-            values = (userid, username, phone, vcard, fullname)
+            values = (userid, username, phone, vcard, fullname, description)
             logger.debug(query_form)
             logger.debug(values)
             await cur.execute(query_form, values)

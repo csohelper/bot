@@ -62,6 +62,7 @@ class HypeStates(StatesGroup):
     waiting_start = State()
     sending_room = State()
     sending_contact = State()
+    sending_description = State()
     sending_photos = State()
     sending_video = State()
     sending_confirm = State()
@@ -237,18 +238,51 @@ async def on_contact(message: Message, state: FSMContext):
         await state.update_data(
             contact=asdict(TelegramContact(**message.contact.__dict__))
         )
-        await state.set_state(HypeStates.sending_photos)
+        await state.set_state(HypeStates.sending_description)
         await message.reply(
             get_string(
                 message.from_user.language_code,
-                'hype_collector.send_photos'
+                'hype_collector.send_description'
             ),
             reply_markup=ReplyKeyboardBuilder().row(
+                KeyboardButton(text=get_string(
+                    message.from_user.language_code, "hype_collector.skip_description"
+                )),
                 KeyboardButton(text=get_string(
                     message.from_user.language_code, "hype_collector.cancel_button"
                 )),
             ).as_markup(resize_keyboard=True, one_time_keyboard=False)
         )
+
+
+@router.message(HypeStates.sending_description)
+async def on_description(message: Message, state: FSMContext):
+    if message.text in get_string_variants("hype_collector.cancel_button"):
+        await message.reply(
+            get_string(
+                message.from_user.language_code,
+                'hype_collector.canceled'
+            ),
+            reply_markup=ReplyKeyboardRemove()
+        )
+        await state.clear()
+    elif message.text in get_string_variants("hype_collector.skip_description"):
+        await state.update_data(description=None)
+    else:
+        await state.update_data(description=message.text)
+
+    await state.set_state(HypeStates.sending_photos)
+    await message.reply(
+        get_string(
+            message.from_user.language_code,
+            'hype_collector.send_photos'
+        ),
+        reply_markup=ReplyKeyboardBuilder().row(
+            KeyboardButton(text=get_string(
+                message.from_user.language_code, "hype_collector.cancel_button"
+            )),
+        ).as_markup(resize_keyboard=True, one_time_keyboard=False)
+    )
 
 
 @router.message(HypeStates.sending_photos, F.media_group_id, F.content_type.in_({'photo'}))
@@ -508,11 +542,16 @@ async def create_confirm(message: Message, state: FSMContext):
                 media=video
             )
         )
+    description: str | None = await state.get_value("description")
     medias[-1].caption = get_string(
         message.from_user.language_code,
         'hype_collector.preview_caption',
         room=await state.get_value('room'),
-        author=await parse_contact(message.from_user)
+        author=await parse_contact(message.from_user),
+        description=description if description else get_string(
+            message.from_user.language_code,
+            "hype_collector.without_description"
+        )
     )
     await message.reply_media_group(medias)
     await message.answer(
@@ -643,6 +682,8 @@ async def process_confirm(message: Message, state: FSMContext):
                 await sleep(1)
 
         contact = TelegramContact(**await state.get_value('contact'))
+        description: str | None = await state.get_value('description')
+
         form_id = await hype_repository.insert_form(
             message.from_user.id,
             message.from_user.username,
@@ -652,7 +693,8 @@ async def process_confirm(message: Message, state: FSMContext):
             photo_files,
             "image/jpeg",
             video_file,
-            video_mime
+            video_mime,
+            description
         )
 
         medias: list[types.InputMediaPhoto | types.InputMediaVideo] = [
@@ -671,7 +713,11 @@ async def process_confirm(message: Message, state: FSMContext):
             'hype_collector.new_form',
             room=await state.get_value('room'),
             author=await parse_contact(message.from_user),
-            id=form_id
+            id=form_id,
+            description=description if description else get_string(
+                message.from_user.language_code,
+                'hype_collector.without_description',
+            )
         )
         await _bot.send_media_group(
             config.chat_config.hype_chat_id,
