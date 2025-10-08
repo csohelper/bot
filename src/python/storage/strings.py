@@ -18,7 +18,9 @@ class LangModel(BaseModel):
 
 
 class LangsInfoModel(BaseModel):
-    default: str = Field(default='en')
+    none_lang: str = Field(default='ru')
+    unknown_lang: str = Field(default='en')
+    priority_lang: str = Field(default='ru')
     lang_files: List[LangModel] = Field(default_factory=list)
 
 
@@ -84,15 +86,17 @@ def get_string(locale: str | None, key: str, *args: str | int, **kwargs: str | i
     :param kwargs: Именованные аргументы для подстановки
     :return: Отформатированная строка, найденная в соответсвующей локали
     """
-    if locale is None or locale == __lang_info.default:
-        logger.debug(f"Requested default {locale} locale")
+
     if locale is None:
-        locale = __lang_info.default
+        logger.debug(f"Requested None -> {__lang_info.none_lang} locale")
+        locale = __lang_info.none_lang
+    if locale not in __locales.keys():
+        logger.debug(f"Requested unknown {locale} -> {__lang_info.unknown_lang} locale")
+        locale = __lang_info.unknown_lang
+
     result = __get_locale_string(locale, key, *args, **kwargs)
     if result is None and locale != __lang_info.default:
         result = __get_locale_string(__lang_info.default, key, *args, **kwargs)
-        if result is not None:
-            logger.debug(f"Using default locale for {locale}")
     if result is None:
         result = __get_locale_string("untranslatable", key, *args, **kwargs)
     return result
@@ -126,7 +130,11 @@ def list_langs() -> list[str]:
 
 def get_object(locale: str | None, key: str) -> Any | None:
     if locale is None:
-        locale = __lang_info.default
+        logger.debug(f"Requested None -> {__lang_info.none_lang} locale")
+        locale = __lang_info.none_lang
+    if locale not in __locales.keys():
+        logger.debug(f"Requested unknown {locale} -> {__lang_info.unknown_lang} locale")
+        locale = __lang_info.unknown_lang
     result = __get_locale_object(locale, key)
     if result is None and locale != __lang_info.default:
         result = __get_locale_object(__lang_info.default, key)
@@ -158,7 +166,11 @@ def __get_locale_strings(locale: str | None, path: str, *args: Any) -> list[str]
 
 def get_strings(locale: str | None, key: str, *args: Any) -> list[str] | None:
     if locale is None:
-        locale = __lang_info.default
+        logger.debug(f"Requested None -> {__lang_info.none_lang} locale")
+        locale = __lang_info.none_lang
+    if locale not in __locales.keys():
+        logger.debug(f"Requested unknown {locale} -> {__lang_info.unknown_lang} locale")
+        locale = __lang_info.unknown_lang
     result = __get_locale_strings(locale, key, *args)
     if result is None and locale != __lang_info.default:
         result = __get_locale_strings(__lang_info.default, key, *args)
