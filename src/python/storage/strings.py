@@ -84,6 +84,8 @@ def get_string(locale: str | None, key: str, *args: str | int, **kwargs: str | i
     :param kwargs: Именованные аргументы для подстановки
     :return: Отформатированная строка, найденная в соответсвующей локали
     """
+    if locale is None or locale == __lang_info.default:
+        logger.debug(f"Requested default {locale} locale")
     if locale is None:
         locale = __lang_info.default
     result = __get_locale_string(locale, key, *args, **kwargs)
@@ -91,8 +93,6 @@ def get_string(locale: str | None, key: str, *args: str | int, **kwargs: str | i
         result = __get_locale_string(__lang_info.default, key, *args, **kwargs)
         if result is not None:
             logger.debug(f"Using default locale for {locale}")
-    if locale == __lang_info.default:
-        logger.debug(f"Requested default {locale} locale")
     if result is None:
         result = __get_locale_string("untranslatable", key, *args, **kwargs)
     return result
