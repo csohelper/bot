@@ -5,7 +5,7 @@
 #       file: str - Yaml file without .yaml
 #       langs: list[str] - 2-chars lang code
 
-default: en
+default: ru
 lang_files:
   - file: en
     langs:
