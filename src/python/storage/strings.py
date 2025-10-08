@@ -95,8 +95,8 @@ def get_string(locale: str | None, key: str, *args: str | int, **kwargs: str | i
         locale = __lang_info.unknown_lang
 
     result = __get_locale_string(locale, key, *args, **kwargs)
-    if result is None and locale != __lang_info.default:
-        result = __get_locale_string(__lang_info.default, key, *args, **kwargs)
+    if result is None:
+        result = __get_locale_string(__lang_info.priority_lang, key, *args, **kwargs)
     if result is None:
         result = __get_locale_string("untranslatable", key, *args, **kwargs)
     return result
@@ -136,8 +136,8 @@ def get_object(locale: str | None, key: str) -> Any | None:
         logger.debug(f"Requested unknown {locale} -> {__lang_info.unknown_lang} locale")
         locale = __lang_info.unknown_lang
     result = __get_locale_object(locale, key)
-    if result is None and locale != __lang_info.default:
-        result = __get_locale_object(__lang_info.default, key)
+    if result is None:
+        result = __get_locale_object(__lang_info.priority_lang, key)
     if result is None:
         result = __get_locale_object("untranslatable", key)
     return result
@@ -172,8 +172,8 @@ def get_strings(locale: str | None, key: str, *args: Any) -> list[str] | None:
         logger.debug(f"Requested unknown {locale} -> {__lang_info.unknown_lang} locale")
         locale = __lang_info.unknown_lang
     result = __get_locale_strings(locale, key, *args)
-    if result is None and locale != __lang_info.default:
-        result = __get_locale_strings(__lang_info.default, key, *args)
+    if result is None:
+        result = __get_locale_strings(__lang_info.priority_lang, key, *args)
     if result is None:
         result = __get_locale_strings("untranslatable", key, *args)
     return result
