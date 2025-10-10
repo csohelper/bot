@@ -23,7 +23,7 @@ async def init_database_module() -> None:
                     status TEXT DEFAULT 'moderation'
                 )
             """
-            logger.debug(query)
+            logger.debug_db(query)
             await cur.execute(query)
             await conn.commit()
 
@@ -49,8 +49,7 @@ async def get_service_list(path: str = "/") -> list[ServiceItem]:
                 WHERE directory = %s AND status = 'published'
             """
             values = (path,)
-            logger.debug(query)
-            logger.debug(values)
+            logger.debug_db(query, values)
             await cur.execute(query, values)
             service_rows = await cur.fetchall()
 
@@ -91,8 +90,7 @@ async def get_service_list(path: str = "/") -> list[ServiceItem]:
             """ # Parameters must match placeholders
             values = (path, path, like_pattern, path, regex_pattern_current_level)
 
-            logger.debug(query)
-            logger.debug(values)
+            logger.debug_db(query, values)
 
             await cur.execute(query, values)
 
@@ -137,8 +135,7 @@ async def find_service(service_id: int) -> Service | None:
                 WHERE id = %s
             """
             values = (service_id,)
-            logger.debug(query)
-            logger.debug(values)
+            logger.debug_db(query, values)
             await cur.execute(query, values)
             row = await cur.fetchone()
 
@@ -178,8 +175,7 @@ async def create_service(service: Service) -> int | None:
                 service.image,
                 service.status
             )
-            logger.debug(query)
-            logger.debug(values)
+            logger.debug_db(query, values)
             await cur.execute(query, values)
             new_id_row = await cur.fetchone()
             await conn.commit()
@@ -214,8 +210,7 @@ async def update_service_fields(service_id: int, **fields) -> Service | None:
         RETURNING id, directory, name, cost, cost_per,
                   description, owner, image, status
     """
-    logger.debug(query)
-    logger.debug(values)
+    logger.debug_db(query, values)
 
     async with database.get_db_connection() as conn:
         async with conn.cursor() as cur:

@@ -16,7 +16,7 @@ async def init_database_module() -> None:
                     used BOOLEAN NOT NULL DEFAULT FALSE
                 )
             """
-            logger.debug(query)
+            logger.debug_db(query)
             await cur.execute(query)
             await conn.commit()
 
@@ -34,18 +34,16 @@ async def poll_anecdote() -> AnecdoteItem | None:
     async with database.get_db_connection() as conn:
         async with conn.cursor() as cur:
             query = """
-                UPDATE anecdotes
-                SET used = TRUE
-                WHERE id = (
-                    SELECT id FROM anecdotes
-                    WHERE used IS FALSE
-                    ORDER BY id ASC
-                    LIMIT 1
-                    FOR UPDATE SKIP LOCKED
-                )
-                RETURNING id, anecdote_id, original, text, used;
-            """
-            logger.debug(query)
+                    UPDATE anecdotes
+                    SET used = TRUE
+                    WHERE id = (SELECT id
+                                FROM anecdotes
+                                WHERE used IS FALSE
+                                ORDER BY id
+                                LIMIT 1 FOR UPDATE SKIP LOCKED)
+                    RETURNING id, anecdote_id, original, text, used; \
+                    """
+            logger.debug_db(query)
             await cur.execute(query)
             row = await cur.fetchone()
             if row:
@@ -65,7 +63,7 @@ async def count_unused_anecdotes() -> int:
             query = """
                 SELECT COUNT(*) FROM anecdotes WHERE used IS FALSE;
             """
-            logger.debug(query)
+            logger.debug_db(query)
             await cur.execute(query)
             (count,) = await cur.fetchone()
             return count
@@ -83,7 +81,6 @@ async def insert_anecdote(anecdote_id: int, original: str, text: str) -> None:
                     used = FALSE
             """
             values = (anecdote_id, original, text)
-            logger.debug(query)
-            logger.debug(values)
+            logger.debug_db(query, values)
             await cur.execute(query, values)
             await conn.commit()

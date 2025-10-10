@@ -47,58 +47,68 @@ def make_image_handler(echo_command: EchoCommand):
     @router.message(Command(echo_command.name))
     @router.message(TriggerFilter(echo_command.triggers))
     async def echo_command_handler(message: Message) -> None:
-        if await check_blacklisted(message):
-            return
-        if message.chat.type == "private":
-            await check_user(UserRecord(
-                message.from_user.id,
-                message.from_user.username,
-                message.from_user.full_name,
-                message.from_user.language_code,
-            ))
-        global images_caches
-        while True:
-            if (
-                    echo_command.name not in images_caches or
-                    images_caches[echo_command.name] is None or
-                    len(images_caches[echo_command.name]) == 0
-            ):
-                media = [
-                    InputMediaPhoto(
-                        media=FSInputFile(x),
-                        show_caption_above_media=echo_command.images.caption_above
-                    ) for x in echo_command.images.files
-                ]
-                media[0].caption = get_string(
+        try:
+            if await check_blacklisted(message):
+                return
+            if message.chat.type == "private":
+                await check_user(UserRecord(
+                    message.from_user.id,
+                    message.from_user.username,
+                    message.from_user.full_name,
                     message.from_user.language_code,
-                    echo_command.message_path,
-                    **build_kwargs(echo_command.times, message.from_user.language_code)
-                )
-                sent = await message.reply_media_group(media=media)
-
-                images_caches[echo_command.name] = []
-                for msg in sent:
-                    if msg.photo:
-                        largest_photo = msg.photo[-1]
-                        images_caches[echo_command.name].append(largest_photo.file_id)
-            else:
-                try:
+                ))
+            global images_caches
+            while True:
+                if (
+                        echo_command.name not in images_caches or
+                        images_caches[echo_command.name] is None or
+                        len(images_caches[echo_command.name]) == 0
+                ):
                     media = [
                         InputMediaPhoto(
-                            media=file_id,
+                            media=FSInputFile(x),
                             show_caption_above_media=echo_command.images.caption_above
-                        ) for file_id in images_caches[echo_command.name]
+                        ) for x in echo_command.images.files
                     ]
                     media[0].caption = get_string(
-                        message.from_user.language_code, echo_command.message_path,
+                        message.from_user.language_code,
+                        echo_command.message_path,
                         **build_kwargs(echo_command.times, message.from_user.language_code)
                     )
-                    await message.reply_media_group(media=media)
-                except Exception as e:
-                    logger.error(f"{e}")
+                    sent = await message.reply_media_group(media=media)
+
                     images_caches[echo_command.name] = []
-                    continue
-            break
+                    for msg in sent:
+                        if msg.photo:
+                            largest_photo = msg.photo[-1]
+                            images_caches[echo_command.name].append(largest_photo.file_id)
+                else:
+                    try:
+                        media = [
+                            InputMediaPhoto(
+                                media=file_id,
+                                show_caption_above_media=echo_command.images.caption_above
+                            ) for file_id in images_caches[echo_command.name]
+                        ]
+                        media[0].caption = get_string(
+                            message.from_user.language_code, echo_command.message_path,
+                            **build_kwargs(echo_command.times, message.from_user.language_code)
+                        )
+                        await message.reply_media_group(media=media)
+                    except Exception as e:
+                        logger.error(f"{e}")
+                        images_caches[echo_command.name] = []
+                        continue
+                break
+        except Exception as e:
+            await message.reply(
+                get_string(
+                    message.from_user.language_code,
+                    "exceptions.uncause",
+                    logger.error(e, message),
+                    config.chat_config.owner
+                )
+            )
 
     return echo_command_handler
 
@@ -107,20 +117,30 @@ def make_text_handler(echo_command: EchoCommand):
     @router.message(Command(echo_command.name))
     @router.message(TriggerFilter(echo_command.triggers))
     async def echo_command_handler(message: Message) -> None:
-        if await check_blacklisted(message):
-            return
-        if message.chat.type == "private":
-            await check_user(UserRecord(
-                message.from_user.id,
-                message.from_user.username,
-                message.from_user.full_name,
+        try:
+            if await check_blacklisted(message):
+                return
+            if message.chat.type == "private":
+                await check_user(UserRecord(
+                    message.from_user.id,
+                    message.from_user.username,
+                    message.from_user.full_name,
+                    message.from_user.language_code,
+                ))
+            await message.reply(get_string(
                 message.from_user.language_code,
+                echo_command.message_path,
+                **build_kwargs(echo_command.times, message.from_user.language_code)
             ))
-        await message.reply(get_string(
-            message.from_user.language_code,
-            echo_command.message_path,
-            **build_kwargs(echo_command.times, message.from_user.language_code)
-        ))
+        except Exception as e:
+            await message.reply(
+                get_string(
+                    message.from_user.language_code,
+                    "exceptions.uncause",
+                    logger.error(e, message),
+                    config.chat_config.owner
+                )
+            )
 
     return echo_command_handler
 
@@ -138,21 +158,31 @@ for echo_command in echo_commands:
 
 @router.message(CommandStart(deep_link=True))
 async def command_start_handler(message: Message, command: CommandObject, state: FSMContext) -> None:
-    if await check_blacklisted(message):
-        return
-    args = command.args
-    payload = decode_payload(args)
-    logger.debug(payload)
+    try:
+        if await check_blacklisted(message):
+            return
+        args = command.args
+        payload = decode_payload(args)
+        logger.debug(payload)
 
-    match payload:
-        case 'addservice':
-            await on_addservice(message, state, message.from_user.language_code)
-        case _ if payload == get_string(None, "payloads.hype_collector_start"):
-            await start_collector_command(message, state)
-        case _ if payload == get_string(None, "payloads.greeting_button"):
-            await on_accept_join_process(message, state)
-        case _:
-            logger.error(f"Can't handle start payload - Args: {args}, Payload: {payload}")
+        match payload:
+            case 'addservice':
+                await on_addservice(message, state, message.from_user.language_code)
+            case _ if payload == get_string(None, "payloads.hype_collector_start"):
+                await start_collector_command(message, state)
+            case _ if payload == get_string(None, "payloads.greeting_button"):
+                await on_accept_join_process(message, state)
+            case _:
+                logger.error(f"Can't handle start payload - Args: {args}, Payload: {payload}")
+    except Exception as e:
+        await message.reply(
+            get_string(
+                message.from_user.language_code,
+                "exceptions.uncause",
+                logger.error(e, message),
+                config.chat_config.owner
+            )
+        )
 
 
 async def in_chat(bot: Bot, chat_id: int, user_id: int) -> bool:
@@ -177,83 +207,143 @@ async def in_chat(bot: Bot, chat_id: int, user_id: int) -> bool:
 
 @router.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
-    if await check_blacklisted(message):
-        return
-    await message.reply(get_string(message.from_user.language_code, 'echo_commands.start'))
+    try:
+        if await check_blacklisted(message):
+            return
+        await message.reply(get_string(message.from_user.language_code, 'echo_commands.start'))
 
-    if message.chat.type == "private" and config.chat_config.owner == 0:
-        await message.answer(get_string(message.from_user.language_code, 'echo_commands.first_start'))
-        config.chat_config.owner = message.from_user.id
-        save_config(config)
-        return
+        if message.chat.type == "private" and config.chat_config.owner == 0:
+            await message.answer(get_string(message.from_user.language_code, 'echo_commands.first_start'))
+            config.chat_config.owner = message.from_user.id
+            save_config(config)
+            return
 
-    if await in_chat(message.bot, message.chat.id, message.from_user.id) and config.chat_config.invite_link:
-        await message.answer(get_string(
-            message.from_user.language_code, 'echo_commands.invite',
-            invite=config.chat_config.invite_link
-        ))
+        if await in_chat(message.bot, message.chat.id, message.from_user.id) and config.chat_config.invite_link:
+            await message.answer(get_string(
+                message.from_user.language_code, 'echo_commands.invite',
+                invite=config.chat_config.invite_link
+            ))
+    except Exception as e:
+        await message.reply(
+            get_string(
+                message.from_user.language_code,
+                "exceptions.uncause",
+                logger.error(e, message),
+                config.chat_config.owner
+            )
+        )
 
 
 @router.message(Command("mei"))
 @router.message(lambda message: message.text and message.text.lower() in ["мэи", "меи"])
 async def command_mei_handler(message: Message) -> None:
-    if await check_blacklisted(message):
-        return
-    await message.reply(
-        random.choice(
-            get_strings(message.from_user.language_code, 'echo_commands.mei')
+    try:
+        if await check_blacklisted(message):
+            return
+        await message.reply(
+            random.choice(
+                get_strings(message.from_user.language_code, 'echo_commands.mei')
+            )
         )
-    )
+    except Exception as e:
+        await message.reply(
+            get_string(
+                message.from_user.language_code,
+                "exceptions.uncause",
+                logger.error(e, message),
+                config.chat_config.owner
+            )
+        )
 
 
 @router.message(Command("meishniky"))
 @router.message(lambda message: message.text and message.text.lower() in ["мэишники", "меишники"])
 async def command_meishniky_handler(message: Message) -> None:
-    if await check_blacklisted(message):
-        return
-    await message.reply(
-        random.choice(
-            get_strings(message.from_user.language_code, 'echo_commands.meishniky')
+    try:
+        if await check_blacklisted(message):
+            return
+        await message.reply(
+            random.choice(
+                get_strings(message.from_user.language_code, 'echo_commands.meishniky')
+            )
         )
-    )
+    except Exception as e:
+        await message.reply(
+            get_string(
+                message.from_user.language_code,
+                "exceptions.uncause",
+                logger.error(e, message),
+                config.chat_config.owner
+            )
+        )
 
 
 @router.message(Command("mai"))
 @router.message(lambda message: message.text and message.text.lower() in ["маи"])
 async def command_mai_handler(message: Message) -> None:
-    if await check_blacklisted(message):
-        return
-    await message.reply(
-        random.choice(
-            get_strings(message.from_user.language_code, 'echo_commands.mai')
+    try:
+        if await check_blacklisted(message):
+            return
+        await message.reply(
+            random.choice(
+                get_strings(message.from_user.language_code, 'echo_commands.mai')
+            )
         )
-    )
+    except Exception as e:
+        await message.reply(
+            get_string(
+                message.from_user.language_code,
+                "exceptions.uncause",
+                logger.error(e, message),
+                config.chat_config.owner
+            )
+        )
 
 
 @router.message(Command("maishniki"))
 @router.message(lambda message: message.text and message.text.lower() in ["маишники", "маёвцы"])
 async def command_maishniky_handler(message: Message) -> None:
-    if await check_blacklisted(message):
-        return
-    await message.reply(
-        random.choice(
-            get_strings(message.from_user.language_code, 'echo_commands.maishniky')
+    try:
+        if await check_blacklisted(message):
+            return
+        await message.reply(
+            random.choice(
+                get_strings(message.from_user.language_code, 'echo_commands.maishniky')
+            )
         )
-    )
+    except Exception as e:
+        await message.reply(
+            get_string(
+                message.from_user.language_code,
+                "exceptions.uncause",
+                logger.error(e, message),
+                config.chat_config.owner
+            )
+        )
 
 
 @router.message(Command("week"))
 @router.message(lambda message: message.text and message.text.lower() in ["неделя"])
 async def command_week_handler(message: Message) -> None:
-    if await check_blacklisted(message):
-        return
-    week_number = utils.get_week_number(datetime.datetime.now())
-    await message.reply(
-        get_string(
-            message.from_user.language_code,
-            'echo_commands.week',
-            get_strings(message.from_user.language_code, 'echo_commands.week_types_up_down')[week_number % 2],
-            get_strings(message.from_user.language_code, 'echo_commands.week_types_even')[week_number % 2],
-            week_number
+    try:
+        if await check_blacklisted(message):
+            return
+        week_number = utils.get_week_number(datetime.datetime.now())
+        await message.reply(
+            get_string(
+                message.from_user.language_code,
+                'echo_commands.week',
+                get_strings(message.from_user.language_code, 'echo_commands.week_types_up_down')[week_number % 2],
+                get_strings(message.from_user.language_code, 'echo_commands.week_types_even')[week_number % 2],
+                week_number
+            )
         )
-    )
+    except Exception as e:
+        await message.reply(
+            get_string(
+                message.from_user.language_code,
+                "exceptions.uncause",
+                logger.error(e, message),
+                config.chat_config.owner
+            )
+        )

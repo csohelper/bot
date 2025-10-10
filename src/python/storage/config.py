@@ -59,6 +59,7 @@ class LoggerConfig(BaseModel):
     console_level: str = Field(default='info')
     file_level: str = Field(default='debug')
     aiogram_level: str = Field(default='info')
+    json_level: str = Field(default='error')
 
 
 class BlacklistedChat(BaseModel):

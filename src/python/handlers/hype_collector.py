@@ -1,20 +1,15 @@
 import base64
-import mimetypes
 from asyncio import sleep
 from dataclasses import dataclass, asdict
-from io import BytesIO
-from string import capwords
 from typing import Optional, List, Callable, Awaitable
 
-import aiofiles
 import aiohttp
 from aiogram import Router, Bot, F, types
 from aiogram.exceptions import TelegramBadRequest, TelegramRetryAfter
-from aiogram.filters import state
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButton, ReplyKeyboardRemove, \
-    InputMediaPhoto, InputFile, User, File
+from aiogram.types import Message, InlineKeyboardButton, KeyboardButton, ReplyKeyboardRemove, \
+    User, File
 from aiogram.utils.deep_linking import create_start_link
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 from aiogram_media_group import media_group_handler
@@ -39,23 +34,33 @@ async def init(bot_username: str, bot: Bot):
 
 @router.message(lambda message: message.text and message.text.lower() in get_all_triggers('hype_collector_greeting'))
 async def greet(message: Message):
-    await message.answer(
-        get_string(
-            None, 'hype_collector.announce',
-            date='25.10.25'
-        ),
-        reply_markup=InlineKeyboardBuilder().row(
-            InlineKeyboardButton(
-                text=get_string(None, 'hype_collector.start'),
-                url=await create_start_link(
-                    _bot,
-                    get_string(None, "payloads.hype_collector_start"),
-                    encode=True
+    try:
+        await message.answer(
+            get_string(
+                None, 'hype_collector.announce',
+                date='25.10.25'
+            ),
+            reply_markup=InlineKeyboardBuilder().row(
+                InlineKeyboardButton(
+                    text=get_string(None, 'hype_collector.start'),
+                    url=await create_start_link(
+                        _bot,
+                        get_string(None, "payloads.hype_collector_start"),
+                        encode=True
+                    )
                 )
+            ).as_markup()
+        )
+        await message.delete()
+    except Exception as e:
+        await message.reply(
+            get_string(
+                message.from_user.language_code,
+                "exceptions.uncause",
+                logger.error(e, message),
+                config.chat_config.owner
             )
-        ).as_markup()
-    )
-    await message.delete()
+        )
 
 
 class HypeStates(StatesGroup):
@@ -69,88 +74,44 @@ class HypeStates(StatesGroup):
 
 
 async def start_collector_command(message: Message, state: FSMContext):
-    await message.reply(
-        get_string(
-            message.from_user.language_code,
-            'hype_collector.greeting'
-        ),
-        reply_markup=ReplyKeyboardBuilder().row(
-            KeyboardButton(text=get_string(
-                message.from_user.language_code, "hype_collector.greeting_button"
-            )),
-            KeyboardButton(text=get_string(
-                message.from_user.language_code, "hype_collector.cancel_button"
-            )),
-        ).as_markup(resize_keyboard=True, one_time_keyboard=False)
-    )
-    await state.set_state(HypeStates.waiting_start)
+    try:
+        await message.reply(
+            get_string(
+                message.from_user.language_code,
+                'hype_collector.greeting'
+            ),
+            reply_markup=ReplyKeyboardBuilder().row(
+                KeyboardButton(text=get_string(
+                    message.from_user.language_code, "hype_collector.greeting_button"
+                )),
+                KeyboardButton(text=get_string(
+                    message.from_user.language_code, "hype_collector.cancel_button"
+                )),
+            ).as_markup(resize_keyboard=True, one_time_keyboard=False)
+        )
+        await state.set_state(HypeStates.waiting_start)
+    except Exception as e:
+        await message.reply(
+            get_string(
+                message.from_user.language_code,
+                "exceptions.uncause",
+                logger.error(e, message),
+                config.chat_config.owner
+            )
+        )
 
 
 @router.message(
     HypeStates.waiting_start
 )
 async def on_accept(message: Message, state: FSMContext) -> None:
-    if message.text in get_string_variants("hype_collector.greeting_button"):
-        await state.set_state(HypeStates.sending_room)
-        await message.reply(
-            get_string(
-                message.from_user.language_code,
-                'hype_collector.send_room'
-            ),
-            reply_markup=ReplyKeyboardBuilder().row(
-                KeyboardButton(text=get_string(
-                    message.from_user.language_code, "hype_collector.cancel_button"
-                )),
-            ).as_markup(resize_keyboard=True, one_time_keyboard=False)
-        )
-    elif message.text in get_string_variants("hype_collector.cancel_button"):
-        await message.reply(
-            get_string(
-                message.from_user.language_code,
-                'hype_collector.canceled'
-            ),
-            reply_markup=ReplyKeyboardRemove()
-        )
-        await state.clear()
-    else:
-        await message.reply(get_string(
-            message.from_user.language_code,
-            'hype_collector.greeting'
-        ))
-
-
-@router.message(
-    HypeStates.sending_room
-)
-async def on_room(message: Message, state: FSMContext):
-    if message.text in get_string_variants("hype_collector.cancel_button"):
-        await message.reply(
-            get_string(
-                message.from_user.language_code,
-                'hype_collector.canceled'
-            ),
-            reply_markup=ReplyKeyboardRemove()
-        )
-        await state.clear()
-    elif not message.text or len(message.text) != 3 or not message.text.isdigit() or int(message.text) < 0:
-        await message.reply(
-            get_string(
-                message.from_user.language_code,
-                'hype_collector.room_incorrect'
-            ),
-            reply_markup=ReplyKeyboardBuilder().row(
-                KeyboardButton(text=get_string(
-                    message.from_user.language_code, "hype_collector.cancel_button"
-                )),
-            ).as_markup(resize_keyboard=True, one_time_keyboard=False)
-        )
-    else:
-        room = int(message.text)
-        if room // 100 > 5 or room % 100 > 40:
+    try:
+        if message.text in get_string_variants("hype_collector.greeting_button"):
+            await state.set_state(HypeStates.sending_room)
             await message.reply(
                 get_string(
                     message.from_user.language_code,
-                    'hype_collector.room_not_exists'
+                    'hype_collector.send_room'
                 ),
                 reply_markup=ReplyKeyboardBuilder().row(
                     KeyboardButton(text=get_string(
@@ -158,26 +119,100 @@ async def on_room(message: Message, state: FSMContext):
                     )),
                 ).as_markup(resize_keyboard=True, one_time_keyboard=False)
             )
-            return
-
-        await state.update_data(room=room)
-        await state.set_state(HypeStates.sending_contact)
+        elif message.text in get_string_variants("hype_collector.cancel_button"):
+            await message.reply(
+                get_string(
+                    message.from_user.language_code,
+                    'hype_collector.canceled'
+                ),
+                reply_markup=ReplyKeyboardRemove()
+            )
+            await state.clear()
+        else:
+            await message.reply(get_string(
+                message.from_user.language_code,
+                'hype_collector.greeting'
+            ))
+    except Exception as e:
         await message.reply(
             get_string(
                 message.from_user.language_code,
-                'hype_collector.send_contact'
-            ),
-            reply_markup=ReplyKeyboardBuilder().row(
-                KeyboardButton(
-                    text=get_string(
-                        message.from_user.language_code, "hype_collector.send_contact_button"
-                    ),
-                    request_contact=True
+                "exceptions.uncause",
+                logger.error(e, message),
+                config.chat_config.owner
+            )
+        )
+
+
+@router.message(
+    HypeStates.sending_room
+)
+async def on_room(message: Message, state: FSMContext):
+    try:
+        if message.text in get_string_variants("hype_collector.cancel_button"):
+            await message.reply(
+                get_string(
+                    message.from_user.language_code,
+                    'hype_collector.canceled'
                 ),
-                KeyboardButton(text=get_string(
-                    message.from_user.language_code, "hype_collector.cancel_button"
-                )),
-            ).as_markup(resize_keyboard=True, one_time_keyboard=False)
+                reply_markup=ReplyKeyboardRemove()
+            )
+            await state.clear()
+        elif not message.text or len(message.text) != 3 or not message.text.isdigit() or int(message.text) < 0:
+            await message.reply(
+                get_string(
+                    message.from_user.language_code,
+                    'hype_collector.room_incorrect'
+                ),
+                reply_markup=ReplyKeyboardBuilder().row(
+                    KeyboardButton(text=get_string(
+                        message.from_user.language_code, "hype_collector.cancel_button"
+                    )),
+                ).as_markup(resize_keyboard=True, one_time_keyboard=False)
+            )
+        else:
+            room = int(message.text)
+            if room // 100 > 5 or room % 100 > 40:
+                await message.reply(
+                    get_string(
+                        message.from_user.language_code,
+                        'hype_collector.room_not_exists'
+                    ),
+                    reply_markup=ReplyKeyboardBuilder().row(
+                        KeyboardButton(text=get_string(
+                            message.from_user.language_code, "hype_collector.cancel_button"
+                        )),
+                    ).as_markup(resize_keyboard=True, one_time_keyboard=False)
+                )
+                return
+
+            await state.update_data(room=room)
+            await state.set_state(HypeStates.sending_contact)
+            await message.reply(
+                get_string(
+                    message.from_user.language_code,
+                    'hype_collector.send_contact'
+                ),
+                reply_markup=ReplyKeyboardBuilder().row(
+                    KeyboardButton(
+                        text=get_string(
+                            message.from_user.language_code, "hype_collector.send_contact_button"
+                        ),
+                        request_contact=True
+                    ),
+                    KeyboardButton(text=get_string(
+                        message.from_user.language_code, "hype_collector.cancel_button"
+                    )),
+                ).as_markup(resize_keyboard=True, one_time_keyboard=False)
+            )
+    except Exception as e:
+        await message.reply(
+            get_string(
+                message.from_user.language_code,
+                "exceptions.uncause",
+                logger.error(e, message),
+                config.chat_config.owner
+            )
         )
 
 
@@ -198,7 +233,9 @@ class TelegramContact:
     last_name: Optional[str] = None
     """*Optional*. Contact's last name"""
     user_id: Optional[int] = None
-    """*Optional*. Contact's user identifier in Telegram. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier."""
+    """*Optional*. Contact's user identifier in Telegram. This number may have more than 32 significant bits and some 
+    programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant 
+    bits, so a 64-bit integer or double-precision float type are safe for storing this identifier."""
     vcard: Optional[str] = None
     """*Optional*. Additional data about the contact in the form of a `vCard <https://en.wikipedia.org/wiki/VCard>`_"""
 
@@ -207,97 +244,117 @@ class TelegramContact:
     HypeStates.sending_contact
 )
 async def on_contact(message: Message, state: FSMContext):
-    if message.text in get_string_variants("hype_collector.cancel_button"):
-        await message.reply(
-            get_string(
-                message.from_user.language_code,
-                'hype_collector.canceled'
-            ),
-            reply_markup=ReplyKeyboardRemove()
-        )
-        await state.clear()
-    elif not message.contact:
-        await message.reply(
-            get_string(
-                message.from_user.language_code,
-                'hype_collector.send_contact'
-            ),
-            reply_markup=ReplyKeyboardBuilder().row(
-                KeyboardButton(
-                    text=get_string(
-                        message.from_user.language_code, "hype_collector.send_contact_button"
-                    ),
-                    request_contact=True
+    try:
+        if message.text in get_string_variants("hype_collector.cancel_button"):
+            await message.reply(
+                get_string(
+                    message.from_user.language_code,
+                    'hype_collector.canceled'
                 ),
-                KeyboardButton(text=get_string(
-                    message.from_user.language_code, "hype_collector.cancel_button"
-                )),
-            ).as_markup(resize_keyboard=True, one_time_keyboard=False)
-        )
-    else:
-        await state.update_data(
-            contact=asdict(TelegramContact(**message.contact.__dict__))
-        )
-        await state.set_state(HypeStates.sending_description)
+                reply_markup=ReplyKeyboardRemove()
+            )
+            await state.clear()
+        elif not message.contact:
+            await message.reply(
+                get_string(
+                    message.from_user.language_code,
+                    'hype_collector.send_contact'
+                ),
+                reply_markup=ReplyKeyboardBuilder().row(
+                    KeyboardButton(
+                        text=get_string(
+                            message.from_user.language_code, "hype_collector.send_contact_button"
+                        ),
+                        request_contact=True
+                    ),
+                    KeyboardButton(text=get_string(
+                        message.from_user.language_code, "hype_collector.cancel_button"
+                    )),
+                ).as_markup(resize_keyboard=True, one_time_keyboard=False)
+            )
+        else:
+            await state.update_data(
+                contact=asdict(TelegramContact(**message.contact.__dict__))
+            )
+            await state.set_state(HypeStates.sending_description)
+            await message.reply(
+                get_string(
+                    message.from_user.language_code,
+                    'hype_collector.send_description'
+                ),
+                reply_markup=ReplyKeyboardBuilder().row(
+                    KeyboardButton(text=get_string(
+                        message.from_user.language_code, "hype_collector.skip_description"
+                    )),
+                    KeyboardButton(text=get_string(
+                        message.from_user.language_code, "hype_collector.cancel_button"
+                    )),
+                ).as_markup(resize_keyboard=True, one_time_keyboard=False)
+            )
+    except Exception as e:
         await message.reply(
             get_string(
                 message.from_user.language_code,
-                'hype_collector.send_description'
-            ),
-            reply_markup=ReplyKeyboardBuilder().row(
-                KeyboardButton(text=get_string(
-                    message.from_user.language_code, "hype_collector.skip_description"
-                )),
-                KeyboardButton(text=get_string(
-                    message.from_user.language_code, "hype_collector.cancel_button"
-                )),
-            ).as_markup(resize_keyboard=True, one_time_keyboard=False)
+                "exceptions.uncause",
+                logger.error(e, message),
+                config.chat_config.owner
+            )
         )
 
 
 @router.message(HypeStates.sending_description)
 async def on_description(message: Message, state: FSMContext):
-    if message.text in get_string_variants("hype_collector.cancel_button"):
+    try:
+        if message.text in get_string_variants("hype_collector.cancel_button"):
+            await message.reply(
+                get_string(
+                    message.from_user.language_code,
+                    'hype_collector.canceled'
+                ),
+                reply_markup=ReplyKeyboardRemove()
+            )
+            await state.clear()
+        elif message.text in get_string_variants("hype_collector.skip_description"):
+            await state.update_data(description=None)
+        elif len(message.text) == 0:
+            await message.reply(
+                get_string(
+                    message.from_user.language_code,
+                    'hype_collector.description_empty'
+                ),
+                reply_markup=ReplyKeyboardBuilder().row(
+                    KeyboardButton(text=get_string(
+                        message.from_user.language_code, "hype_collector.skip_description"
+                    )),
+                    KeyboardButton(text=get_string(
+                        message.from_user.language_code, "hype_collector.cancel_button"
+                    )),
+                ).as_markup(resize_keyboard=True, one_time_keyboard=False)
+            )
+        else:
+            await state.update_data(description=message.text)
+
+        await state.set_state(HypeStates.sending_photos)
         await message.reply(
             get_string(
                 message.from_user.language_code,
-                'hype_collector.canceled'
-            ),
-            reply_markup=ReplyKeyboardRemove()
-        )
-        await state.clear()
-    elif message.text in get_string_variants("hype_collector.skip_description"):
-        await state.update_data(description=None)
-    elif len(message.text) == 0:
-        await message.reply(
-            get_string(
-                message.from_user.language_code,
-                'hype_collector.description_empty'
+                'hype_collector.send_photos'
             ),
             reply_markup=ReplyKeyboardBuilder().row(
-                KeyboardButton(text=get_string(
-                    message.from_user.language_code, "hype_collector.skip_description"
-                )),
                 KeyboardButton(text=get_string(
                     message.from_user.language_code, "hype_collector.cancel_button"
                 )),
             ).as_markup(resize_keyboard=True, one_time_keyboard=False)
         )
-    else:
-        await state.update_data(description=message.text)
-
-    await state.set_state(HypeStates.sending_photos)
-    await message.reply(
-        get_string(
-            message.from_user.language_code,
-            'hype_collector.send_photos'
-        ),
-        reply_markup=ReplyKeyboardBuilder().row(
-            KeyboardButton(text=get_string(
-                message.from_user.language_code, "hype_collector.cancel_button"
-            )),
-        ).as_markup(resize_keyboard=True, one_time_keyboard=False)
-    )
+    except Exception as e:
+        await message.reply(
+            get_string(
+                message.from_user.language_code,
+                "exceptions.uncause",
+                logger.error(e, message),
+                config.chat_config.owner
+            )
+        )
 
 
 @router.message(HypeStates.sending_photos, F.media_group_id, F.content_type.in_({'photo'}))
@@ -310,29 +367,39 @@ async def on_multiple_photos(messages: List[types.Message], state: FSMContext):
 
 @router.message(HypeStates.sending_photos)
 async def on_single_photo(message: Message, state: FSMContext):
-    if message.text in get_string_variants("hype_collector.cancel_button"):
+    try:
+        if message.text in get_string_variants("hype_collector.cancel_button"):
+            await message.reply(
+                get_string(
+                    message.from_user.language_code,
+                    'hype_collector.canceled'
+                ),
+                reply_markup=ReplyKeyboardRemove()
+            )
+            await state.clear()
+        elif not message.photo:
+            await message.reply(
+                get_string(
+                    message.from_user.language_code,
+                    'hype_collector.send_photos'
+                ),
+                reply_markup=ReplyKeyboardBuilder().row(
+                    KeyboardButton(text=get_string(
+                        message.from_user.language_code, "hype_collector.cancel_button"
+                    )),
+                ).as_markup(resize_keyboard=True, one_time_keyboard=False)
+            )
+        else:
+            await process_photos([message], state)
+    except Exception as e:
         await message.reply(
             get_string(
                 message.from_user.language_code,
-                'hype_collector.canceled'
-            ),
-            reply_markup=ReplyKeyboardRemove()
+                "exceptions.uncause",
+                logger.error(e, message),
+                config.chat_config.owner
+            )
         )
-        await state.clear()
-    elif not message.photo:
-        await message.reply(
-            get_string(
-                message.from_user.language_code,
-                'hype_collector.send_photos'
-            ),
-            reply_markup=ReplyKeyboardBuilder().row(
-                KeyboardButton(text=get_string(
-                    message.from_user.language_code, "hype_collector.cancel_button"
-                )),
-            ).as_markup(resize_keyboard=True, one_time_keyboard=False)
-        )
-    else:
-        await process_photos([message], state)
 
 
 async def download_photos(
@@ -391,31 +458,41 @@ async def parse_contact(from_user: User):
 
 
 async def process_photos(messages: List[types.Message], state: FSMContext):
-    await state.update_data(photos=[
-        x.photo[-1].file_id for x in messages
-    ])
-    await messages[-1].reply(
-        get_string(
-            messages[-1].from_user.language_code,
-            "hype_collector.send_video",
-            max_size=VIDEO_MAX_SIZE
-        ),
-        reply_markup=ReplyKeyboardBuilder().row(
-            KeyboardButton(
-                text=get_string(
-                    messages[-1].from_user.language_code,
-                    "hype_collector.skip_video"
-                )
+    try:
+        await state.update_data(photos=[
+            x.photo[-1].file_id for x in messages
+        ])
+        await messages[-1].reply(
+            get_string(
+                messages[-1].from_user.language_code,
+                "hype_collector.send_video",
+                max_size=VIDEO_MAX_SIZE
             ),
-            KeyboardButton(
-                text=get_string(
-                    messages[-1].from_user.language_code,
-                    "hype_collector.cancel_button"
-                )
-            ),
-        ).as_markup(resize_keyboard=True, one_time_keyboard=False)
-    )
-    await state.set_state(HypeStates.sending_video)
+            reply_markup=ReplyKeyboardBuilder().row(
+                KeyboardButton(
+                    text=get_string(
+                        messages[-1].from_user.language_code,
+                        "hype_collector.skip_video"
+                    )
+                ),
+                KeyboardButton(
+                    text=get_string(
+                        messages[-1].from_user.language_code,
+                        "hype_collector.cancel_button"
+                    )
+                ),
+            ).as_markup(resize_keyboard=True, one_time_keyboard=False)
+        )
+        await state.set_state(HypeStates.sending_video)
+    except Exception as e:
+        await messages[-1].reply(
+            get_string(
+                messages[-1].from_user.language_code,
+                "exceptions.uncause",
+                logger.error(e, messages[-1]),
+                config.chat_config.owner
+            )
+        )
 
 
 VIDEO_MAX_SIZE = 128
@@ -478,167 +555,112 @@ async def download_video(file_id: str | None,
 
 @router.message(HypeStates.sending_video)
 async def process_video(message: Message, state: FSMContext):
-    if message.text in get_string_variants("hype_collector.cancel_button"):
+    try:
+        if message.text in get_string_variants("hype_collector.cancel_button"):
+            await message.reply(
+                get_string(
+                    message.from_user.language_code,
+                    'hype_collector.canceled'
+                ),
+                reply_markup=ReplyKeyboardRemove()
+            )
+            await state.clear()
+        elif message.text in get_string_variants("hype_collector.skip_video"):
+            await state.update_data(video=None)
+        elif not message.video:
+            await message.reply(
+                get_string(
+                    message.from_user.language_code,
+                    "hype_collector.send_video",
+                    max_size=VIDEO_MAX_SIZE
+                ),
+                reply_markup=ReplyKeyboardBuilder().row(
+                    KeyboardButton(
+                        text=get_string(
+                            message.from_user.language_code,
+                            "hype_collector.skip_video"
+                        )
+                    ),
+                    KeyboardButton(
+                        text=get_string(
+                            message.from_user.language_code,
+                            "hype_collector.cancel_button"
+                        )
+                    ),
+                ).as_markup(resize_keyboard=True, one_time_keyboard=False)
+            )
+            return
+        elif message.video.file_size / 1048576 > VIDEO_MAX_SIZE:
+            await message.reply(
+                get_string(
+                    message.from_user.language_code,
+                    "hype_collector.big_video",
+                    max_size=VIDEO_MAX_SIZE
+                ),
+                reply_markup=ReplyKeyboardBuilder().row(
+                    KeyboardButton(
+                        text=get_string(
+                            message.from_user.language_code,
+                            "hype_collector.skip_video"
+                        )
+                    ),
+                    KeyboardButton(
+                        text=get_string(
+                            message.from_user.language_code,
+                            "hype_collector.cancel_button"
+                        )
+                    ),
+                ).as_markup(resize_keyboard=True, one_time_keyboard=False)
+            )
+            return
+        else:
+            await state.update_data(video_mime=message.video.mime_type)
+            await state.update_data(video=message.video.file_id)
+        await state.set_state(HypeStates.sending_confirm)
+        await create_confirm(message, state)
+    except Exception as e:
         await message.reply(
             get_string(
                 message.from_user.language_code,
-                'hype_collector.canceled'
-            ),
-            reply_markup=ReplyKeyboardRemove()
+                "exceptions.uncause",
+                logger.error(e, message),
+                config.chat_config.owner
+            )
         )
-        await state.clear()
-    elif message.text in get_string_variants("hype_collector.skip_video"):
-        await state.update_data(video=None)
-    elif not message.video:
-        await message.reply(
-            get_string(
-                message.from_user.language_code,
-                "hype_collector.send_video",
-                max_size=VIDEO_MAX_SIZE
-            ),
-            reply_markup=ReplyKeyboardBuilder().row(
-                KeyboardButton(
-                    text=get_string(
-                        message.from_user.language_code,
-                        "hype_collector.skip_video"
-                    )
-                ),
-                KeyboardButton(
-                    text=get_string(
-                        message.from_user.language_code,
-                        "hype_collector.cancel_button"
-                    )
-                ),
-            ).as_markup(resize_keyboard=True, one_time_keyboard=False)
-        )
-        return
-    elif message.video.file_size / 1048576 > VIDEO_MAX_SIZE:
-        await message.reply(
-            get_string(
-                message.from_user.language_code,
-                "hype_collector.big_video",
-                max_size=VIDEO_MAX_SIZE
-            ),
-            reply_markup=ReplyKeyboardBuilder().row(
-                KeyboardButton(
-                    text=get_string(
-                        message.from_user.language_code,
-                        "hype_collector.skip_video"
-                    )
-                ),
-                KeyboardButton(
-                    text=get_string(
-                        message.from_user.language_code,
-                        "hype_collector.cancel_button"
-                    )
-                ),
-            ).as_markup(resize_keyboard=True, one_time_keyboard=False)
-        )
-        return
-    else:
-        await state.update_data(video_mime=message.video.mime_type)
-        await state.update_data(video=message.video.file_id)
-    await state.set_state(HypeStates.sending_confirm)
-    await create_confirm(message, state)
 
 
 async def create_confirm(message: Message, state: FSMContext):
-    photo_ids: list[str] = await state.get_value("photos")
-    medias: list[types.InputMediaPhoto | types.InputMediaVideo] = [
-        types.InputMediaPhoto(media=file_id)
-        for file_id in photo_ids
-    ]
+    try:
+        photo_ids: list[str] = await state.get_value("photos")
+        medias: list[types.InputMediaPhoto | types.InputMediaVideo] = [
+            types.InputMediaPhoto(media=file_id)
+            for file_id in photo_ids
+        ]
 
-    video = await state.get_value("video")
-    if video:
-        medias.insert(
-            0,
-            types.InputMediaVideo(
-                media=video
+        video = await state.get_value("video")
+        if video:
+            medias.insert(
+                0,
+                types.InputMediaVideo(
+                    media=video
+                )
+            )
+        description: str | None = await state.get_value("description")
+        medias[-1].caption = get_string(
+            message.from_user.language_code,
+            'hype_collector.preview_caption',
+            room=await state.get_value('room'),
+            author=await parse_contact(message.from_user),
+            description=description if description else get_string(
+                message.from_user.language_code,
+                "hype_collector.without_description"
             )
         )
-    description: str | None = await state.get_value("description")
-    medias[-1].caption = get_string(
-        message.from_user.language_code,
-        'hype_collector.preview_caption',
-        room=await state.get_value('room'),
-        author=await parse_contact(message.from_user),
-        description=description if description else get_string(
-            message.from_user.language_code,
-            "hype_collector.without_description"
-        )
-    )
-    await message.reply_media_group(medias)
-    await message.answer(
-        get_string(
-            message.from_user.language_code,
-            'hype_collector.send_confirm'
-        ),
-        reply_markup=ReplyKeyboardBuilder().row(
-            KeyboardButton(text=get_string(
-                message.from_user.language_code, "hype_collector.send_button"
-            )),
-            KeyboardButton(text=get_string(
-                message.from_user.language_code, "hype_collector.cancel_button"
-            ))
-        ).as_markup(resize_keyboard=True, one_time_keyboard=False)
-    )
-
-
-async def video_callback_handler(percentage: int, wait_msg: Message, user_message: Message) -> None:
-    """
-    Coroutine to handle download progress updates by editing wait_msg or sending a new message if editing fails.
-    """
-    if percentage % 5 != 0 or percentage < 2:
-        return
-    text = get_string(
-        user_message.from_user.language_code,
-        "hype_collector.downloading_video_progress",
-        progress=percentage
-    )
-    try:
-        await wait_msg.edit_text(text)
-    except TelegramRetryAfter:
-        pass
-    except TelegramBadRequest as e:
-        logger.error(f"Cannot edit message: {e}")
-
-
-async def photo_callback_handler(download: int, count: int, wait_msg: Message, user_message: Message) -> None:
-    """
-    Coroutine to handle download progress updates by editing wait_msg or sending a new message if editing fails.
-    """
-    text = get_string(
-        user_message.from_user.language_code,
-        "hype_collector.downloading_photo_progress",
-        download, count
-    )
-    try:
-        await wait_msg.edit_text(text)
-    except TelegramRetryAfter:
-        pass
-    except TelegramBadRequest as e:
-        logger.error(f"Cannot edit message: {e}")
-
-
-@router.message(HypeStates.sending_confirm)
-async def process_confirm(message: Message, state: FSMContext):
-    if message.text in get_string_variants("hype_collector.cancel_button"):
-        await message.reply(
+        await message.reply_media_group(medias)
+        await message.answer(
             get_string(
                 message.from_user.language_code,
-                'hype_collector.canceled'
-            ),
-            reply_markup=ReplyKeyboardRemove()
-        )
-        await state.clear()
-    elif message.text not in get_string_variants("hype_collector.send_button"):
-        await message.reply(
-            get_string(
-                message.from_user.language_code,
-                'hype_collector.sent_confirm',
-                room=await state.get_value('room'),
-                author=await parse_contact(message.from_user)
+                'hype_collector.send_confirm'
             ),
             reply_markup=ReplyKeyboardBuilder().row(
                 KeyboardButton(text=get_string(
@@ -649,106 +671,211 @@ async def process_confirm(message: Message, state: FSMContext):
                 ))
             ).as_markup(resize_keyboard=True, one_time_keyboard=False)
         )
-    else:
-        wait_msg = await message.reply(
+    except Exception as e:
+        await message.reply(
             get_string(
                 message.from_user.language_code,
-                "hype_collector.processing",
-            ),
-            reply_markup=ReplyKeyboardRemove()
-        )
-        await wait_msg.delete()
-        wait_msg = await message.reply(
-            get_string(
-                message.from_user.language_code,
-                "hype_collector.downloading_photo",
+                "exceptions.uncause",
+                logger.error(e, message),
+                config.chat_config.owner
             )
         )
 
-        photo_ids: list[str] = await state.get_value('photos')
-        photo_files = await download_photos(
-            photo_ids,
-            lambda download, count: photo_callback_handler(download, count, wait_msg, message)
+
+async def video_callback_handler(percentage: int, wait_msg: Message, user_message: Message) -> None:
+    try:
+        """
+        Coroutine to handle download progress updates by editing wait_msg or sending a new message if editing fails.
+        """
+        if percentage % 5 != 0 or percentage < 2:
+            return
+        text = get_string(
+            user_message.from_user.language_code,
+            "hype_collector.downloading_video_progress",
+            progress=percentage
+        )
+        try:
+            await wait_msg.edit_text(text)
+        except TelegramRetryAfter:
+            pass
+        except TelegramBadRequest as e:
+            logger.error(f"Cannot edit message: {e}")
+    except Exception as e:
+        await user_message.reply(
+            get_string(
+                user_message.from_user.language_code,
+                "exceptions.uncause",
+                logger.error(e, user_message),
+                config.chat_config.owner
+            )
         )
 
-        video_file = None
-        video_id: str | None = await state.get_value('video')
-        video_mime = await state.get_value('video_mime')
-        if video_mime:
-            await wait_msg.edit_text(
+
+async def photo_callback_handler(download: int, count: int, wait_msg: Message, user_message: Message) -> None:
+    """
+    Coroutine to handle download progress updates by editing wait_msg or sending a new message if editing fails.
+    """
+    try:
+        text = get_string(
+            user_message.from_user.language_code,
+            "hype_collector.downloading_photo_progress",
+            download, count
+        )
+        try:
+            await wait_msg.edit_text(text)
+        except TelegramRetryAfter:
+            pass
+        except TelegramBadRequest as e:
+            logger.error(f"Cannot edit message: {e}")
+    except Exception as e:
+        await user_message.reply(
+            get_string(
+                user_message.from_user.language_code,
+                "exceptions.uncause",
+                logger.error(e, user_message),
+                config.chat_config.owner
+            )
+        )
+
+
+@router.message(HypeStates.sending_confirm)
+async def process_confirm(message: Message, state: FSMContext):
+    try:
+        if message.text in get_string_variants("hype_collector.cancel_button"):
+            await message.reply(
                 get_string(
                     message.from_user.language_code,
-                    "hype_collector.downloading_video",
-                )
+                    'hype_collector.canceled'
+                ),
+                reply_markup=ReplyKeyboardRemove()
             )
-            video_file = await download_video(
-                video_id,
-                progress_callback=lambda progress: video_callback_handler(progress, wait_msg, message)
+            await state.clear()
+        elif message.text not in get_string_variants("hype_collector.send_button"):
+            await message.reply(
+                get_string(
+                    message.from_user.language_code,
+                    'hype_collector.sent_confirm',
+                    room=await state.get_value('room'),
+                    author=await parse_contact(message.from_user)
+                ),
+                reply_markup=ReplyKeyboardBuilder().row(
+                    KeyboardButton(text=get_string(
+                        message.from_user.language_code, "hype_collector.send_button"
+                    )),
+                    KeyboardButton(text=get_string(
+                        message.from_user.language_code, "hype_collector.cancel_button"
+                    ))
+                ).as_markup(resize_keyboard=True, one_time_keyboard=False)
             )
-
-        while True:
-            try:
-                await wait_msg.edit_text(get_string(
+        else:
+            wait_msg = await message.reply(
+                get_string(
                     message.from_user.language_code,
                     "hype_collector.processing",
-                ))
-                break
-            except TelegramRetryAfter:
-                await sleep(1)
-
-        contact = TelegramContact(**await state.get_value('contact'))
-        description: str | None = await state.get_value('description')
-
-        form_id = await hype_repository.insert_form(
-            message.from_user.id,
-            message.from_user.username,
-            contact.phone_number,
-            contact.vcard,
-            message.from_user.full_name,
-            photo_files,
-            "image/jpeg",
-            video_file,
-            video_mime,
-            description
-        )
-
-        medias: list[types.InputMediaPhoto | types.InputMediaVideo] = [
-            types.InputMediaPhoto(media=file_id)
-            for file_id in photo_ids
-        ]
-        if video_id:
-            medias.insert(
-                0,
-                types.InputMediaVideo(
-                    media=video_id
+                ),
+                reply_markup=ReplyKeyboardRemove()
+            )
+            await wait_msg.delete()
+            wait_msg = await message.reply(
+                get_string(
+                    message.from_user.language_code,
+                    "hype_collector.downloading_photo",
                 )
             )
-        medias[-1].caption = get_string(
-            message.from_user.language_code,
-            'hype_collector.new_form',
-            room=await state.get_value('room'),
-            author=await parse_contact(message.from_user),
-            id=form_id,
-            description=description if description else get_string(
-                message.from_user.language_code,
-                'hype_collector.without_description',
-            )
-        )
-        await _bot.send_media_group(
-            config.chat_config.hype_chat_id,
-            medias
-        )
 
-        while True:
-            try:
+            photo_ids: list[str] = await state.get_value('photos')
+            photo_files = await download_photos(
+                photo_ids,
+                lambda download, count: photo_callback_handler(download, count, wait_msg, message)
+            )
+
+            video_file = None
+            video_id: str | None = await state.get_value('video')
+            video_mime = await state.get_value('video_mime')
+            if video_mime:
                 await wait_msg.edit_text(
                     get_string(
                         message.from_user.language_code,
-                        'hype_collector.sent',
-                        room=await state.get_value('room'),
-                        author=await parse_contact(message.from_user)
+                        "hype_collector.downloading_video",
                     )
                 )
-                break
-            except TelegramRetryAfter:
-                await sleep(1)
+                video_file = await download_video(
+                    video_id,
+                    progress_callback=lambda progress: video_callback_handler(progress, wait_msg, message)
+                )
+
+            while True:
+                try:
+                    await wait_msg.edit_text(get_string(
+                        message.from_user.language_code,
+                        "hype_collector.processing",
+                    ))
+                    break
+                except TelegramRetryAfter:
+                    await sleep(1)
+
+            contact = TelegramContact(**await state.get_value('contact'))
+            description: str | None = await state.get_value('description')
+
+            form_id = await hype_repository.insert_form(
+                message.from_user.id,
+                message.from_user.username,
+                contact.phone_number,
+                contact.vcard,
+                message.from_user.full_name,
+                photo_files,
+                "image/jpeg",
+                video_file,
+                video_mime,
+                description
+            )
+
+            medias: list[types.InputMediaPhoto | types.InputMediaVideo] = [
+                types.InputMediaPhoto(media=file_id)
+                for file_id in photo_ids
+            ]
+            if video_id:
+                medias.insert(
+                    0,
+                    types.InputMediaVideo(
+                        media=video_id
+                    )
+                )
+            medias[-1].caption = get_string(
+                message.from_user.language_code,
+                'hype_collector.new_form',
+                room=await state.get_value('room'),
+                author=await parse_contact(message.from_user),
+                id=form_id,
+                description=description if description else get_string(
+                    message.from_user.language_code,
+                    'hype_collector.without_description',
+                )
+            )
+            await _bot.send_media_group(
+                config.chat_config.hype_chat_id,
+                medias
+            )
+
+            while True:
+                try:
+                    await wait_msg.edit_text(
+                        get_string(
+                            message.from_user.language_code,
+                            'hype_collector.sent',
+                            room=await state.get_value('room'),
+                            author=await parse_contact(message.from_user)
+                        )
+                    )
+                    break
+                except TelegramRetryAfter:
+                    await sleep(1)
+    except Exception as e:
+        await message.reply(
+            get_string(
+                message.from_user.language_code,
+                "exceptions.uncause",
+                logger.error(e, message),
+                config.chat_config.owner
+            )
+        )
