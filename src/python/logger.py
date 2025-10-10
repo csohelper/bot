@@ -142,59 +142,55 @@ class AppLogger:
 
     def _log(self, level: int, msg: Any, *args, **kwargs) -> str:
         """
-        Core logging function.
-        Accepts arbitrary data, detects Exception automatically.
+        Core logging method.
+        Accepts any objects in msg, *args, and **kwargs.
+        Detects exceptions automatically, even if multiple arguments are provided.
         """
         log_id = str(uuid.uuid4())
-
-        # Core context container
         context: dict[str, Any] = {"uuid": log_id}
 
-        # Detect Exception objects among args/kwargs
-        detected_exc = None
+        detected_exc: BaseException | None = None
+        extra_objects: list[Any] = []
 
-        # Scan *args for exceptions
-        clean_args = []
+        # Detect exceptions among args
         for a in args:
             if isinstance(a, BaseException):
                 detected_exc = a
             else:
-                clean_args.append(a)
+                extra_objects.append(a)
 
-        # Scan kwargs for exceptions
-        for k, v in list(kwargs.items()):
-            if isinstance(v, BaseException):
-                detected_exc = v
-                kwargs.pop(k)
+        # Detect exceptions in kwargs (rare but allowed)
+        for key, value in list(kwargs.items()):
+            if isinstance(value, BaseException):
+                detected_exc = value
+                kwargs.pop(key)
 
-        # If message itself is an exception
+        # Detect exception if msg itself is one
         if isinstance(msg, BaseException):
             detected_exc = msg
             msg = str(msg)
 
-        # Extract traceback if exception detected
+        # Build exception block if found
         if detected_exc is not None:
             exc_type = type(detected_exc)
-            exc_value = detected_exc
             exc_tb = detected_exc.__traceback__
-            tb_formatted = traceback.format_exception(exc_type, exc_value, exc_tb)
-
             context["exception"] = {
                 "type": exc_type.__name__,
-                "message": str(exc_value),
-                "traceback": tb_formatted,
+                "message": str(detected_exc),
+                "traceback": traceback.format_exception(exc_type, detected_exc, exc_tb),
             }
 
-        # Merge args/kwargs into context
-        if clean_args:
-            context["args"] = clean_args
+        # Include remaining args and kwargs
+        if extra_objects:
+            context["args"] = extra_objects
         if kwargs:
             context["kwargs"] = kwargs
 
-        # Log the record
+        # Log the message
         self._logger.log(level, str(msg), extra={"context": context})
         return log_id
 
+    # --- Public wrappers ---
     def debug(self, msg: Any, *args, **kwargs) -> str:
         return self._log(logging.DEBUG, msg, *args, **kwargs)
 
