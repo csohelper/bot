@@ -25,6 +25,7 @@ class ChatConfig(BaseModel):
     hype_chat_id: int = Field(default=-1000000000000)
     admin_lang: str = Field(default="ru")
     default_lang: str = Field(default="en")
+    invite_link: str = Field(default=None)
 
 
 class TelegramConfig(BaseModel):

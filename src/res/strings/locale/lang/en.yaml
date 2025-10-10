@@ -37,6 +37,9 @@ echo_commands:
     Hello!
     This is a dormitory reference bot for chat and local use.
     The list of available commands is available with the command <b>Commands</b> (or /help)
+  invite: |
+    You are not a member of the 1st MTUCI dormitory chat. You can submit an application using this <a href="{invite}">link</a>.
+    After submitting, the bot will automatically respond to your request.
   first_start: |
     Since you are the first one to start the bot, you have been added as a chat administrator
   help: |

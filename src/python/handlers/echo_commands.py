@@ -2,10 +2,12 @@ import datetime
 import random
 from typing import List
 
-from aiogram import Router
+from aiogram import Router, Bot
+from aiogram.enums import ChatMemberStatus
+from aiogram.exceptions import TelegramAPIError
 from aiogram.filters import Command, CommandStart, CommandObject, BaseFilter
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, InputMediaPhoto, FSInputFile
+from aiogram.types import Message, InputMediaPhoto, FSInputFile, ChatMemberRestricted
 from aiogram.utils.payload import decode_payload
 
 from .hype_collector import start_collector_command
@@ -153,6 +155,26 @@ async def command_start_handler(message: Message, command: CommandObject, state:
             logger.error(f"Can't handle start payload - Args: {args}, Payload: {payload}")
 
 
+async def in_chat(bot: Bot, chat_id: int, user_id: int) -> bool:
+    """
+    Проверяет, состоит ли пользователь в чате.
+    Возвращает True, если пользователь сейчас в чате (любым статусом, кроме left/kicked).
+    Возвращает False, если его нет, он забанен, вышел или никогда не был.
+    """
+    try:
+        m = await bot.get_chat_member(chat_id, user_id)
+    except TelegramAPIError:
+        # сюда попадём, если пользователь никогда не был в чате
+        # или бот не имеет доступа к информации
+        return False
+
+    if m.status in (ChatMemberStatus.LEFT, ChatMemberStatus.KICKED):
+        return False
+    if isinstance(m, ChatMemberRestricted):
+        return m.is_member
+    return True
+
+
 @router.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
     if await check_blacklisted(message):
@@ -164,6 +186,12 @@ async def command_start_handler(message: Message) -> None:
         config.chat_config.owner = message.from_user.id
         save_config(config)
         return
+
+    if await in_chat(message.bot, message.chat.id, message.from_user.id) and config.chat_config.invite_link:
+        await message.answer(get_string(
+            message.from_user.language_code, 'echo_commands.invite',
+            invite=config.chat_config.invite_link
+        ))
 
 
 @router.message(Command("mei"))
