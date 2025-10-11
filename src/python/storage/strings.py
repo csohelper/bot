@@ -75,7 +75,7 @@ def __get_locale_string(locale: str, key: str, *args: Any, **kwargs: Any) -> str
         raise RuntimeError("Isn't string")
 
 
-def get_string(locale: str | None, key: str, *args: str | int, **kwargs: str | int) -> str | None:
+def get_string(locale: str | None, key: str, *args: str | int | float | None, **kwargs: str | int) -> str | None:
     """
     Получает строку по пути в локализации и подставляет переданные аргументы.
     Если не будет найдена - будет возвращено из default локали

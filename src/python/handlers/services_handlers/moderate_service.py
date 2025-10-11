@@ -1,3 +1,4 @@
+import asyncio
 import base64
 import io
 
@@ -9,6 +10,8 @@ from aiogram.types import FSInputFile, BufferedInputFile, InlineKeyboardButton, 
     ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 
+from python.handlers.echo_commands import check_and_delete_after
+from python.logger import logger
 from python.storage.repository import services_repository
 from python.storage.config import config
 from python.storage.repository.services_repository import Service
@@ -70,11 +73,11 @@ def create_caption(lang: str, service: Service, author_name: str) -> str:
     status = "unknown"
     match service.status:
         case "moderation":
-            status = get_string(lang,"services.moderation.status.moderation")
+            status = get_string(lang, "services.moderation.status.moderation")
         case "published":
-            status = get_string(lang,"services.moderation.status.accept")
+            status = get_string(lang, "services.moderation.status.accept")
         case "refused":
-            status = get_string(lang,"services.moderation.status.reject")
+            status = get_string(lang, "services.moderation.status.reject")
     if service.directory != "/":
         category_footer = get_string(
             lang,
@@ -105,7 +108,7 @@ async def send_to_moderation(service: Service, sender_name: str, sender_lang) ->
     reply = await _bot.send_photo(
         chat_id=config.chat_config.admin_chat_id,
         photo=media,
-        caption=create_caption(config.admin_lang,service, sender_name),
+        caption=create_caption(config.admin_lang, service, sender_name),
         reply_markup=InlineKeyboardBuilder().row(InlineKeyboardButton(
             text='📂Установить категорию',
             callback_data='.'
@@ -135,31 +138,43 @@ async def callbacks_moderate_buttons(
         callback_data: ModerateCallbackFactory,
         state: FSMContext
 ) -> None:
-    if not callback.message:
-        return
-    match callback_data.action:
-        case 'set_category':
-            await callback.message.answer(
-                get_string(callback.from_user.language_code,"services.moderation.setting_category"),
-                reply_markup=category_markup()
+    try:
+        if not callback.message:
+            return
+        match callback_data.action:
+            case 'set_category':
+                await callback.message.answer(
+                    get_string(callback.from_user.language_code, "services.moderation.setting_category"),
+                    reply_markup=category_markup()
+                )
+                await state.update_data(callback_data=callback_data.pack())
+                await state.set_state(ModerateStates.choosing_category)
+            case 'refuse':
+                await callback.message.answer(
+                    text=get_string(callback.from_user.language_code, "services.moderation.refuse"),
+                    reply_markup=reject_markup()
+                )
+                await state.update_data(callback_data=callback_data.pack())
+                await state.set_state(ModerateStates.refusing)
+            case 'accept':
+                await callback.message.answer(
+                    text=get_string(callback.from_user.language_code, "services.moderation.accepting"),
+                    reply_markup=accept_markup()
+                )
+                await state.update_data(callback_data=callback_data.pack())
+                await state.set_state(ModerateStates.accept)
+        await callback.answer()
+    except Exception as e:
+        asyncio.create_task(check_and_delete_after(
+            await callback.reply(
+                get_string(
+                    callback.from_user.language_code,
+                    "exceptions.uncause",
+                    logger.error(e, callback),
+                    config.chat_config.owner
+                )
             )
-            await state.update_data(callback_data=callback_data.pack())
-            await state.set_state(ModerateStates.choosing_category)
-        case 'refuse':
-            await callback.message.answer(
-                text=get_string(callback.from_user.language_code,"services.moderation.refuse"),
-                reply_markup=reject_markup()
-            )
-            await state.update_data(callback_data=callback_data.pack())
-            await state.set_state(ModerateStates.refusing)
-        case 'accept':
-            await callback.message.answer(
-                text=get_string(callback.from_user.language_code,"services.moderation.accepting"),
-                reply_markup=accept_markup()
-            )
-            await state.update_data(callback_data=callback_data.pack())
-            await state.set_state(ModerateStates.accept)
-    await callback.answer()
+        ))
 
 
 def category_markup() -> ReplyKeyboardMarkup:
@@ -186,139 +201,177 @@ def reject_markup() -> ReplyKeyboardMarkup:
     ModerateStates.choosing_category
 )
 async def on_category_chosen(message: Message, state: FSMContext) -> None:
-    callback_data: ModerateCallbackFactory = ModerateCallbackFactory.unpack(
-        await state.get_value("callback_data")
-    )
-    if message.text is None or len(message.text) == 0:
-        await message.answer(get_string(message.from_user.language_code,"services.moderation.empty_category"))
-        return
-    if message.text == "🚫Отмена":
-        await message.reply(
-            get_string(message.from_user.language_code,"services.moderation.category_cancel"),
-            reply_markup=ReplyKeyboardRemove()
+    try:
+        callback_data: ModerateCallbackFactory = ModerateCallbackFactory.unpack(
+            await state.get_value("callback_data")
         )
+        if message.text is None or len(message.text) == 0:
+            await message.answer(get_string(message.from_user.language_code, "services.moderation.empty_category"))
+            return
+        if message.text == "🚫Отмена":
+            await message.reply(
+                get_string(message.from_user.language_code, "services.moderation.category_cancel"),
+                reply_markup=ReplyKeyboardRemove()
+            )
+            await state.clear()
+            return
+        update_service = await services_repository.update_service_fields(
+            callback_data.service_id, directory="/" + message.text.strip().strip("/").strip()
+        )
+        await message.reply(get_string(message.from_user.language_code, "services.moderation.category_set"),
+                            reply_markup=ReplyKeyboardRemove())
         await state.clear()
-        return
-    update_service = await services_repository.update_service_fields(
-        callback_data.service_id, directory="/" + message.text.strip().strip("/").strip()
-    )
-    await message.reply(get_string(message.from_user.language_code,"services.moderation.category_set"), reply_markup=ReplyKeyboardRemove())
-    await state.clear()
-    await _bot.edit_message_caption(
-        chat_id=message.chat.id,
-        message_id=callback_data.original_msg,
-        caption=create_caption(
-            config.admin_lang,
-            update_service,
-            callback_data.author_name
-        ),
-        reply_markup=create_markup(
-            service_id=update_service.id,
-            author_name=callback_data.author_name,
-            original_msg=callback_data.original_msg,
-            author_lang=config.admin_lang
+        await _bot.edit_message_caption(
+            chat_id=message.chat.id,
+            message_id=callback_data.original_msg,
+            caption=create_caption(
+                config.admin_lang,
+                update_service,
+                callback_data.author_name
+            ),
+            reply_markup=create_markup(
+                service_id=update_service.id,
+                author_name=callback_data.author_name,
+                original_msg=callback_data.original_msg,
+                author_lang=config.admin_lang
+            )
         )
-    )
+    except Exception as e:
+        asyncio.create_task(check_and_delete_after(
+            message, await message.reply(
+                get_string(
+                    message.from_user.language_code,
+                    "exceptions.uncause",
+                    logger.error(e, message),
+                    config.chat_config.owner
+                )
+            )
+        ))
 
 
 @router.message(
     ModerateStates.refusing
 )
 async def on_reject_chosen(message: Message, state: FSMContext) -> None:
-    callback_data: ModerateCallbackFactory = ModerateCallbackFactory.unpack(
-        await state.get_value("callback_data")
-    )
-    if message.text is None or len(message.text) == 0:
-        await message.answer(
-            get_string(message.from_user.language_code,"services.moderation.empty_refuse"),
-            reply_markup=reject_markup()
+    try:
+        callback_data: ModerateCallbackFactory = ModerateCallbackFactory.unpack(
+            await state.get_value("callback_data")
         )
-        return
-    if message.text == '🚫Отмена':
-        await message.reply(
-            get_string(message.from_user.language_code,"services.moderation.refuse_cancel"),
-            reply_markup=ReplyKeyboardRemove()
+        if message.text is None or len(message.text) == 0:
+            await message.answer(
+                get_string(message.from_user.language_code, "services.moderation.empty_refuse"),
+                reply_markup=reject_markup()
+            )
+            return
+        if message.text == '🚫Отмена':
+            await message.reply(
+                get_string(message.from_user.language_code, "services.moderation.refuse_cancel"),
+                reply_markup=ReplyKeyboardRemove()
+            )
+            await state.clear()
+            return
+        update_service = await services_repository.update_service_fields(
+            callback_data.service_id, status='refused'
         )
+        if message.text == '🖼️Без описания':
+            await _bot.send_message(
+                update_service.owner,
+                get_string(
+                    message.from_user.language_code,
+                    "services.moderation.refused_message",
+                    update_service.name
+                )
+            )
+        else:
+            await _bot.send_message(
+                update_service.owner,
+                get_string(
+                    message.from_user.language_code,
+                    "services.moderation.refused_message_text",
+                    update_service.name, message.text
+                )
+            )
+        await message.reply(get_string(message.from_user.language_code, "services.moderation.refuse_confirm"),
+                            reply_markup=ReplyKeyboardRemove())
         await state.clear()
-        return
-    update_service = await services_repository.update_service_fields(
-        callback_data.service_id, status='refused'
-    )
-    if message.text == '🖼️Без описания':
-        await _bot.send_message(
-            update_service.owner,
-            get_string(
-                message.from_user.language_code,
-                "services.moderation.refused_message",
-                update_service.name
+        await _bot.edit_message_caption(
+            chat_id=message.chat.id,
+            message_id=callback_data.original_msg,
+            caption=create_caption(
+                config.admin_lang,
+                update_service,
+                callback_data.author_name
             )
         )
-    else:
-        await _bot.send_message(
-            update_service.owner,
-            get_string(
-                message.from_user.language_code,
-                "services.moderation.refused_message_text",
-                update_service.name, message.text
+    except Exception as e:
+        asyncio.create_task(check_and_delete_after(
+            message, await message.reply(
+                get_string(
+                    message.from_user.language_code,
+                    "exceptions.uncause",
+                    logger.error(e, message),
+                    config.chat_config.owner
+                )
             )
-        )
-    await message.reply(get_string(message.from_user.language_code,"services.moderation.refuse_confirm"), reply_markup=ReplyKeyboardRemove())
-    await state.clear()
-    await _bot.edit_message_caption(
-        chat_id=message.chat.id,
-        message_id=callback_data.original_msg,
-        caption=create_caption(
-            config.admin_lang,
-            update_service,
-            callback_data.author_name
-        )
-    )
+        ))
 
 
 @router.message(
     ModerateStates.accept
 )
 async def on_accept_chosen(message: Message, state: FSMContext) -> None:
-    callback_data: ModerateCallbackFactory = ModerateCallbackFactory.unpack(
-        await state.get_value("callback_data")
-    )
-    if message.text is None or len(message.text) == 0:
-        await message.answer(
-            get_string(message.from_user.language_code,"services.moderation.empty_accept"),
-            reply_markup=accept_markup()
+    try:
+        callback_data: ModerateCallbackFactory = ModerateCallbackFactory.unpack(
+            await state.get_value("callback_data")
         )
-        return
-    if message.text == '🚫Отмена':
-        await message.reply(
-            get_string(message.from_user.language_code,"services.moderation.accept_cancel"),
-            reply_markup=ReplyKeyboardRemove()
-        )
-        return
-    elif message.text == '✅Подтвердить':
-        update_service = await services_repository.update_service_fields(
-            callback_data.service_id, status='published'
-        )
-        await message.reply(
-            get_string(message.from_user.language_code,"services.moderation.accept_confirm"),
-            reply_markup=ReplyKeyboardRemove()
-        )
-        await _bot.send_message(
-            update_service.owner,
-            get_string("services.moderation.service_approved", update_service.name)
-        )
-    else:
-        await message.reply(
-            get_string(message.from_user.language_code,"services.moderation.accept_unknown")
-        )
-        return
+        if message.text is None or len(message.text) == 0:
+            await message.answer(
+                get_string(message.from_user.language_code, "services.moderation.empty_accept"),
+                reply_markup=accept_markup()
+            )
+            return
+        if message.text == '🚫Отмена':
+            await message.reply(
+                get_string(message.from_user.language_code, "services.moderation.accept_cancel"),
+                reply_markup=ReplyKeyboardRemove()
+            )
+            return
+        elif message.text == '✅Подтвердить':
+            update_service = await services_repository.update_service_fields(
+                callback_data.service_id, status='published'
+            )
+            await message.reply(
+                get_string(message.from_user.language_code, "services.moderation.accept_confirm"),
+                reply_markup=ReplyKeyboardRemove()
+            )
+            await _bot.send_message(
+                update_service.owner,
+                get_string("services.moderation.service_approved", update_service.name)
+            )
+        else:
+            await message.reply(
+                get_string(message.from_user.language_code, "services.moderation.accept_unknown")
+            )
+            return
 
-    await state.clear()
-    await _bot.edit_message_caption(
-        chat_id=message.chat.id,
-        message_id=callback_data.original_msg,
-        caption=create_caption(
-            config.admin_lang,
-            update_service,
-            callback_data.author_name
+        await state.clear()
+        await _bot.edit_message_caption(
+            chat_id=message.chat.id,
+            message_id=callback_data.original_msg,
+            caption=create_caption(
+                config.admin_lang,
+                update_service,
+                callback_data.author_name
+            )
         )
-    )
+    except Exception as e:
+        asyncio.create_task(check_and_delete_after(
+            message, await message.reply(
+                get_string(
+                    message.from_user.language_code,
+                    "exceptions.uncause",
+                    logger.error(e, message),
+                    config.chat_config.owner
+                )
+            )
+        ))

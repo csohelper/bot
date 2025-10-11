@@ -39,7 +39,7 @@ async def init_database_module() -> None:
                     lang TEXT
                 )
             """
-            logger.debug_db(query)
+            logger.trace_db(query)
             await cur.execute(query)
             query = """
                 CREATE TABLE IF NOT EXISTS residents (
@@ -60,7 +60,7 @@ async def init_database_module() -> None:
                     lang TEXT
                 )
             """
-            logger.debug_db(query)
+            logger.trace_db(query)
             await cur.execute(query)
             query = """
                 CREATE TABLE IF NOT EXISTS requests (
@@ -72,7 +72,7 @@ async def init_database_module() -> None:
                     lang TEXT
                 )
             """
-            logger.debug_db(query)
+            logger.trace_db(query)
             await cur.execute(query)
             await conn.commit()
 
@@ -98,7 +98,7 @@ async def check_user(user: UserRecord):
                             lang = EXCLUDED.lang \
                         """
                 values = (user.user_id, user.username, user.fullname, user.lang)
-                logger.debug_db(query, values)
+                logger.trace_db(query, values)
                 await cur.execute(
                     query,
                     values
@@ -142,7 +142,7 @@ async def add_resident(
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id \
                     """
             values = (user_id, username, fullname, name, surname, room, status, image, lang)
-            logger.debug_db(query, values)
+            logger.trace_db(query, values)
             await cur.execute(query, values)
             row = await cur.fetchone()
             await conn.commit()
@@ -178,7 +178,7 @@ async def get_resident_by_id(user_id: int) -> Resident | None:
                     WHERE id = %s \
                     """
             values = (user_id,)
-            logger.debug_db(query, values)
+            logger.trace_db(query, values)
             logger.debug(values)
             await cur.execute(
                 query,
@@ -239,7 +239,7 @@ async def update_resident_fields(id: int, **fields) -> Optional[Resident]:
                   refuse_reason, created_at, image, lang
     """
 
-    logger.debug_db(query, values)
+    logger.trace_db(query, values)
 
     async with database.get_db_connection() as conn:
         async with conn.cursor() as cur:
@@ -277,7 +277,7 @@ async def delete_resident_by_user_id(user_id: int) -> bool:
         async with conn.cursor() as cur:
             query = "DELETE FROM residents WHERE user_id = %s RETURNING id"
             values = (user_id,)
-            logger.debug_db(query, values)
+            logger.trace_db(query, values)
             await cur.execute(
                 query,
                 values
@@ -296,7 +296,7 @@ async def delete_residents_by_user_id(user_id: int) -> int:
         async with conn.cursor() as cur:
             query = "DELETE FROM residents WHERE user_id = %s"
             values = (user_id,)
-            logger.debug_db(query, values)
+            logger.trace_db(query, values)
             await cur.execute(
                 query,
                 values
@@ -316,7 +316,7 @@ async def create_or_replace_request(user_id: int, greeting_msg: int, lang: str) 
             # Сначала удаляем, если есть
             delete_query = "DELETE FROM requests WHERE user_id = %s"
             delete_values = (user_id,)
-            logger.debug_db(delete_query, delete_values)
+            logger.trace_db(delete_query, delete_values)
             await cur.execute(delete_query, delete_values)
 
             # Теперь вставляем новую запись
@@ -325,7 +325,7 @@ async def create_or_replace_request(user_id: int, greeting_msg: int, lang: str) 
                            VALUES (%s, %s, %s) \
                            """
             insert_values = (user_id, greeting_msg, lang)
-            logger.debug_db(insert_query, insert_values)
+            logger.trace_db(insert_query, insert_values)
             await cur.execute(insert_query, insert_values)
             await conn.commit()
 
@@ -352,7 +352,7 @@ async def pop_unprocessed_requests_older_than(hours: int) -> FrozenSet[RequestIn
                       AND created_at <= NOW() - (%s * INTERVAL '1 hour') RETURNING user_id, created_at, greeting_msg, lang \
                     """
             values = (hours,)
-            logger.debug_db(query, values)
+            logger.trace_db(query, values)
             await cur.execute(query, values)
             rows = await cur.fetchall()
 
@@ -376,7 +376,7 @@ async def mark_request_processed(user_id: int) -> int:
                     WHERE user_id = %s \
                     """
             values = (user_id,)
-            logger.debug_db(query, values)
+            logger.trace_db(query, values)
             await cur.execute(query, values)
             updated_count = cur.rowcount
             await conn.commit()

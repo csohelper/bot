@@ -6,6 +6,20 @@ import uuid
 from datetime import datetime, timezone, date
 from typing import Any
 
+from python.storage.config import config
+
+TRACE_LEVEL = 5  # ниже DEBUG (10)
+logging.addLevelName(TRACE_LEVEL, "TRACE")
+
+
+class SafeFormatter(logging.Formatter):
+    """Formatter that ensures 'log_id' always exists."""
+
+    def format(self, record):
+        if not hasattr(record, "log_id"):
+            record.log_id = str(uuid.uuid4())
+        return super().format(record)
+
 
 # === Safe JSON Encoder ===
 class SafeJSONEncoder(json.JSONEncoder):
@@ -87,45 +101,64 @@ class JSONFormatter(logging.Formatter):
         return json.dumps(log_entry, cls=SafeJSONEncoder, ensure_ascii=False)
 
 
+def get_log_level(level_name: str) -> int:
+    if not level_name:
+        return logging.INFO
+    level_name = level_name.upper()
+    if level_name == "TRACE":
+        return TRACE_LEVEL
+    return getattr(logging, level_name, logging.INFO)
+
+
 # === Logger setup ===
-def setup_logger(name: str = __name__,
-                 console_level: str = "INFO",
-                 file_level: str = "DEBUG",
-                 json_level: str = "ERROR") -> logging.Logger:
+def setup_logger(
+        name: str = __name__,
+        console_level: str = "INFO",
+        file_level: str = "DEBUG",
+        json_level: str = "ERROR",
+        aiogram_level: str = "INFO"
+) -> logging.Logger:
     """
     Initializes a base logger with console, text, and JSON handlers.
     """
-    os.makedirs("storage/logs", exist_ok=True)
+    os.makedirs("storage/logs/json", exist_ok=True)
     log_filename = f"storage/logs/{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.log"
-    json_log_filename = f"storage/logs/{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}_structured.json"
+    json_log_filename = f"storage/logs/json/{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json"
 
     logger = logging.getLogger(name)
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(TRACE_LEVEL)
 
     if not logger.handlers:
-        text_formatter = logging.Formatter(
+        text_formatter = SafeFormatter(
             "[%(log_id)s] %(asctime)s - %(levelname)s - %(message)s",
             datefmt="%Y-%m-%d %H:%M:%S"
         )
 
         # Console handler
         console_handler = logging.StreamHandler()
-        console_handler.setLevel(getattr(logging, console_level.upper(), logging.INFO))
+        console_handler.setLevel(get_log_level(console_level.upper()))
         console_handler.setFormatter(text_formatter)
 
         # Text file handler
         file_handler = logging.FileHandler(log_filename, encoding="utf-8")
-        file_handler.setLevel(getattr(logging, file_level.upper(), logging.DEBUG))
+        file_handler.setLevel(get_log_level(file_level.upper()))
         file_handler.setFormatter(text_formatter)
 
         # JSON file handler
         json_handler = logging.FileHandler(json_log_filename, encoding="utf-8")
-        json_handler.setLevel(getattr(logging, json_level.upper(), logging.ERROR))
+        json_handler.setLevel(get_log_level(json_level.upper()))
         json_handler.setFormatter(JSONFormatter())
 
         logger.addHandler(console_handler)
         logger.addHandler(file_handler)
         logger.addHandler(json_handler)
+
+        # --- aiogram logger configuration ---
+        aiogram_logger = logging.getLogger("aiogram")
+        aiogram_logger.setLevel(get_log_level(aiogram_level.upper()))
+        aiogram_logger.addHandler(console_handler)
+        aiogram_logger.addHandler(file_handler)
+        aiogram_logger.addHandler(json_handler)
 
     return logger
 
@@ -187,8 +220,15 @@ class AppLogger:
             context["kwargs"] = kwargs
 
         # Log the message
-        self._logger.log(level, str(msg), extra={"context": context})
+        self._logger.log(level, str(msg), extra={
+            "context": context,
+            "log_id": log_id
+        })
         return log_id
+
+    # --- Public wrappers ---
+    def trace(self, msg: Any, *args, **kwargs) -> str:
+        return self._log(TRACE_LEVEL, msg, *args, **kwargs)
 
     # --- Public wrappers ---
     def debug(self, msg: Any, *args, **kwargs) -> str:
@@ -215,13 +255,18 @@ class AppLogger:
         def mask_value(value):
             if isinstance(value, (bytes, bytearray)):
                 return f"<bytes {len(value)}B>"
-            if isinstance(value, str) and len(value) > 50:
-                return f"<str {len(value)} chars>"
+            if isinstance(value, str):
+                # Wrap strings in single quotes and escape any internal single quotes
+                return f"'{value.replace("'", "''")}'"
             if isinstance(value, (list, tuple, set)) and len(value) > 10:
                 return f"<{type(value).__name__} {len(value)} elements>"
             if isinstance(value, (datetime, date)):
-                return value.isoformat()
-            # fallback for other objects
+                return f"'{value.isoformat()}'"  # Wrap datetime in quotes for SQL
+            if isinstance(value, bool):
+                return 'TRUE' if value else 'FALSE'  # SQL boolean syntax
+            if value is None:
+                return 'NULL'  # SQL NULL
+            # Numbers and other types are returned as is
             return value
 
         masked_args = tuple(mask_value(a) for a in args)
@@ -232,6 +277,9 @@ class AppLogger:
             log_query = f"{query} {masked_args}"
 
         return self._log(level, log_query)
+
+    def trace_db(self, query: str, args: tuple = ()) -> str:
+        return self._log_query(query, args, level=TRACE_LEVEL)
 
     def debug_db(self, query: str, args: tuple = ()) -> str:
         return self._log_query(query, args, level=logging.DEBUG)
@@ -247,5 +295,10 @@ class AppLogger:
 
 
 # === Global logger instance ===
-_base_logger = setup_logger()
+_base_logger = setup_logger(
+    console_level=config.logger.console_level,
+    file_level=config.logger.file_level,
+    json_level=config.logger.json_level,
+    aiogram_level=config.logger.aiogram_level
+)
 logger = AppLogger(_base_logger)

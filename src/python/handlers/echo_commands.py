@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import random
 from typing import List
@@ -7,7 +8,7 @@ from aiogram.enums import ChatMemberStatus
 from aiogram.exceptions import TelegramAPIError
 from aiogram.filters import Command, CommandStart, CommandObject, BaseFilter
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, InputMediaPhoto, FSInputFile, ChatMemberRestricted
+from aiogram.types import Message, InputMediaPhoto, FSInputFile, ChatMemberRestricted, Chat
 from aiogram.utils.payload import decode_payload
 
 from .hype_collector import start_collector_command
@@ -43,6 +44,13 @@ class TriggerFilter(BaseFilter):
 images_caches: dict[str, list[str]] = {}
 
 
+async def check_and_delete_after(*messages: Message):
+    await asyncio.sleep(config.chat_config.echo_auto_delete_secs)
+    if messages[0].chat.id == config.chat_config.chat_id:
+        for message in messages:
+            await message.delete()
+
+
 def make_image_handler(echo_command: EchoCommand):
     @router.message(Command(echo_command.name))
     @router.message(TriggerFilter(echo_command.triggers))
@@ -58,6 +66,7 @@ def make_image_handler(echo_command: EchoCommand):
                     message.from_user.language_code,
                 ))
             global images_caches
+            delete_messages = [message]
             while True:
                 if (
                         echo_command.name not in images_caches or
@@ -79,6 +88,7 @@ def make_image_handler(echo_command: EchoCommand):
 
                     images_caches[echo_command.name] = []
                     for msg in sent:
+                        delete_messages.append(msg)
                         if msg.photo:
                             largest_photo = msg.photo[-1]
                             images_caches[echo_command.name].append(largest_photo.file_id)
@@ -94,21 +104,24 @@ def make_image_handler(echo_command: EchoCommand):
                             message.from_user.language_code, echo_command.message_path,
                             **build_kwargs(echo_command.times, message.from_user.language_code)
                         )
-                        await message.reply_media_group(media=media)
+                        delete_messages.extend(await message.reply_media_group(media=media))
                     except Exception as e:
                         logger.error(f"{e}")
                         images_caches[echo_command.name] = []
                         continue
                 break
+            asyncio.create_task(check_and_delete_after(*delete_messages))
         except Exception as e:
-            await message.reply(
-                get_string(
-                    message.from_user.language_code,
-                    "exceptions.uncause",
-                    logger.error(e, message),
-                    config.chat_config.owner
+            asyncio.create_task(check_and_delete_after(
+                message, await message.reply(
+                    get_string(
+                        message.from_user.language_code,
+                        "exceptions.uncause",
+                        logger.error(e, message),
+                        config.chat_config.owner
+                    )
                 )
-            )
+            ))
 
     return echo_command_handler
 
@@ -127,20 +140,23 @@ def make_text_handler(echo_command: EchoCommand):
                     message.from_user.full_name,
                     message.from_user.language_code,
                 ))
-            await message.reply(get_string(
+            sent = await message.reply(get_string(
                 message.from_user.language_code,
                 echo_command.message_path,
                 **build_kwargs(echo_command.times, message.from_user.language_code)
             ))
+            asyncio.create_task(check_and_delete_after(message, sent))
         except Exception as e:
-            await message.reply(
-                get_string(
-                    message.from_user.language_code,
-                    "exceptions.uncause",
-                    logger.error(e, message),
-                    config.chat_config.owner
+            asyncio.create_task(check_and_delete_after(
+                message, await message.reply(
+                    get_string(
+                        message.from_user.language_code,
+                        "exceptions.uncause",
+                        logger.error(e, message),
+                        config.chat_config.owner
+                    )
                 )
-            )
+            ))
 
     return echo_command_handler
 
@@ -175,14 +191,16 @@ async def command_start_handler(message: Message, command: CommandObject, state:
             case _:
                 logger.error(f"Can't handle start payload - Args: {args}, Payload: {payload}")
     except Exception as e:
-        await message.reply(
-            get_string(
-                message.from_user.language_code,
-                "exceptions.uncause",
-                logger.error(e, message),
-                config.chat_config.owner
+        asyncio.create_task(check_and_delete_after(
+            message, await message.reply(
+                get_string(
+                    message.from_user.language_code,
+                    "exceptions.uncause",
+                    logger.error(e, message),
+                    config.chat_config.owner
+                )
             )
-        )
+        ))
 
 
 async def in_chat(bot: Bot, chat_id: int, user_id: int) -> bool:
@@ -210,28 +228,33 @@ async def command_start_handler(message: Message) -> None:
     try:
         if await check_blacklisted(message):
             return
-        await message.reply(get_string(message.from_user.language_code, 'echo_commands.start'))
+        sent = await message.reply(get_string(message.from_user.language_code, 'echo_commands.start'))
+        asyncio.create_task(check_and_delete_after(
+            message, sent
+        ))
 
-        if message.chat.type == "private" and config.chat_config.owner == 0:
-            await message.answer(get_string(message.from_user.language_code, 'echo_commands.first_start'))
-            config.chat_config.owner = message.from_user.id
-            save_config(config)
-            return
+        if message.chat.type == "private":
+            if config.chat_config.owner == 0:
+                await message.answer(get_string(message.from_user.language_code, 'echo_commands.first_start'))
+                config.chat_config.owner = message.from_user.id
+                save_config(config)
+            if await in_chat(message.bot, message.chat.id, message.from_user.id) and config.chat_config.invite_link:
+                await message.answer(get_string(
+                    message.from_user.language_code, 'echo_commands.invite',
+                    invite=config.chat_config.invite_link
+                ))
 
-        if await in_chat(message.bot, message.chat.id, message.from_user.id) and config.chat_config.invite_link:
-            await message.answer(get_string(
-                message.from_user.language_code, 'echo_commands.invite',
-                invite=config.chat_config.invite_link
-            ))
     except Exception as e:
-        await message.reply(
-            get_string(
-                message.from_user.language_code,
-                "exceptions.uncause",
-                logger.error(e, message),
-                config.chat_config.owner
+        asyncio.create_task(check_and_delete_after(
+            message, await message.reply(
+                get_string(
+                    message.from_user.language_code,
+                    "exceptions.uncause",
+                    logger.error(e, message),
+                    config.chat_config.owner
+                )
             )
-        )
+        ))
 
 
 @router.message(Command("mei"))
@@ -240,20 +263,23 @@ async def command_mei_handler(message: Message) -> None:
     try:
         if await check_blacklisted(message):
             return
-        await message.reply(
+        sent = await message.reply(
             random.choice(
                 get_strings(message.from_user.language_code, 'echo_commands.mei')
             )
         )
+        asyncio.create_task(check_and_delete_after(message, sent))
     except Exception as e:
-        await message.reply(
-            get_string(
-                message.from_user.language_code,
-                "exceptions.uncause",
-                logger.error(e, message),
-                config.chat_config.owner
+        asyncio.create_task(check_and_delete_after(
+            message, await message.reply(
+                get_string(
+                    message.from_user.language_code,
+                    "exceptions.uncause",
+                    logger.error(e, message),
+                    config.chat_config.owner
+                )
             )
-        )
+        ))
 
 
 @router.message(Command("meishniky"))
@@ -262,20 +288,23 @@ async def command_meishniky_handler(message: Message) -> None:
     try:
         if await check_blacklisted(message):
             return
-        await message.reply(
+        sent = await message.reply(
             random.choice(
                 get_strings(message.from_user.language_code, 'echo_commands.meishniky')
             )
         )
+        asyncio.create_task(check_and_delete_after(message, sent))
     except Exception as e:
-        await message.reply(
-            get_string(
-                message.from_user.language_code,
-                "exceptions.uncause",
-                logger.error(e, message),
-                config.chat_config.owner
+        asyncio.create_task(check_and_delete_after(
+            message, await message.reply(
+                get_string(
+                    message.from_user.language_code,
+                    "exceptions.uncause",
+                    logger.error(e, message),
+                    config.chat_config.owner
+                )
             )
-        )
+        ))
 
 
 @router.message(Command("mai"))
@@ -284,20 +313,23 @@ async def command_mai_handler(message: Message) -> None:
     try:
         if await check_blacklisted(message):
             return
-        await message.reply(
+        sent = await message.reply(
             random.choice(
                 get_strings(message.from_user.language_code, 'echo_commands.mai')
             )
         )
+        asyncio.create_task(check_and_delete_after(message, sent))
     except Exception as e:
-        await message.reply(
-            get_string(
-                message.from_user.language_code,
-                "exceptions.uncause",
-                logger.error(e, message),
-                config.chat_config.owner
+        asyncio.create_task(check_and_delete_after(
+            message, await message.reply(
+                get_string(
+                    message.from_user.language_code,
+                    "exceptions.uncause",
+                    logger.error(e, message),
+                    config.chat_config.owner
+                )
             )
-        )
+        ))
 
 
 @router.message(Command("maishniki"))
@@ -306,20 +338,23 @@ async def command_maishniky_handler(message: Message) -> None:
     try:
         if await check_blacklisted(message):
             return
-        await message.reply(
+        sent = await message.reply(
             random.choice(
                 get_strings(message.from_user.language_code, 'echo_commands.maishniky')
             )
         )
+        asyncio.create_task(check_and_delete_after(message, sent))
     except Exception as e:
-        await message.reply(
-            get_string(
-                message.from_user.language_code,
-                "exceptions.uncause",
-                logger.error(e, message),
-                config.chat_config.owner
+        asyncio.create_task(check_and_delete_after(
+            message, await message.reply(
+                get_string(
+                    message.from_user.language_code,
+                    "exceptions.uncause",
+                    logger.error(e, message),
+                    config.chat_config.owner
+                )
             )
-        )
+        ))
 
 
 @router.message(Command("week"))
@@ -329,7 +364,7 @@ async def command_week_handler(message: Message) -> None:
         if await check_blacklisted(message):
             return
         week_number = utils.get_week_number(datetime.datetime.now())
-        await message.reply(
+        sent = await message.reply(
             get_string(
                 message.from_user.language_code,
                 'echo_commands.week',
@@ -338,6 +373,7 @@ async def command_week_handler(message: Message) -> None:
                 week_number
             )
         )
+        asyncio.create_task(check_and_delete_after(message, sent))
     except Exception as e:
         await message.reply(
             get_string(
@@ -347,3 +383,13 @@ async def command_week_handler(message: Message) -> None:
                 config.chat_config.owner
             )
         )
+        asyncio.create_task(check_and_delete_after(
+            message, await message.reply(
+                get_string(
+                    message.from_user.language_code,
+                    "exceptions.uncause",
+                    logger.error(e, message),
+                    config.chat_config.owner
+                )
+            )
+        ))

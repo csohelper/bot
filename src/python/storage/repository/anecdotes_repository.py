@@ -16,7 +16,7 @@ async def init_database_module() -> None:
                     used BOOLEAN NOT NULL DEFAULT FALSE
                 )
             """
-            logger.debug_db(query)
+            logger.trace_db(query)
             await cur.execute(query)
             await conn.commit()
 
@@ -43,7 +43,7 @@ async def poll_anecdote() -> AnecdoteItem | None:
                                 LIMIT 1 FOR UPDATE SKIP LOCKED)
                     RETURNING id, anecdote_id, original, text, used; \
                     """
-            logger.debug_db(query)
+            logger.trace_db(query)
             await cur.execute(query)
             row = await cur.fetchone()
             if row:
@@ -63,7 +63,7 @@ async def count_unused_anecdotes() -> int:
             query = """
                 SELECT COUNT(*) FROM anecdotes WHERE used IS FALSE;
             """
-            logger.debug_db(query)
+            logger.trace_db(query)
             await cur.execute(query)
             (count,) = await cur.fetchone()
             return count
@@ -81,6 +81,6 @@ async def insert_anecdote(anecdote_id: int, original: str, text: str) -> None:
                     used = FALSE
             """
             values = (anecdote_id, original, text)
-            logger.debug_db(query, values)
+            logger.trace_db(query, values)
             await cur.execute(query, values)
             await conn.commit()

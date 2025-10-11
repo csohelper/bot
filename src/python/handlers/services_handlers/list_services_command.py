@@ -1,3 +1,4 @@
+import asyncio
 import base64
 import io
 import urllib.parse
@@ -12,8 +13,10 @@ from aiogram.types import InaccessibleMessage, InlineKeyboardButton, InputMediaP
 from aiogram.utils.deep_linking import create_start_link
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
+from python.handlers.echo_commands import check_and_delete_after
 from python.handlers.services_handlers import add_service_commands, my_services_command
 from python.logger import logger
+from python.storage.config import config
 from python.storage.repository import services_repository
 from python.storage.strings import get_string
 from python.utils import check_blacklisted
@@ -79,11 +82,11 @@ async def parse_folder_keyboard(lang: str, path: str, offset=0, is_pm=False) -> 
         )
 
     if len(services) > PAGE_SIZE:
-        l = services[offset:offset + PAGE_SIZE]
+        cropped_services = services[offset:offset + PAGE_SIZE]
     else:
-        l = services
+        cropped_services = services
 
-    for service in l:
+    for service in cropped_services:
         if service.is_folder:
             button_path = service.folder_dest
             text = get_string(lang, "services.folder_button", service.name)
@@ -152,39 +155,63 @@ async def add_service_button(
         callback_data: ServicesHandlerFactory,
         state: FSMContext
 ):
-    if not callback.message:
-        return
-    if callback_data.action == ServicesActions.ADD_SERVICE:
-        await callback.answer()
-        await add_service_commands.on_addservice(callback.message, state, callback.from_user.language_code)
-    elif callback_data.action == ServicesActions.MY_SERVICES:
-        await my_services_command.on_my_services(callback.message, state, callback.from_user.language_code)
-        await callback.answer()
+    try:
+        if not callback.message:
+            return
+        if callback_data.action == ServicesActions.ADD_SERVICE:
+            await callback.answer()
+            await add_service_commands.on_addservice(callback.message, state, callback.from_user.language_code)
+        elif callback_data.action == ServicesActions.MY_SERVICES:
+            await my_services_command.on_my_services(callback.message, state, callback.from_user.language_code)
+            await callback.answer()
+    except Exception as e:
+        asyncio.create_task(check_and_delete_after(
+            await callback.reply(
+                get_string(
+                    callback.from_user.language_code,
+                    "exceptions.uncause",
+                    logger.error(e, callback),
+                    config.chat_config.owner
+                )
+            )
+        ))
 
 
 @router.message(Command("services"))
 @router.message(lambda message: message.text and message.text.lower() in ["услуги"])
 async def command_services_handler(message: Message) -> None:
-    if await check_blacklisted(message):
-        return
-    builder, page, pages = await parse_folder_keyboard(message.from_user.language_code, "/",
-                                                       is_pm=message.chat.type == 'private')
+    try:
+        if await check_blacklisted(message):
+            return
+        builder, page, pages = await parse_folder_keyboard(message.from_user.language_code, "/",
+                                                           is_pm=message.chat.type == 'private')
 
-    caption_lines = [get_string(message.from_user.language_code, "services.folder_caption.header").strip()]
-    if pages > 1:
-        caption_lines.append(
-            get_string(
-                message.from_user.language_code,
-                'services.folder_caption.page',
-                page, pages
-            ).strip()
+        caption_lines = [get_string(message.from_user.language_code, "services.folder_caption.header").strip()]
+        if pages > 1:
+            caption_lines.append(
+                get_string(
+                    message.from_user.language_code,
+                    'services.folder_caption.page',
+                    page, pages
+                ).strip()
+            )
+
+        await message.reply_photo(
+            photo=FSInputFile('./src/res/images/services/header.jpg'),
+            caption='\n'.join(caption_lines),
+            reply_markup=builder.as_markup()
         )
-
-    await message.reply_photo(
-        photo=FSInputFile('./src/res/images/services/header.jpg'),
-        caption='\n'.join(caption_lines),
-        reply_markup=builder.as_markup()
-    )
+    except Exception as e:
+        asyncio.create_task(check_and_delete_after(
+            message, await message.reply(
+                get_string(
+                    message.from_user.language_code,
+                    "exceptions.uncause",
+                    logger.error(e, message),
+                    config.chat_config.owner
+                )
+            )
+        ))
 
 
 @router.callback_query(ServicesCallbackFactory.filter())
@@ -192,118 +219,130 @@ async def callbacks_num_change_fab(
         callback: types.CallbackQuery,
         callback_data: ServicesCallbackFactory
 ) -> None:
-    if not callback.message:
-        return
-    if callback_data.is_service:
-        service = await services_repository.find_service(int(callback_data.path))
-        if service is None:
+    try:
+        if not callback.message:
             return
-        builder = InlineKeyboardBuilder()
-        builder.row(InlineKeyboardButton(
-            text=get_string(
-                callback.from_user.language_code, "services.go_button.title"
-            ),
-            url=get_string(
-                callback.from_user.language_code,
-                "services.go_button.url_placeholder",
-                service.owner,
-                urllib.parse.quote(service.name)
-            )
-        ))
-        builder.row(InlineKeyboardButton(
-            text=get_string(callback.from_user.language_code, "services.back_button"),
-            callback_data=ServicesCallbackFactory(
-                path=service.directory
-            ).pack()
-        ))
+        if callback_data.is_service:
+            service = await services_repository.find_service(int(callback_data.path))
+            if service is None:
+                return
+            builder = InlineKeyboardBuilder()
+            builder.row(InlineKeyboardButton(
+                text=get_string(
+                    callback.from_user.language_code, "services.go_button.title"
+                ),
+                url=get_string(
+                    callback.from_user.language_code,
+                    "services.go_button.url_placeholder",
+                    service.owner,
+                    urllib.parse.quote(service.name)
+                )
+            ))
+            builder.row(InlineKeyboardButton(
+                text=get_string(callback.from_user.language_code, "services.back_button"),
+                callback_data=ServicesCallbackFactory(
+                    path=service.directory
+                ).pack()
+            ))
 
-        if not callback.message or isinstance(callback.message, InaccessibleMessage):
-            await callback.answer(
-                show_alert=True,
-                text="Server error"
-            )
-            logger.error(f"Callback message not present or it is InaccessibleMessage: {callback.message}")
-            return
-        try:
-            if service.image:
-                image_bytes = base64.b64decode(service.image)
-                image_stream = io.BytesIO(image_bytes)
-                media = BufferedInputFile(image_stream.read(), filename=f"{service.id}.jpg")
-            else:
-                media = FSInputFile('./src/res/images/services/no_image.jpg')
-            await callback.message.edit_media(
-                InputMediaPhoto(
-                    media=media,
+            if not callback.message or isinstance(callback.message, InaccessibleMessage):
+                await callback.answer(
+                    show_alert=True,
+                    text="Server error"
+                )
+                logger.error(f"Callback message not present or it is InaccessibleMessage: {callback.message}")
+                return
+            try:
+                if service.image:
+                    image_bytes = base64.b64decode(service.image)
+                    image_stream = io.BytesIO(image_bytes)
+                    media = BufferedInputFile(image_stream.read(), filename=f"{service.id}.jpg")
+                else:
+                    media = FSInputFile('./src/res/images/services/no_image.jpg')
+                await callback.message.edit_media(
+                    InputMediaPhoto(
+                        media=media,
+                        caption=get_string(
+                            callback.from_user.language_code,
+                            "services.author_page_description", service.name, int(service.cost), service.cost_per,
+                            service.description
+                        ) if service.description else get_string(
+                            "services.author_page", service.name, int(service.cost), service.cost_per
+                        ),
+                    ),
+                    reply_markup=builder.as_markup()
+                )
+            except Exception as e:
+                logger.error(f"Cannot proccess image: {e}")
+                await callback.message.edit_caption(
                     caption=get_string(
                         callback.from_user.language_code,
                         "services.author_page_description", service.name, int(service.cost), service.cost_per,
                         service.description
                     ) if service.description else get_string(
+                        callback.from_user.language_code,
                         "services.author_page", service.name, int(service.cost), service.cost_per
                     ),
-                ),
-                reply_markup=builder.as_markup()
+                    reply_markup=builder.as_markup()
+                )
+        else:
+            if not callback.message or isinstance(callback.message, InaccessibleMessage):
+                await callback.answer(
+                    show_alert=True,
+                    text="Server error"
+                )
+                logger.error(f"Callback message not present or it is InaccessibleMessage: {callback.message}")
+                return
+            new_keyboard, page, pages = await parse_folder_keyboard(
+                callback.from_user.language_code,
+                callback_data.path,
+                callback_data.offset,
+                callback.message.chat.type == 'private'
             )
-        except Exception as e:
-            logger.error(f"Cannot proccess image: {e}")
-            await callback.message.edit_caption(
-                caption=get_string(
-                    callback.from_user.language_code,
-                    "services.author_page_description", service.name, int(service.cost), service.cost_per,
-                    service.description
-                ) if service.description else get_string(
-                    callback.from_user.language_code,
-                    "services.author_page", service.name, int(service.cost), service.cost_per
-                ),
-                reply_markup=builder.as_markup()
-            )
-    else:
-        if not callback.message or isinstance(callback.message, InaccessibleMessage):
-            await callback.answer(
-                show_alert=True,
-                text="Server error"
-            )
-            logger.error(f"Callback message not present or it is InaccessibleMessage: {callback.message}")
-            return
-        new_keyboard, page, pages = await parse_folder_keyboard(
-            callback.from_user.language_code,
-            callback_data.path,
-            callback_data.offset,
-            callback.message.chat.type == 'private'
-        )
 
-        caption_lines = [get_string(callback.from_user.language_code, "services.folder_caption.header").strip()]
-        strip_path = callback_data.path.strip("/")
-        if strip_path:
-            caption_lines.append(
-                get_string(callback.from_user.language_code, 'services.folder_caption.folder.sep').join(
+            caption_lines = [get_string(callback.from_user.language_code, "services.folder_caption.header").strip()]
+            strip_path = callback_data.path.strip("/")
+            if strip_path:
+                caption_lines.append(
+                    get_string(callback.from_user.language_code, 'services.folder_caption.folder.sep').join(
+                        get_string(
+                            callback.from_user.language_code, 'services.folder_caption.folder.title', part
+                        ) for part in strip_path.split("/")
+                    ).strip()
+                )
+            if pages > 1:
+                caption_lines.append(
                     get_string(
-                        callback.from_user.language_code, 'services.folder_caption.folder.title', part
-                    ) for part in strip_path.split("/")
-                ).strip()
-            )
-        if pages > 1:
-            caption_lines.append(
+                        callback.from_user.language_code,
+                        'services.folder_caption.page',
+                        page, pages
+                    ).strip()
+                )
+
+            try:
+                await callback.message.edit_media(
+                    InputMediaPhoto(
+                        media=FSInputFile('./src/res/images/services/header.jpg'),
+                        caption='\n'.join(caption_lines)
+                    ),
+                    reply_markup=new_keyboard.as_markup()
+                )
+            except Exception as e:
+                await callback.message.edit_caption(
+                    photo=FSInputFile('./src/res/images/services/header.jpg'),
+                    caption='\n'.join(caption_lines),
+                    reply_markup=new_keyboard.as_markup()
+                )
+
+        await callback.answer()
+    except Exception as e:
+        asyncio.create_task(check_and_delete_after(
+            await callback.reply(
                 get_string(
                     callback.from_user.language_code,
-                    'services.folder_caption.page',
-                    page, pages
-                ).strip()
+                    "exceptions.uncause",
+                    logger.error(e, callback),
+                    config.chat_config.owner
+                )
             )
-
-        try:
-            await callback.message.edit_media(
-                InputMediaPhoto(
-                    media=FSInputFile('./src/res/images/services/header.jpg'),
-                    caption='\n'.join(caption_lines)
-                ),
-                reply_markup=new_keyboard.as_markup()
-            )
-        except Exception as e:
-            await callback.message.edit_caption(
-                photo=FSInputFile('./src/res/images/services/header.jpg'),
-                caption='\n'.join(caption_lines),
-                reply_markup=new_keyboard.as_markup()
-            )
-
-    await callback.answer()
+        ))

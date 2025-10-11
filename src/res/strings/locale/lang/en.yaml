@@ -1041,3 +1041,7 @@ user_service:
           ❌ Unfortunately, the chat administration rejected your request:
           <blockquote>{0}</blockquote>
     refuse_confirm_empty: ⚠️ Send a reason for rejection or choose the corresponding option
+exceptions:
+  uncause: |
+    ⚠️ An unexpected exception occurred <code>#{0}</code> while processing the message.
+    Contact the <a href="tg://user?id={1}">administrator</a> for feedback

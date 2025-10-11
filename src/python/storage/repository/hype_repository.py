@@ -18,7 +18,7 @@ async def init_database_module() -> None:
                     description TEXT
                 );
             """
-            logger.debug_db(query)
+            logger.trace_db(query)
             await cur.execute(query)
             query = """
                 CREATE TABLE IF NOT EXISTS hype_photos (
@@ -28,7 +28,7 @@ async def init_database_module() -> None:
                     mime TEXT NOT NULL
                 );
             """
-            logger.debug_db(query)
+            logger.trace_db(query)
             await cur.execute(query)
             await conn.commit()
 
@@ -53,7 +53,7 @@ async def insert_form(
                 RETURNING id
             """
             values = (userid, username, phone, vcard, fullname, description)
-            logger.debug_db(query_form, values)
+            logger.trace_db(query_form, values)
             await cur.execute(query_form, values)
             form_id_row = await cur.fetchone()
             form_id = form_id_row[0]
@@ -64,12 +64,12 @@ async def insert_form(
             """
             for photo_b64 in photos_b64:
                 values = (form_id, photo_b64, photo_mime)
-                logger.debug_db(query_photo, values)
+                logger.trace_db(query_photo, values)
                 await cur.execute(query_photo, values)
 
             if video_b64 and video_mime:
                 values = (form_id, video_b64, video_mime)
-                logger.debug_db(query_photo, values)
+                logger.trace_db(query_photo, values)
                 await cur.execute(query_photo, values)
 
             await conn.commit()
