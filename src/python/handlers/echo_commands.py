@@ -11,18 +11,17 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, InputMediaPhoto, FSInputFile, ChatMemberRestricted
 from aiogram.utils.payload import decode_payload
 
-from .hype_collector import start_collector_command
-from .services_handlers.add_service_commands import on_addservice
-from .services_handlers.join_service import on_accept_join_process
-from .. import utils
-from ..logger import logger
-from ..main import log_exception
-from ..storage.command_loader import get_echo_commands, EchoCommand, TimeInfo
-from ..storage.config import config, save_config
-from ..storage.repository.users_repository import check_user, UserRecord
-from ..storage.strings import get_string, get_strings
-from ..storage.times import get_time_status
-from ..utils import check_blacklisted
+from python.handlers.hype_collector import start_collector_command
+from python.handlers.services_handlers.add_service_commands import on_addservice
+from python.handlers.services_handlers.join_service import on_accept_join_process
+from python import utils
+from python.logger import logger
+from python.storage.command_loader import get_echo_commands, EchoCommand, TimeInfo
+from python.storage.config import config, save_config
+from python.storage.repository.users_repository import check_user, UserRecord
+from python.storage.strings import get_string, get_strings
+from python.storage.times import get_time_status
+from python.utils import check_blacklisted, log_exception
 
 router = Router()
 

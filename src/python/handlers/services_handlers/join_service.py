@@ -1,10 +1,11 @@
-import asyncio
 import base64
 import io
 from enum import Enum
 
+from aiogram import Bot
 from aiogram import Router, types
 from aiogram.filters.callback_data import CallbackData
+from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.storage.base import StorageKey
 from aiogram.types import ChatJoinRequest, Message, KeyboardButton, FSInputFile, BufferedInputFile, \
@@ -12,14 +13,11 @@ from aiogram.types import ChatJoinRequest, Message, KeyboardButton, FSInputFile,
 from aiogram.utils.deep_linking import create_start_link
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 
-from python.handlers.echo_commands import check_and_delete_after
 from python.logger import logger
-from python.main import log_exception
-from python.storage.repository import users_repository
 from python.storage.config import config
+from python.storage.repository import users_repository
 from python.storage.strings import get_string
-from aiogram.fsm.context import FSMContext
-from aiogram import Bot
+from python.utils import log_exception
 
 router = Router()
 

@@ -1,5 +1,3 @@
-from mailbox import Message
-
 from python.logger import logger
 from python.storage import database
 

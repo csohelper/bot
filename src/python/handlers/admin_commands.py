@@ -4,10 +4,9 @@ from aiogram import Router, Bot
 from aiogram.filters import Command
 from aiogram.types import Message, ReactionTypeEmoji
 
-from ..logger import logger
-from ..main import log_exception
-from ..storage.config import config, save_config, BlacklistedChat
-from ..storage.strings import get_string
+from python.storage.config import config, save_config, BlacklistedChat
+from python.storage.strings import get_string
+from python.utils import log_exception
 
 router = Router()
 

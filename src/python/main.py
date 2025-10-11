@@ -131,29 +131,5 @@ def entrypoint() -> None:
     asyncio.run(main())
 
 
-async def log_exception(e: Exception, original: Message | CallbackQuery | ChatJoinRequest) -> None:
-    code = logger.error(e, original)
-    await original.reply(
-        get_string(
-            original.from_user.language_code,
-            "exceptions.uncause",
-            code,
-            config.chat_config.owner
-        )
-    )
-    await original.bot.send_message(
-        config.chat_config.admin_chat_id,
-        get_string(
-            config.chat_config.admin_lang,
-            "exceptions.debug",
-            code=code, exc=str(e),
-            userid=original.from_user.id,
-            username=original.from_user.username,
-            fullname=original.from_user.full_name,
-        ),
-        message_thread_id=config.chat_config.admin_debug_topic
-    )
-
-
 if __name__ == "__main__":
     entrypoint()

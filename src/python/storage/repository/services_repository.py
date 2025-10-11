@@ -1,7 +1,4 @@
 from dataclasses import dataclass
-from typing import Optional
-
-from aiogram.dispatcher.middlewares import data
 
 from python.logger import logger
 from python.storage import database
@@ -87,7 +84,7 @@ async def get_service_list(path: str = "/") -> list[ServiceItem]:
                 WHERE s.directory LIKE %s -- Use the Python-constructed pattern
                   AND s.directory != %s
                   AND s.directory ~ %s -- Use the Python-constructed regex pattern
-            """ # Parameters must match placeholders
+            """  # Parameters must match placeholders
             values = (path, path, like_pattern, path, regex_pattern_current_level)
 
             logger.trace_db(query, values)

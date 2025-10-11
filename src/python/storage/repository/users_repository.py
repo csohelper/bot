@@ -1,7 +1,6 @@
 import asyncio
 from dataclasses import dataclass
 from datetime import datetime
-from tkinter import Image
 from typing import Optional, FrozenSet
 
 from python.logger import logger
@@ -349,7 +348,8 @@ async def pop_unprocessed_requests_older_than(hours: int) -> FrozenSet[RequestIn
                     UPDATE requests
                     SET processed = TRUE
                     WHERE processed = FALSE
-                      AND created_at <= NOW() - (%s * INTERVAL '1 hour') RETURNING user_id, created_at, greeting_msg, lang \
+                      AND created_at <= NOW() - (%s * INTERVAL '1 hour') 
+                    RETURNING user_id, created_at, greeting_msg, lang \
                     """
             values = (hours,)
             logger.trace_db(query, values)

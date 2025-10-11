@@ -9,11 +9,10 @@ from aiogram.filters import Command
 from aiogram.types import ChatPermissions, Message
 
 from .. import anecdote_poller
-from ..logger import logger
-from ..main import log_exception
-from ..storage.config import config
-from ..storage.strings import get_string
-from ..utils import check_blacklisted, await_and_run
+from python.logger import logger
+from python.storage.config import config
+from python.storage.strings import get_string
+from python.utils import check_blacklisted, await_and_run, log_exception
 
 router = Router()
 _bot: Bot

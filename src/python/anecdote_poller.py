@@ -4,11 +4,11 @@ import aiohttp
 import yaml
 from bs4 import BeautifulSoup
 
-from .logger import logger
-from .storage.config import config
-from .storage.repository import anecdotes_repository
-from .storage.repository.anecdotes_repository import AnecdoteItem
-from .utils import await_and_run
+from python.logger import logger
+from python.storage.config import config
+from python.storage.repository import anecdotes_repository
+from python.storage.repository.anecdotes_repository import AnecdoteItem
+from python.utils import await_and_run
 
 with open(
         f'src/res/strings/anecdote_prompt.yaml', 'r', encoding='utf-8'
@@ -84,7 +84,8 @@ async def process_anecdote(original: str) -> str | None:
 
                     if len(text) < 100:
                         logger.info(
-                            f"Anecdote poller: Result text is too small (l={len(text)}). Perhabs proccess error. Input: {original} Output: {text}")
+                            f"Anecdote poller: Result text is too small (l={len(text)}). Perhabs proccess error. "
+                            f"Input: {original} Output: {text}")
                         return None
 
                     return text
@@ -146,12 +147,12 @@ async def anecdote_loop_check() -> None:
                 logger.debug("Anecdote poller: Anecdote is None")
                 continue
             anecdote_id, original_text = resp
-            l = len(original_text)
-            if l < 200:
-                logger.debug(f"Anecdote poller: Anecdote l={l} is too small")
+            anecodete_len = len(original_text)
+            if anecodete_len < 200:
+                logger.debug(f"Anecdote poller: Anecdote anecodete_len={anecodete_len} is too small")
                 continue
-            if l > 1000:
-                logger.debug(f"Anecdote poller: Anecdote l={l} is too big")
+            if anecodete_len > 1000:
+                logger.debug(f"Anecdote poller: Anecdote anecodete_len={anecodete_len} is too big")
                 continue
             processed_text = await process_anecdote(original_text)
 

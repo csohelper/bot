@@ -3,8 +3,12 @@ from asyncio import sleep
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 
+from python.logger import logger
 from python.storage.config import config
 from python.storage.strings import get_string
+
+from aiogram import Bot
+from aiogram.types import ChatMember, Message, ReactionTypeEmoji, CallbackQuery, ChatJoinRequest
 
 
 def get_week_number(current_date: datetime) -> int:
@@ -59,10 +63,6 @@ def get_week_number(current_date: datetime) -> int:
             week += 1
 
     return week
-
-
-from aiogram import Bot
-from aiogram.types import ChatMember, Message, ReactionTypeEmoji
 
 
 async def is_user_in_chat(bot: Bot, chat_id: int | str, user_id: int) -> bool:
@@ -230,3 +230,27 @@ async def check_blacklisted(message: Message) -> bool:
             await message.delete()
             return True
     return False
+
+
+async def log_exception(e: Exception, original: Message | CallbackQuery | ChatJoinRequest) -> None:
+    code = logger.error(e, original)
+    await original.reply(
+        get_string(
+            original.from_user.language_code,
+            "exceptions.uncause",
+            code,
+            config.chat_config.owner
+        )
+    )
+    await original.bot.send_message(
+        config.chat_config.admin_chat_id,
+        get_string(
+            config.chat_config.admin_lang,
+            "exceptions.debug",
+            code=code, exc=str(e),
+            userid=original.from_user.id,
+            username=original.from_user.username,
+            fullname=original.from_user.full_name,
+        ),
+        message_thread_id=config.chat_config.admin_debug_topic
+    )

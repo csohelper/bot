@@ -16,11 +16,10 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from python.handlers.echo_commands import check_and_delete_after
 from python.handlers.services_handlers import add_service_commands, my_services_command
 from python.logger import logger
-from python.main import log_exception
 from python.storage.config import config
 from python.storage.repository import services_repository
 from python.storage.strings import get_string
-from python.utils import check_blacklisted
+from python.utils import check_blacklisted, log_exception
 from aiogram.filters.callback_data import CallbackData
 
 _bot_username: str

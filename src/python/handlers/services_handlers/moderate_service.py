@@ -9,11 +9,11 @@ from aiogram.types import FSInputFile, BufferedInputFile, InlineKeyboardButton, 
     ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 
-from python.main import log_exception
 from python.storage.config import config
 from python.storage.repository import services_repository
 from python.storage.repository.services_repository import Service
 from python.storage.strings import get_string
+from python.utils import log_exception
 
 _bot_username: str
 _bot: Bot

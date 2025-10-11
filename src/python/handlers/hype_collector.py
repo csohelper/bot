@@ -15,11 +15,11 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 from aiogram_media_group import media_group_handler
 
 from python.logger import logger
-from python.main import log_exception
 from python.storage.command_loader import get_all_triggers
 from python.storage.config import config
 from python.storage.repository import hype_repository
 from python.storage.strings import get_string, get_string_variants
+from python.utils import log_exception
 
 router = Router()
 

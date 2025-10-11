@@ -3,13 +3,16 @@ from psycopg_pool import AsyncConnectionPool
 from .config import config
 from ..logger import logger
 
-
-db_pool = None
+db_pool: AsyncConnectionPool | None = None
 
 
 async def open_database_pool() -> None:
     global db_pool
-    conninfo = f"host={config.database.host} dbname={config.database.database} user={config.database.user} password={config.database.password} port={config.database.port}"
+    conninfo = (f"host={config.database.host} "
+                f"dbname={config.database.database} "
+                f"user={config.database.user} "
+                f"password={config.database.password} "
+                f"port={config.database.port}")
     db_pool = AsyncConnectionPool(
         conninfo=conninfo,
         min_size=config.database.min_pool_size,
@@ -49,7 +52,9 @@ async def test_database_connection():
                 if result and result[0] == 1:
                     logger.info("Database: successful connection to the DB has been confirmed.")
                 else:
-                    logger.warning("Database: the connection is established, but the test request did not give the expected result..")
+                    logger.warning(
+                        "Database: the connection is established, "
+                        "but the test request did not give the expected result..")
     except Exception as e:
         logger.error(f"Database: Error when checking the connection to the database: {e}")
         exit(1)

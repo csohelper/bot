@@ -15,10 +15,10 @@ from aiogram.utils.deep_linking import create_start_link
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 
 from python.handlers.services_handlers import moderate_service
-from python.main import log_exception
 from python.storage.repository import services_repository
 from python.storage.repository.services_repository import Service
 from python.storage.strings import get_string
+from python.utils import log_exception
 
 _bot_username: str
 _bot: Bot
