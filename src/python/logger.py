@@ -257,7 +257,7 @@ class AppLogger:
                 return f"<bytes {len(value)}B>"
             if isinstance(value, str):
                 # Wrap strings in single quotes and escape any internal single quotes
-                return f"'{value.replace("'", "''")}'"
+                return "'" + value.replace("'", "''") + "'"
             if isinstance(value, (list, tuple, set)) and len(value) > 10:
                 return f"<{type(value).__name__} {len(value)} elements>"
             if isinstance(value, (datetime, date)):
