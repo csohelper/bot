@@ -134,7 +134,7 @@ async def get_original() -> tuple[int, str] | None:
 
 
 async def anecdote_loop_check() -> None:
-    logger.debug("Anecdote poller: Check loop")
+    logger.trace("Anecdote poller: Check loop")
     need = config.anecdote.buffer_size - (await anecdotes_repository.count_unused_anecdotes())
     if need > 0:
         logger.info(f"Anecdote poller: Need {need} anecdotes, loading")

@@ -22,7 +22,7 @@ async def init(bot: Bot, storage: BaseStorage):
 
 
 async def refuser_loop_check() -> None:
-    logger.debug("Refuser loop check")
+    logger.trace("Refuser loop check")
     requests = await users_repository.pop_unprocessed_requests_older_than(
         config.refuser.request_life_hours
     )
