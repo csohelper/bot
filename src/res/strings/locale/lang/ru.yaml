@@ -1028,6 +1028,11 @@ user_service:
           <blockquote>{0}</blockquote>
     refuse_confirm_empty: ⚠️ Отправьте причину отказа или выберите соответсвующий вариант
 exceptions:
+  debug: |
+    <code>#{code}</code> {exc}
+    userid = {userid}
+    username = {username}
+    fullname = {fullname}
   uncause: |
     ⚠️ Произошло неожидаемое исключение <code>#{0}</code> при обработке сообщения.
     Обратитесь к <a href="tg://user?id={1}">администратору</a> для обратной связи

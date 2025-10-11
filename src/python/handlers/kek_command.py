@@ -10,6 +10,7 @@ from aiogram.types import ChatPermissions, Message
 
 from .. import anecdote_poller
 from ..logger import logger
+from ..main import log_exception
 from ..storage.config import config
 from ..storage.strings import get_string
 from ..utils import check_blacklisted, await_and_run
@@ -141,11 +142,4 @@ async def command_anecdote_handler(message: Message) -> None:
             'echo_commands.kek.not_found'
         ))
     except Exception as e:
-        await message.reply(
-            get_string(
-                message.from_user.language_code,
-                "exceptions.uncause",
-                logger.error(e, message),
-                config.chat_config.owner
-            )
-        )
+        await log_exception(e, message)

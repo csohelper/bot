@@ -8,7 +8,7 @@ from aiogram.enums import ChatMemberStatus
 from aiogram.exceptions import TelegramAPIError
 from aiogram.filters import Command, CommandStart, CommandObject, BaseFilter
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, InputMediaPhoto, FSInputFile, ChatMemberRestricted, Chat
+from aiogram.types import Message, InputMediaPhoto, FSInputFile, ChatMemberRestricted
 from aiogram.utils.payload import decode_payload
 
 from .hype_collector import start_collector_command
@@ -16,6 +16,7 @@ from .services_handlers.add_service_commands import on_addservice
 from .services_handlers.join_service import on_accept_join_process
 from .. import utils
 from ..logger import logger
+from ..main import log_exception
 from ..storage.command_loader import get_echo_commands, EchoCommand, TimeInfo
 from ..storage.config import config, save_config
 from ..storage.repository.users_repository import check_user, UserRecord
@@ -112,16 +113,7 @@ def make_image_handler(echo_command: EchoCommand):
                 break
             asyncio.create_task(check_and_delete_after(*delete_messages))
         except Exception as e:
-            asyncio.create_task(check_and_delete_after(
-                message, await message.reply(
-                    get_string(
-                        message.from_user.language_code,
-                        "exceptions.uncause",
-                        logger.error(e, message),
-                        config.chat_config.owner
-                    )
-                )
-            ))
+            await log_exception(e, message)
 
     return echo_command_handler
 
@@ -147,16 +139,7 @@ def make_text_handler(echo_command: EchoCommand):
             ))
             asyncio.create_task(check_and_delete_after(message, sent))
         except Exception as e:
-            asyncio.create_task(check_and_delete_after(
-                message, await message.reply(
-                    get_string(
-                        message.from_user.language_code,
-                        "exceptions.uncause",
-                        logger.error(e, message),
-                        config.chat_config.owner
-                    )
-                )
-            ))
+            await log_exception(e, message)
 
     return echo_command_handler
 
@@ -191,16 +174,7 @@ async def command_start_handler(message: Message, command: CommandObject, state:
             case _:
                 logger.error(f"Can't handle start payload - Args: {args}, Payload: {payload}")
     except Exception as e:
-        asyncio.create_task(check_and_delete_after(
-            message, await message.reply(
-                get_string(
-                    message.from_user.language_code,
-                    "exceptions.uncause",
-                    logger.error(e, message),
-                    config.chat_config.owner
-                )
-            )
-        ))
+        await log_exception(e, message)
 
 
 async def in_chat(bot: Bot, chat_id: int, user_id: int) -> bool:
@@ -245,16 +219,7 @@ async def command_start_handler(message: Message) -> None:
                 ))
 
     except Exception as e:
-        asyncio.create_task(check_and_delete_after(
-            message, await message.reply(
-                get_string(
-                    message.from_user.language_code,
-                    "exceptions.uncause",
-                    logger.error(e, message),
-                    config.chat_config.owner
-                )
-            )
-        ))
+        await log_exception(e, message)
 
 
 @router.message(Command("mei"))
@@ -270,16 +235,7 @@ async def command_mei_handler(message: Message) -> None:
         )
         asyncio.create_task(check_and_delete_after(message, sent))
     except Exception as e:
-        asyncio.create_task(check_and_delete_after(
-            message, await message.reply(
-                get_string(
-                    message.from_user.language_code,
-                    "exceptions.uncause",
-                    logger.error(e, message),
-                    config.chat_config.owner
-                )
-            )
-        ))
+        await log_exception(e, message)
 
 
 @router.message(Command("meishniky"))
@@ -295,16 +251,7 @@ async def command_meishniky_handler(message: Message) -> None:
         )
         asyncio.create_task(check_and_delete_after(message, sent))
     except Exception as e:
-        asyncio.create_task(check_and_delete_after(
-            message, await message.reply(
-                get_string(
-                    message.from_user.language_code,
-                    "exceptions.uncause",
-                    logger.error(e, message),
-                    config.chat_config.owner
-                )
-            )
-        ))
+        await log_exception(e, message)
 
 
 @router.message(Command("mai"))
@@ -320,16 +267,7 @@ async def command_mai_handler(message: Message) -> None:
         )
         asyncio.create_task(check_and_delete_after(message, sent))
     except Exception as e:
-        asyncio.create_task(check_and_delete_after(
-            message, await message.reply(
-                get_string(
-                    message.from_user.language_code,
-                    "exceptions.uncause",
-                    logger.error(e, message),
-                    config.chat_config.owner
-                )
-            )
-        ))
+        await log_exception(e, message)
 
 
 @router.message(Command("maishniki"))
@@ -345,16 +283,7 @@ async def command_maishniky_handler(message: Message) -> None:
         )
         asyncio.create_task(check_and_delete_after(message, sent))
     except Exception as e:
-        asyncio.create_task(check_and_delete_after(
-            message, await message.reply(
-                get_string(
-                    message.from_user.language_code,
-                    "exceptions.uncause",
-                    logger.error(e, message),
-                    config.chat_config.owner
-                )
-            )
-        ))
+        await log_exception(e, message)
 
 
 @router.message(Command("week"))
@@ -375,21 +304,4 @@ async def command_week_handler(message: Message) -> None:
         )
         asyncio.create_task(check_and_delete_after(message, sent))
     except Exception as e:
-        await message.reply(
-            get_string(
-                message.from_user.language_code,
-                "exceptions.uncause",
-                logger.error(e, message),
-                config.chat_config.owner
-            )
-        )
-        asyncio.create_task(check_and_delete_after(
-            message, await message.reply(
-                get_string(
-                    message.from_user.language_code,
-                    "exceptions.uncause",
-                    logger.error(e, message),
-                    config.chat_config.owner
-                )
-            )
-        ))
+        await log_exception(e, message)

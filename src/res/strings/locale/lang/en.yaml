@@ -1042,6 +1042,11 @@ user_service:
           <blockquote>{0}</blockquote>
     refuse_confirm_empty: ⚠️ Send a reason for rejection or choose the corresponding option
 exceptions:
+  debug: |
+    <code>#{code}</code> {exc}
+    userid = {userid}
+    username = {username}
+    fullname = {fullname}
   uncause: |
     ⚠️ An unexpected exception occurred <code>#{0}</code> while processing the message.
     Contact the <a href="tg://user?id={1}">administrator</a> for feedback

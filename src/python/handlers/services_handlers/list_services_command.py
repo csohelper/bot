@@ -16,6 +16,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from python.handlers.echo_commands import check_and_delete_after
 from python.handlers.services_handlers import add_service_commands, my_services_command
 from python.logger import logger
+from python.main import log_exception
 from python.storage.config import config
 from python.storage.repository import services_repository
 from python.storage.strings import get_string
@@ -165,16 +166,7 @@ async def add_service_button(
             await my_services_command.on_my_services(callback.message, state, callback.from_user.language_code)
             await callback.answer()
     except Exception as e:
-        asyncio.create_task(check_and_delete_after(
-            await callback.reply(
-                get_string(
-                    callback.from_user.language_code,
-                    "exceptions.uncause",
-                    logger.error(e, callback),
-                    config.chat_config.owner
-                )
-            )
-        ))
+        await log_exception(e, callback)
 
 
 @router.message(Command("services"))
@@ -336,13 +328,4 @@ async def callbacks_num_change_fab(
 
         await callback.answer()
     except Exception as e:
-        asyncio.create_task(check_and_delete_after(
-            await callback.reply(
-                get_string(
-                    callback.from_user.language_code,
-                    "exceptions.uncause",
-                    logger.error(e, callback),
-                    config.chat_config.owner
-                )
-            )
-        ))
+        await log_exception(e, callback)

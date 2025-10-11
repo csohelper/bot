@@ -15,6 +15,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 from aiogram_media_group import media_group_handler
 
 from python.logger import logger
+from python.main import log_exception
 from python.storage.command_loader import get_all_triggers
 from python.storage.config import config
 from python.storage.repository import hype_repository
@@ -91,14 +92,7 @@ async def start_collector_command(message: Message, state: FSMContext):
         )
         await state.set_state(HypeStates.waiting_start)
     except Exception as e:
-        await message.reply(
-            get_string(
-                message.from_user.language_code,
-                "exceptions.uncause",
-                logger.error(e, message),
-                config.chat_config.owner
-            )
-        )
+        await log_exception(e, message)
 
 
 @router.message(
@@ -134,14 +128,7 @@ async def on_accept(message: Message, state: FSMContext) -> None:
                 'hype_collector.greeting'
             ))
     except Exception as e:
-        await message.reply(
-            get_string(
-                message.from_user.language_code,
-                "exceptions.uncause",
-                logger.error(e, message),
-                config.chat_config.owner
-            )
-        )
+        await log_exception(e, message)
 
 
 @router.message(
@@ -206,14 +193,7 @@ async def on_room(message: Message, state: FSMContext):
                 ).as_markup(resize_keyboard=True, one_time_keyboard=False)
             )
     except Exception as e:
-        await message.reply(
-            get_string(
-                message.from_user.language_code,
-                "exceptions.uncause",
-                logger.error(e, message),
-                config.chat_config.owner
-            )
-        )
+        await log_exception(e, message)
 
 
 @dataclass(frozen=True)
@@ -292,14 +272,7 @@ async def on_contact(message: Message, state: FSMContext):
                 ).as_markup(resize_keyboard=True, one_time_keyboard=False)
             )
     except Exception as e:
-        await message.reply(
-            get_string(
-                message.from_user.language_code,
-                "exceptions.uncause",
-                logger.error(e, message),
-                config.chat_config.owner
-            )
-        )
+        await log_exception(e, message)
 
 
 @router.message(HypeStates.sending_description)
@@ -347,14 +320,7 @@ async def on_description(message: Message, state: FSMContext):
             ).as_markup(resize_keyboard=True, one_time_keyboard=False)
         )
     except Exception as e:
-        await message.reply(
-            get_string(
-                message.from_user.language_code,
-                "exceptions.uncause",
-                logger.error(e, message),
-                config.chat_config.owner
-            )
-        )
+        await log_exception(e, message)
 
 
 @router.message(HypeStates.sending_photos, F.media_group_id, F.content_type.in_({'photo'}))
@@ -392,14 +358,7 @@ async def on_single_photo(message: Message, state: FSMContext):
         else:
             await process_photos([message], state)
     except Exception as e:
-        await message.reply(
-            get_string(
-                message.from_user.language_code,
-                "exceptions.uncause",
-                logger.error(e, message),
-                config.chat_config.owner
-            )
-        )
+        await log_exception(e, message)
 
 
 async def download_photos(
@@ -619,14 +578,7 @@ async def process_video(message: Message, state: FSMContext):
         await state.set_state(HypeStates.sending_confirm)
         await create_confirm(message, state)
     except Exception as e:
-        await message.reply(
-            get_string(
-                message.from_user.language_code,
-                "exceptions.uncause",
-                logger.error(e, message),
-                config.chat_config.owner
-            )
-        )
+        await log_exception(e, message)
 
 
 async def create_confirm(message: Message, state: FSMContext):
@@ -672,14 +624,7 @@ async def create_confirm(message: Message, state: FSMContext):
             ).as_markup(resize_keyboard=True, one_time_keyboard=False)
         )
     except Exception as e:
-        await message.reply(
-            get_string(
-                message.from_user.language_code,
-                "exceptions.uncause",
-                logger.error(e, message),
-                config.chat_config.owner
-            )
-        )
+        await log_exception(e, message)
 
 
 async def video_callback_handler(percentage: int, wait_msg: Message, user_message: Message) -> None:
@@ -871,11 +816,4 @@ async def process_confirm(message: Message, state: FSMContext):
                 except TelegramRetryAfter:
                     await sleep(1)
     except Exception as e:
-        await message.reply(
-            get_string(
-                message.from_user.language_code,
-                "exceptions.uncause",
-                logger.error(e, message),
-                config.chat_config.owner
-            )
-        )
+        await log_exception(e, message)

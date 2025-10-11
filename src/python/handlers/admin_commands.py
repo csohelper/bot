@@ -5,6 +5,7 @@ from aiogram.filters import Command
 from aiogram.types import Message, ReactionTypeEmoji
 
 from ..logger import logger
+from ..main import log_exception
 from ..storage.config import config, save_config, BlacklistedChat
 from ..storage.strings import get_string
 
@@ -41,14 +42,7 @@ async def init_chat(message: Message) -> None:
         await sleep(3)
         await message.delete()
     except Exception as e:
-        await message.reply(
-            get_string(
-                message.from_user.language_code,
-                "exceptions.uncause",
-                logger.error(e, message),
-                config.chat_config.owner
-            )
-        )
+        await log_exception(e, message)
 
 
 @router.message(Command("initadmin"))
@@ -72,14 +66,7 @@ async def init_admin(message: Message) -> None:
         await sleep(3)
         await message.delete()
     except Exception as e:
-        await message.reply(
-            get_string(
-                message.from_user.language_code,
-                "exceptions.uncause",
-                logger.error(e, message),
-                config.chat_config.owner
-            )
-        )
+        await log_exception(e, message)
 
 
 @router.message(Command("inithype"))
@@ -103,14 +90,7 @@ async def init_admin(message: Message) -> None:
         await sleep(3)
         await message.delete()
     except Exception as e:
-        await message.reply(
-            get_string(
-                message.from_user.language_code,
-                "exceptions.uncause",
-                logger.error(e, message),
-                config.chat_config.owner
-            )
-        )
+        await log_exception(e, message)
 
 
 def find_chat(blacklisted: list[BlacklistedChat], chat_id: int) -> BlacklistedChat | None:
@@ -158,14 +138,7 @@ async def blacklist(message: Message) -> None:
         await sleep(3)
         await message.delete()
     except Exception as e:
-        await message.reply(
-            get_string(
-                message.from_user.language_code,
-                "exceptions.uncause",
-                logger.error(e, message),
-                config.chat_config.owner
-            )
-        )
+        await log_exception(e, message)
 
 
 @router.message(Command("unblacklist"))
@@ -199,11 +172,4 @@ async def blacklist(message: Message) -> None:
         await sleep(3)
         await message.delete()
     except Exception as e:
-        await message.reply(
-            get_string(
-                message.from_user.language_code,
-                "exceptions.uncause",
-                logger.error(e, message),
-                config.chat_config.owner
-            )
-        )
+        await log_exception(e, message)

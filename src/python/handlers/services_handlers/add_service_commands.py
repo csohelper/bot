@@ -14,10 +14,8 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, InputMedia
 from aiogram.utils.deep_linking import create_start_link
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 
-from python.handlers.echo_commands import check_and_delete_after
 from python.handlers.services_handlers import moderate_service
-from python.logger import logger
-from python.storage.config import config
+from python.main import log_exception
 from python.storage.repository import services_repository
 from python.storage.repository.services_repository import Service
 from python.storage.strings import get_string
@@ -67,16 +65,7 @@ async def on_addservice(message: Message, state: FSMContext, lang=None) -> None:
         )
         await state.set_state(AddServiceStates.choosing_name_state)
     except Exception as e:
-        asyncio.create_task(check_and_delete_after(
-            message, await message.reply(
-                get_string(
-                    message.from_user.language_code,
-                    "exceptions.uncause",
-                    logger.error(e, message),
-                    config.chat_config.owner
-                )
-            )
-        ))
+        await log_exception(e, message)
 
 
 @router.message(
@@ -110,16 +99,7 @@ async def on_name_chosen(message: Message, state: FSMContext) -> None:
         )
         await state.set_state(AddServiceStates.choosing_description_state)
     except Exception as e:
-        asyncio.create_task(check_and_delete_after(
-            message, await message.reply(
-                get_string(
-                    message.from_user.language_code,
-                    "exceptions.uncause",
-                    logger.error(e, message),
-                    config.chat_config.owner
-                )
-            )
-        ))
+        await log_exception(e, message)
 
 
 @router.message(
@@ -153,16 +133,7 @@ async def on_description_chosen(message: Message, state: FSMContext) -> None:
         )
         await state.set_state(AddServiceStates.choosing_cost_state)
     except Exception as e:
-        asyncio.create_task(check_and_delete_after(
-            message, await message.reply(
-                get_string(
-                    message.from_user.language_code,
-                    "exceptions.uncause",
-                    logger.error(e, message),
-                    config.chat_config.owner
-                )
-            )
-        ))
+        await log_exception(e, message)
 
 
 @router.message(
@@ -201,16 +172,7 @@ async def on_cost_chosen(message: Message, state: FSMContext) -> None:
         )
         await state.set_state(AddServiceStates.choosing_cost_per_state)
     except Exception as e:
-        asyncio.create_task(check_and_delete_after(
-            message, await message.reply(
-                get_string(
-                    message.from_user.language_code,
-                    "exceptions.uncause",
-                    logger.error(e, message),
-                    config.chat_config.owner
-                )
-            )
-        ))
+        await log_exception(e, message)
 
 
 @router.message(
@@ -245,16 +207,7 @@ async def on_cost_per_chosen(message: Message, state: FSMContext) -> None:
         )
         await state.set_state(AddServiceStates.choosing_picture_state)
     except Exception as e:
-        asyncio.create_task(check_and_delete_after(
-            message, await message.reply(
-                get_string(
-                    message.from_user.language_code,
-                    "exceptions.uncause",
-                    logger.error(e, message),
-                    config.chat_config.owner
-                )
-            )
-        ))
+        await log_exception(e, message)
 
 
 @router.message(
@@ -301,16 +254,7 @@ async def on_picture_chosen(message: Message, state: FSMContext) -> None:
         await process_create_service(message, state)
         await state.clear()
     except Exception as e:
-        asyncio.create_task(check_and_delete_after(
-            message, await message.reply(
-                get_string(
-                    message.from_user.language_code,
-                    "exceptions.uncause",
-                    logger.error(e, message),
-                    config.chat_config.owner
-                )
-            )
-        ))
+        await log_exception(e, message)
 
 
 async def process_create_service(message: Message, state: FSMContext) -> None:
@@ -425,16 +369,7 @@ async def process_create_service(message: Message, state: FSMContext) -> None:
             reply_markup=update_keyboard.as_markup()
         )
     except Exception as e:
-        asyncio.create_task(check_and_delete_after(
-            message, await message.reply(
-                get_string(
-                    message.from_user.language_code,
-                    "exceptions.uncause",
-                    logger.error(e, message),
-                    config.chat_config.owner
-                )
-            )
-        ))
+        await log_exception(e, message)
 
 
 class EditServiceCallbackFactory(CallbackData, prefix="editsrvc"):
@@ -499,16 +434,7 @@ async def callbacks_edit_service(
 
         await callback.answer()
     except Exception as e:
-        asyncio.create_task(check_and_delete_after(
-            await callback.reply(
-                get_string(
-                    callback.from_user.language_code,
-                    "exceptions.uncause",
-                    logger.error(e, callback),
-                    config.chat_config.owner
-                )
-            )
-        ))
+        await log_exception(e, callback)
 
 
 class EditServiceStates(StatesGroup):
@@ -632,19 +558,11 @@ async def on_name_edit(message: Message, state: FSMContext) -> None:
         await _bot.delete_message(message.chat.id, message.message_id)
         service = await services_repository.update_service_fields(callback_data.service_id, name=message.text)
         if service:
-            await update_preview_text(message.from_user.language_code, message.chat.id, callback_data.original_msg, service)
+            await update_preview_text(message.from_user.language_code, message.chat.id, callback_data.original_msg,
+                                      service)
         await state.clear()
     except Exception as e:
-        asyncio.create_task(check_and_delete_after(
-            message, await message.reply(
-                get_string(
-                    message.from_user.language_code,
-                    "exceptions.uncause",
-                    logger.error(e, message),
-                    config.chat_config.owner
-                )
-            )
-        ))
+        await log_exception(e, message)
 
 
 @router.message(
@@ -674,19 +592,11 @@ async def on_description_edit(message: Message, state: FSMContext) -> None:
         await _bot.delete_message(message.chat.id, message.message_id)
         service = await services_repository.update_service_fields(callback_data.service_id, description=description)
         if service:
-            await update_preview_text(message.from_user.language_code, message.chat.id, callback_data.original_msg, service)
+            await update_preview_text(message.from_user.language_code, message.chat.id, callback_data.original_msg,
+                                      service)
         await state.clear()
     except Exception as e:
-        asyncio.create_task(check_and_delete_after(
-            message, await message.reply(
-                get_string(
-                    message.from_user.language_code,
-                    "exceptions.uncause",
-                    logger.error(e, message),
-                    config.chat_config.owner
-                )
-            )
-        ))
+        await log_exception(e, message)
 
 
 @router.message(
@@ -719,19 +629,11 @@ async def on_cost_edit(message: Message, state: FSMContext) -> None:
         await _bot.delete_message(message.chat.id, message.message_id)
         service = await services_repository.update_service_fields(callback_data.service_id, cost=int(message.text))
         if service:
-            await update_preview_text(message.from_user.language_code, message.chat.id, callback_data.original_msg, service)
+            await update_preview_text(message.from_user.language_code, message.chat.id, callback_data.original_msg,
+                                      service)
         await state.clear()
     except Exception as e:
-        asyncio.create_task(check_and_delete_after(
-            message, await message.reply(
-                get_string(
-                    message.from_user.language_code,
-                    "exceptions.uncause",
-                    logger.error(e, message),
-                    config.chat_config.owner
-                )
-            )
-        ))
+        await log_exception(e, message)
 
 
 @router.message(
@@ -759,19 +661,11 @@ async def on_cost_per_edit(message: Message, state: FSMContext) -> None:
         await _bot.delete_message(message.chat.id, message.message_id)
         service = await services_repository.update_service_fields(callback_data.service_id, cost_per=message.text)
         if service:
-            await update_preview_text(message.from_user.language_code, message.chat.id, callback_data.original_msg, service)
+            await update_preview_text(message.from_user.language_code, message.chat.id, callback_data.original_msg,
+                                      service)
         await state.clear()
     except Exception as e:
-        asyncio.create_task(check_and_delete_after(
-            message, await message.reply(
-                get_string(
-                    message.from_user.language_code,
-                    "exceptions.uncause",
-                    logger.error(e, message),
-                    config.chat_config.owner
-                )
-            )
-        ))
+        await log_exception(e, message)
 
 
 @router.message(
@@ -812,19 +706,11 @@ async def on_picture_edit(message: Message, state: FSMContext) -> None:
         reply_message: int = await state.get_value("reply")
         service = await services_repository.update_service_fields(callback_data.service_id, image=photo_base64)
         if service:
-            await update_preview_text(message.from_user.language_code, message.chat.id, callback_data.original_msg, service,
+            await update_preview_text(message.from_user.language_code, message.chat.id, callback_data.original_msg,
+                                      service,
                                       True)
         await _bot.delete_message(message.chat.id, reply_message)
         await _bot.delete_message(message.chat.id, message.message_id)
         await state.clear()
     except Exception as e:
-        asyncio.create_task(check_and_delete_after(
-            message, await message.reply(
-                get_string(
-                    message.from_user.language_code,
-                    "exceptions.uncause",
-                    logger.error(e, message),
-                    config.chat_config.owner
-                )
-            )
-        ))
+        await log_exception(e, message)

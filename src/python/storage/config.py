@@ -27,6 +27,7 @@ class ChatConfig(BaseModel):
     default_lang: str = Field(default="en")
     invite_link: str | None = Field(default=None)
     echo_auto_delete_secs: int = Field(default=600)
+    admin_debug_topic: int | None = Field(default=None)
 
 
 class TelegramConfig(BaseModel):

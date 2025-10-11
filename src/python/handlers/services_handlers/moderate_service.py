@@ -1,4 +1,3 @@
-import asyncio
 import base64
 import io
 
@@ -10,10 +9,9 @@ from aiogram.types import FSInputFile, BufferedInputFile, InlineKeyboardButton, 
     ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 
-from python.handlers.echo_commands import check_and_delete_after
-from python.logger import logger
-from python.storage.repository import services_repository
+from python.main import log_exception
 from python.storage.config import config
+from python.storage.repository import services_repository
 from python.storage.repository.services_repository import Service
 from python.storage.strings import get_string
 
@@ -165,16 +163,7 @@ async def callbacks_moderate_buttons(
                 await state.set_state(ModerateStates.accept)
         await callback.answer()
     except Exception as e:
-        asyncio.create_task(check_and_delete_after(
-            await callback.reply(
-                get_string(
-                    callback.from_user.language_code,
-                    "exceptions.uncause",
-                    logger.error(e, callback),
-                    config.chat_config.owner
-                )
-            )
-        ))
+        await log_exception(e, callback)
 
 
 def category_markup() -> ReplyKeyboardMarkup:
@@ -237,16 +226,7 @@ async def on_category_chosen(message: Message, state: FSMContext) -> None:
             )
         )
     except Exception as e:
-        asyncio.create_task(check_and_delete_after(
-            message, await message.reply(
-                get_string(
-                    message.from_user.language_code,
-                    "exceptions.uncause",
-                    logger.error(e, message),
-                    config.chat_config.owner
-                )
-            )
-        ))
+        await log_exception(e, message)
 
 
 @router.message(
@@ -304,16 +284,7 @@ async def on_reject_chosen(message: Message, state: FSMContext) -> None:
             )
         )
     except Exception as e:
-        asyncio.create_task(check_and_delete_after(
-            message, await message.reply(
-                get_string(
-                    message.from_user.language_code,
-                    "exceptions.uncause",
-                    logger.error(e, message),
-                    config.chat_config.owner
-                )
-            )
-        ))
+        await log_exception(e, message)
 
 
 @router.message(
@@ -365,13 +336,4 @@ async def on_accept_chosen(message: Message, state: FSMContext) -> None:
             )
         )
     except Exception as e:
-        asyncio.create_task(check_and_delete_after(
-            message, await message.reply(
-                get_string(
-                    message.from_user.language_code,
-                    "exceptions.uncause",
-                    logger.error(e, message),
-                    config.chat_config.owner
-                )
-            )
-        ))
+        await log_exception(e, message)
