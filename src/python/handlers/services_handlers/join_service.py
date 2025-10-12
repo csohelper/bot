@@ -17,7 +17,7 @@ from python.logger import logger
 from python.storage.config import config
 from python.storage.repository import users_repository
 from python.storage.strings import get_string
-from python.utils import log_exception
+from python.utils import log_exception, download_photos
 
 router = Router()
 
@@ -305,17 +305,11 @@ async def on_picture_chosen(message: Message, state: FSMContext) -> None:
             return
 
         largest_photo = message.photo[-1]
-        photo_buffer = io.BytesIO()
-        await _bot.download(
-            file=largest_photo.file_id,
-            destination=photo_buffer
-        )
-        photo_buffer.seek(0)
-        photo_bytes = photo_buffer.read()
-        photo_base64 = base64.b64encode(photo_bytes).decode('utf-8')
-
         await state.update_data(
-            image=photo_base64
+            image=(download_photos(
+                _bot,
+                [largest_photo.file_id]
+            ))
         )
 
         await message.reply_photo(

@@ -1,15 +1,13 @@
-import base64
 from asyncio import sleep
 from dataclasses import dataclass, asdict
-from typing import Optional, List, Callable, Awaitable
+from typing import Optional, List
 
-import aiohttp
 from aiogram import Router, Bot, F, types
 from aiogram.exceptions import TelegramBadRequest, TelegramRetryAfter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, InlineKeyboardButton, KeyboardButton, ReplyKeyboardRemove, \
-    User, File
+    User
 from aiogram.utils.deep_linking import create_start_link
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 from aiogram_media_group import media_group_handler
@@ -19,7 +17,7 @@ from python.storage.command_loader import get_all_triggers
 from python.storage.config import config
 from python.storage.repository import hype_repository
 from python.storage.strings import get_string, get_string_variants
-from python.utils import log_exception
+from python.utils import log_exception, download_photos, download_video
 
 router = Router()
 
@@ -361,45 +359,6 @@ async def on_single_photo(message: Message, state: FSMContext):
         await log_exception(e, message)
 
 
-async def download_photos(
-        file_ids: List[str],
-        progress_callback: Optional[Callable[[int, int], Awaitable[None]]] = None
-) -> List[str]:
-    """
-    Скачивает все фото или видео из списка file_ids через nginx и возвращает список Base64-строк.
-    """
-    base64_photos = []
-    await progress_callback(0, len(file_ids))
-    async with aiohttp.ClientSession() as session:
-        for i, file_id in enumerate(file_ids):
-            try:
-                # Получаем информацию о файле через nginx
-                file: File = await _bot.get_file(file_id)
-
-                # Обрезаем префикс /var/lib/telegram-bot-api/
-                relative_path = file.file_path.lstrip('/var/lib/telegram-bot-api/')
-
-                # Формируем URL для скачивания
-                download_url = f"{config.telegram.download_server}/file/{relative_path}"
-
-                # Скачиваем файл
-                async with session.get(download_url) as response:
-                    if response.status != 200:
-                        raise Exception(f"Ошибка скачивания: {response.status}, URL: {download_url}")
-                    file_bytes = await response.read()
-
-                # Преобразуем в Base64
-                photo_b64 = base64.b64encode(file_bytes).decode('utf-8')
-                base64_photos.append(photo_b64)
-
-            except Exception as e:
-                logger.error(f"Ошибка при скачивании file_id={file_id}: {str(e)}")
-                continue  # Пропускаем ошибочный файл
-
-            await progress_callback(i + 1, len(file_ids))
-    return base64_photos
-
-
 async def parse_contact(from_user: User):
     if from_user.username:
         return get_string(
@@ -455,61 +414,6 @@ async def process_photos(messages: List[types.Message], state: FSMContext):
 
 
 VIDEO_MAX_SIZE = 128
-
-
-async def download_video(file_id: str | None,
-                         progress_callback: Optional[Callable[[int], Awaitable[None]]] = None) -> str | None:
-    """
-    Downloads a video through nginx (local Telegram Bot API) and returns Base64 encoded data.
-    Calls the progress_callback with the download percentage (only on change).
-
-    Args:
-        file_id: The Telegram file ID to download.
-        progress_callback: Optional callback function to report download progress (percentage).
-
-    Returns:
-        Base64 encoded string of the video or None if file_id is invalid.
-    """
-    if not file_id:
-        return None
-
-    # Get file information
-    file_info: File = await _bot.get_file(file_id)
-
-    # file_path: /var/lib/telegram-bot-api/<token>/videos/file_0.mp4
-    # Strip prefix to get relative path: <token>/videos/file_0.mp4
-    relative_path = file_info.file_path.lstrip('/var/lib/telegram-bot-api/')
-
-    # Form the download URL for nginx
-    download_url = f"{config.telegram.download_server}/file/{relative_path}"
-
-    # Download file with progress tracking
-    async with aiohttp.ClientSession() as session:
-        async with session.get(download_url) as response:
-            if response.status != 200:
-                raise Exception(f"Download error: {response.status}, URL: {download_url}")
-
-            # Get total size of the file (if available)
-            total_size = int(response.headers.get('Content-Length', 0))
-            downloaded = 0
-            last_reported_percentage = -1  # Track last reported percentage to avoid duplicates
-            data_bytes = bytearray()
-
-            # Read response in chunks to track progress
-            chunk_size = 1024 * 1024  # 1MB chunks
-            async for chunk in response.content.iter_chunked(chunk_size):
-                data_bytes.extend(chunk)
-                downloaded += len(chunk)
-
-                # Calculate and report progress if total_size is known
-                if total_size > 0 and progress_callback:
-                    percentage = int((downloaded / total_size) * 100)
-                    if percentage != last_reported_percentage:
-                        last_reported_percentage = percentage
-                        await progress_callback(percentage)
-
-    # Encode to Base64
-    return base64.b64encode(data_bytes).decode("utf-8")
 
 
 @router.message(HypeStates.sending_video)
@@ -730,6 +634,7 @@ async def process_confirm(message: Message, state: FSMContext):
 
             photo_ids: list[str] = await state.get_value('photos')
             photo_files = await download_photos(
+                _bot,
                 photo_ids,
                 lambda download, count: photo_callback_handler(download, count, wait_msg, message)
             )
@@ -745,6 +650,7 @@ async def process_confirm(message: Message, state: FSMContext):
                     )
                 )
                 video_file = await download_video(
+                    _bot,
                     video_id,
                     progress_callback=lambda progress: video_callback_handler(progress, wait_msg, message)
                 )
