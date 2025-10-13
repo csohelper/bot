@@ -69,6 +69,8 @@ services:
 
   csohelper-bot:
     build: .
+    env_file:
+      - .env
     volumes:
       - ./storage/bot/:/app/storage/
     depends_on:
