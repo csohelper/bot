@@ -306,7 +306,7 @@ async def on_picture_chosen(message: Message, state: FSMContext) -> None:
 
         largest_photo = message.photo[-1]
         await state.update_data(
-            image=(download_photos(
+            image=(await download_photos(
                 _bot,
                 [largest_photo.file_id]
             ))
