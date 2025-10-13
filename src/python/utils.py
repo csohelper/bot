@@ -270,7 +270,8 @@ async def download_photos(
     Скачивает все фото или видео из списка file_ids через nginx и возвращает список Base64-строк.
     """
     base64_photos = []
-    await progress_callback(0, len(file_ids))
+    if progress_callback:
+        await progress_callback(0, len(file_ids))
     async with aiohttp.ClientSession() as session:
         for i, file_id in enumerate(file_ids):
             try:
@@ -297,7 +298,8 @@ async def download_photos(
                 logger.error(f"Ошибка при скачивании file_id={file_id}: {str(e)}")
                 continue  # Пропускаем ошибочный файл
 
-            await progress_callback(i + 1, len(file_ids))
+            if progress_callback:
+                await progress_callback(i + 1, len(file_ids))
     return base64_photos
 
 
