@@ -199,7 +199,7 @@ async def command_services_handler(message: Message) -> None:
                     message.from_user.language_code,
                     "exceptions.uncause",
                     logger.error(e, message),
-                    config.chat_config.owner
+                    config.chat_config.owner_username
                 )
             )
         ))

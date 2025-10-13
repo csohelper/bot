@@ -57,7 +57,7 @@ async def greet(message: Message):
                 message.from_user.language_code,
                 "exceptions.uncause",
                 logger.error(e, message),
-                config.chat_config.owner
+                config.chat_config.owner_username
             )
         )
 
@@ -408,7 +408,7 @@ async def process_photos(messages: List[types.Message], state: FSMContext):
                 messages[-1].from_user.language_code,
                 "exceptions.uncause",
                 logger.error(e, messages[-1]),
-                config.chat_config.owner
+                config.chat_config.owner_username
             )
         )
 
@@ -555,7 +555,7 @@ async def video_callback_handler(percentage: int, wait_msg: Message, user_messag
                 user_message.from_user.language_code,
                 "exceptions.uncause",
                 logger.error(e, user_message),
-                config.chat_config.owner
+                config.chat_config.owner_username
             )
         )
 
@@ -582,7 +582,7 @@ async def photo_callback_handler(download: int, count: int, wait_msg: Message, u
                 user_message.from_user.language_code,
                 "exceptions.uncause",
                 logger.error(e, user_message),
-                config.chat_config.owner
+                config.chat_config.owner_username
             )
         )
 

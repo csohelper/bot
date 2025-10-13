@@ -244,7 +244,7 @@ async def log_exception(e: Exception, original: Message | CallbackQuery | ChatJo
             original.from_user.language_code,
             "exceptions.uncause",
             code,
-            config.chat_config.owner
+            config.chat_config.owner_username
         )
     )
     await original.bot.send_message(

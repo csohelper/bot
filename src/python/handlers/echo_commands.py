@@ -207,9 +207,10 @@ async def command_start_handler(message: Message) -> None:
         ))
 
         if message.chat.type == "private":
-            if config.chat_config.owner == 0:
+            if config.chat_config.owner == 0 or config.chat_config.owner is None:
                 await message.answer(get_string(message.from_user.language_code, 'echo_commands.first_start'))
                 config.chat_config.owner = message.from_user.id
+                config.chat_config.owner_username = message.from_user.username
                 save_config(config)
             if await in_chat(message.bot, message.chat.id, message.from_user.id) and config.chat_config.invite_link:
                 await message.answer(get_string(

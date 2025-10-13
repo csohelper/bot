@@ -31,7 +31,8 @@ class AdminConfig(BaseModel):
 
 
 class ChatConfig(BaseModel):
-    owner: int = Field(default=0)
+    owner: int | None = Field(default=None)
+    owner_username: str | None = Field(default=None)
     chat_id: int = Field(default=-1000000000000)
     hype_chat_id: int = Field(default=-1000000000000)
     invite_link: str | None = Field(default=None)
