@@ -309,7 +309,7 @@ async def on_picture_chosen(message: Message, state: FSMContext) -> None:
             image=(await download_photos(
                 _bot,
                 [largest_photo.file_id]
-            ))
+            ))[0]
         )
 
         await message.reply_photo(
