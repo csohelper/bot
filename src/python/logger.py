@@ -6,6 +6,7 @@ import traceback
 import uuid
 from datetime import datetime, timezone, date
 from typing import Any
+from zoneinfo import ZoneInfo
 
 from python.storage.config import config
 
@@ -14,12 +15,28 @@ logging.addLevelName(TRACE_LEVEL, "TRACE")
 
 
 class SafeFormatter(logging.Formatter):
-    """Formatter that ensures 'log_id' always exists."""
+    """Formatter that ensures 'log_id' always exists and adds milliseconds."""
+
+    def __init__(self, fmt=None, datefmt=None, tz: ZoneInfo = None):
+        super().__init__(fmt=fmt, datefmt=datefmt)
+        self.tz = tz
 
     def format(self, record):
         if not hasattr(record, "log_id"):
             record.log_id = str(uuid.uuid4())
         return super().format(record)
+
+    def formatTime(self, record, datefmt=None):
+        # создаём datetime с таймзоной
+        dt = datetime.fromtimestamp(record.created, tz=self.tz)
+
+        # базовое форматирование (без %f, чтобы не упасть)
+        if datefmt:
+            s = dt.strftime(datefmt)
+        else:
+            s = dt.strftime("%Y-%m-%d %H:%M:%S")
+
+        return s
 
 
 # === Safe JSON Encoder ===
@@ -122,9 +139,15 @@ def setup_logger(
     """
     Initializes a base logger with console, text, and JSON handlers.
     """
+
+    if config.timezone:
+        tz = ZoneInfo(config.timezone)
+    else:
+        tz = None
+
     os.makedirs("storage/logs/json", exist_ok=True)
-    log_filename = f"storage/logs/{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.log"
-    json_log_filename = f"storage/logs/json/{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.jsonl"
+    log_filename = f"storage/logs/{datetime.now(tz).strftime('%Y-%m-%d_%H-%M-%S%z')}.log"
+    json_log_filename = f"storage/logs/json/{datetime.now(tz).strftime('%Y-%m-%d_%H-%M-%S%z')}.jsonl"
 
     _logger = logging.getLogger(name)
     _logger.setLevel(TRACE_LEVEL)
@@ -132,7 +155,8 @@ def setup_logger(
     if not _logger.handlers:
         text_formatter = SafeFormatter(
             "[%(log_id)s] %(asctime)s - %(levelname)s - %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S"
+            datefmt="%d.%m.%Y %H:%M:%S.%f%z",
+            tz=tz
         )
 
         # Console handler

@@ -80,7 +80,7 @@ class BlacklistedChat(BaseModel):
 
 
 class AppConfig(BaseModel):
-    timezone: str = Field(default="Europe/Moscow")
+    timezone: str | None = Field(default=None, description="Using timezone instead of ENV \"TZ\"")
     logger: LoggerConfig = Field(default_factory=LoggerConfig)
     telegram: TelegramConfig = Field(default_factory=TelegramConfig)
     database: DatabaseConfig = Field(default_factory=DatabaseConfig)
@@ -97,7 +97,7 @@ DEFAULT_CONFIG = AppConfig()
 
 
 def backup_corrupted_config():
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S%z")
     backup_path = CONFIG_PATH.with_name(f"{CONFIG_PATH.stem}_backup_{timestamp}{CONFIG_PATH.suffix}")
     shutil.copy(CONFIG_PATH, backup_path)
     print(f"Backup created: {backup_path}")

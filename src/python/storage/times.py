@@ -110,7 +110,10 @@ def get_time(time_address: str) -> TimeDeltaInfo | None:
     if not isinstance(node, list):
         return None
 
-    tz = ZoneInfo(config.timezone)
+    if config.timezone:
+        tz = ZoneInfo(config.timezone)
+    else:
+        tz = None
     now = datetime.now(tz)
 
     past_candidates: list[tuple[datetime, datetime]] = []
