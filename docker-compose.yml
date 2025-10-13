@@ -41,14 +41,6 @@ services:
     ports:
       - "8081:8081"
     restart: always
-    healthcheck:
-      test: >
-        sh -c 'status=$(wget -qO- --server-response http://localhost:8081/getMe 2>&1 | awk "/HTTP/{print \$2}");
-               [ "$status" = "200" ] || [ "$status" = "404" ]'
-      interval: 5s
-      timeout: 3s
-      retries: 5
-      start_period: 2s
 
   nginx:
     image: nginx:latest
@@ -58,14 +50,9 @@ services:
     ports:
       - "8082:80"
     depends_on:
-      - telegram-bot-api
+      telegram-bot-api:
+        condition: service_started
     restart: always
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
-      start_period: 5s
 
   csohelper-bot:
     build: .
@@ -79,4 +66,4 @@ services:
       redis:
         condition: service_healthy
       nginx:
-        condition: service_healthy
+        condition: service_started
