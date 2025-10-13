@@ -8,8 +8,8 @@ packages = [{ include = "python", from = "src" }]
 [tool.poetry.dependencies]
 python = "^3.11"
 aiogram = "^3.20.0"
-pydantic = "^2.11.10"
-dynaconf = "^3.2.11"
+pydantic = "^2.12.0"
+dynaconf = "^3.2.12"
 psycopg = {extras = ["async", "binary", "pool"], version = "^3.2.10"}
 pyyaml = "^6.0.3"
 pymorphy2 = "^0.9.1"

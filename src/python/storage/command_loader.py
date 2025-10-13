@@ -6,7 +6,7 @@ import yaml
 from pydantic import BaseModel, Field
 
 from python.logger import logger
-from python.storage.strings import list_langs, get_string, get_object
+from python.storage.strings import list_langs, get_string
 
 __path = 'src/res/strings/commands_info.yaml'
 

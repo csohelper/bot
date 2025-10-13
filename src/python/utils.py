@@ -12,7 +12,8 @@ from python.storage.config import config
 from python.storage.strings import get_string
 
 from aiogram import Bot
-from aiogram.types import ChatMember, Message, ReactionTypeEmoji, CallbackQuery, ChatJoinRequest, File
+from aiogram.types import (ChatMember, Message, ReactionTypeEmoji, CallbackQuery, ChatJoinRequest, File,
+                           ChatMemberLeft, ChatMemberBanned)
 
 
 def get_week_number(current_date: datetime) -> int:
@@ -80,7 +81,7 @@ async def is_user_in_chat(bot: Bot, chat_id: int | str, user_id: int) -> bool:
     """
     try:
         member: ChatMember = await bot.get_chat_member(chat_id, user_id)
-        return member.status not in ("left", "kicked")
+        return not isinstance(member, (ChatMemberLeft, ChatMemberBanned))
     except Exception:
         # Например, если бот не состоит в чате или нет прав на просмотр
         return False
@@ -247,16 +248,16 @@ async def log_exception(e: Exception, original: Message | CallbackQuery | ChatJo
         )
     )
     await original.bot.send_message(
-        config.chat_config.admin_chat_id,
+        config.chat_config.admin.chat_id,
         get_string(
-            config.chat_config.admin_lang,
+            config.chat_config.admin.chat_lang,
             "exceptions.debug",
             code=code, exc=str(e),
             userid=original.from_user.id,
             username=original.from_user.username,
             fullname=original.from_user.full_name,
         ),
-        message_thread_id=config.chat_config.admin_debug_topic
+        message_thread_id=config.chat_config.admin.topics.debug
     )
 
 

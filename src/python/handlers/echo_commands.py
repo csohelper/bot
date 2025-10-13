@@ -51,9 +51,9 @@ async def check_and_delete_after(*messages: Message):
             await message.delete()
 
 
-def make_image_handler(echo_command: EchoCommand):
-    @router.message(Command(echo_command.name))
-    @router.message(TriggerFilter(echo_command.triggers))
+def make_image_handler(command_info: EchoCommand):
+    @router.message(Command(command_info.name))
+    @router.message(TriggerFilter(command_info.triggers))
     async def echo_command_handler(message: Message) -> None:
         try:
             if await check_blacklisted(message):
@@ -69,45 +69,45 @@ def make_image_handler(echo_command: EchoCommand):
             delete_messages = [message]
             while True:
                 if (
-                        echo_command.name not in images_caches or
-                        images_caches[echo_command.name] is None or
-                        len(images_caches[echo_command.name]) == 0
+                        command_info.name not in images_caches or
+                        images_caches[command_info.name] is None or
+                        len(images_caches[command_info.name]) == 0
                 ):
                     media = [
                         InputMediaPhoto(
                             media=FSInputFile(x),
-                            show_caption_above_media=echo_command.images.caption_above
-                        ) for x in echo_command.images.files
+                            show_caption_above_media=command_info.images.caption_above
+                        ) for x in command_info.images.files
                     ]
                     media[0].caption = get_string(
                         message.from_user.language_code,
-                        echo_command.message_path,
-                        **build_kwargs(echo_command.times, message.from_user.language_code)
+                        command_info.message_path,
+                        **build_kwargs(command_info.times, message.from_user.language_code)
                     )
                     sent = await message.reply_media_group(media=media)
 
-                    images_caches[echo_command.name] = []
+                    images_caches[command_info.name] = []
                     for msg in sent:
                         delete_messages.append(msg)
                         if msg.photo:
                             largest_photo = msg.photo[-1]
-                            images_caches[echo_command.name].append(largest_photo.file_id)
+                            images_caches[command_info.name].append(largest_photo.file_id)
                 else:
                     try:
                         media = [
                             InputMediaPhoto(
                                 media=file_id,
-                                show_caption_above_media=echo_command.images.caption_above
-                            ) for file_id in images_caches[echo_command.name]
+                                show_caption_above_media=command_info.images.caption_above
+                            ) for file_id in images_caches[command_info.name]
                         ]
                         media[0].caption = get_string(
-                            message.from_user.language_code, echo_command.message_path,
-                            **build_kwargs(echo_command.times, message.from_user.language_code)
+                            message.from_user.language_code, command_info.message_path,
+                            **build_kwargs(command_info.times, message.from_user.language_code)
                         )
                         delete_messages.extend(await message.reply_media_group(media=media))
                     except Exception as e:
                         logger.error(f"{e}")
-                        images_caches[echo_command.name] = []
+                        images_caches[command_info.name] = []
                         continue
                 break
             asyncio.create_task(check_and_delete_after(*delete_messages))
@@ -117,9 +117,9 @@ def make_image_handler(echo_command: EchoCommand):
     return echo_command_handler
 
 
-def make_text_handler(echo_command: EchoCommand):
-    @router.message(Command(echo_command.name))
-    @router.message(TriggerFilter(echo_command.triggers))
+def make_text_handler(command_info: EchoCommand):
+    @router.message(Command(command_info.name))
+    @router.message(TriggerFilter(command_info.triggers))
     async def echo_command_handler(message: Message) -> None:
         try:
             if await check_blacklisted(message):
@@ -133,8 +133,8 @@ def make_text_handler(echo_command: EchoCommand):
                 ))
             sent = await message.reply(get_string(
                 message.from_user.language_code,
-                echo_command.message_path,
-                **build_kwargs(echo_command.times, message.from_user.language_code)
+                command_info.message_path,
+                **build_kwargs(command_info.times, message.from_user.language_code)
             ))
             asyncio.create_task(check_and_delete_after(message, sent))
         except Exception as e:
@@ -143,11 +143,11 @@ def make_text_handler(echo_command: EchoCommand):
     return echo_command_handler
 
 
-def make_handler(echo_command: EchoCommand):
-    if echo_command.images and len(echo_command.images.files) > 0:
-        make_image_handler(echo_command)
+def make_handler(command_info: EchoCommand):
+    if command_info.images and len(command_info.images.files) > 0:
+        make_image_handler(command_info)
     else:
-        make_text_handler(echo_command)
+        make_text_handler(command_info)
 
 
 for echo_command in echo_commands:

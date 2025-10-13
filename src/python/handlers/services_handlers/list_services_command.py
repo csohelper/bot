@@ -318,7 +318,7 @@ async def callbacks_num_change_fab(
                     ),
                     reply_markup=new_keyboard.as_markup()
                 )
-            except Exception as e:
+            except Exception:
                 await callback.message.edit_caption(
                     photo=FSInputFile('./src/res/images/services/header.jpg'),
                     caption='\n'.join(caption_lines),

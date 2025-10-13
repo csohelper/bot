@@ -111,8 +111,8 @@ def get_string_variants(key: str, *args: Any, **kwargs: Any) -> list[str]:
     ]
 
 
-def __get_locale_object(locale: str, path: str) -> Any | None:
-    keys = path.split(".")
+def __get_locale_object(locale: str, string_key: str) -> Any | None:
+    keys = string_key.split(".")
     value = __locales.get(locale)
     try:
         for key in keys:
@@ -143,15 +143,15 @@ def get_object(locale: str | None, key: str) -> Any | None:
     return result
 
 
-def __get_locale_strings(locale: str | None, path: str, *args: Any) -> list[str] | None:
+def __get_locale_strings(locale: str | None, string_key: str, *args: Any) -> list[str] | None:
     """
     Получает строку по пути и подставляет переданные аргументы.
 
-    :param path: Путь через точку, например "greetings.hello"
+    :param string_key: Путь через точку, например "greetings.hello"
     :param args: Аргументы для подстановки по порядку
     :return: Отформатированная строка
     """
-    keys = path.split(".")
+    keys = string_key.split(".")
     value = __locales.get(locale)
     try:
         for key in keys:

@@ -8,11 +8,11 @@ from aiogram.exceptions import TelegramBadRequest, TelegramRetryAfter
 from aiogram.filters import Command
 from aiogram.types import ChatPermissions, Message
 
-from .. import anecdote_poller
 from python.logger import logger
 from python.storage.config import config
 from python.storage.strings import get_string
-from python.utils import check_blacklisted, await_and_run, log_exception
+from python.utils import check_blacklisted, log_exception
+from .. import anecdote_poller
 
 router = Router()
 _bot: Bot

@@ -371,7 +371,7 @@ async def parse_contact(from_user: User):
             from_user.language_code,
             'hype_collector.contact.nousername',
             userid=from_user.id,
-            fullname=from_user.fullname
+            fullname=from_user.full_name
         )
 
 

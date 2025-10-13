@@ -371,7 +371,7 @@ async def on_send_chosen(message: Message, state: FSMContext) -> None:
             image_stream = io.BytesIO(image_bytes)
             media = BufferedInputFile(image_stream.read(), filename=f"preview.jpg")
             send = await _bot.send_photo(
-                chat_id=config.chat_config.admin_chat_id,
+                chat_id=config.chat_config.admin.chat_id,
                 photo=media,
                 caption=new_request_message(
                     message.from_user.language_code,
@@ -390,7 +390,8 @@ async def on_send_chosen(message: Message, state: FSMContext) -> None:
                 )).row(InlineKeyboardButton(
                     text='✅Одобрить',
                     callback_data='.'
-                )).as_markup()
+                )).as_markup(),
+                message_thread_id=config.chat_config.admin.topics.join
             )
             await send.edit_reply_markup(reply_markup=InlineKeyboardBuilder().row(InlineKeyboardButton(
                 text='🚫Отклонить',
@@ -587,7 +588,7 @@ async def on_join_accept(
                     database_user.user_id
                 )
                 await _bot.edit_message_caption(
-                    chat_id=config.chat_config.admin_chat_id,
+                    chat_id=config.chat_config.admin.chat_id,
                     message_id=callback_data.message,
                     caption=new_request_message(
                         callback.from_user.language_code,
@@ -675,35 +676,35 @@ async def refuse_user(reason: str | None, state: FSMContext, from_user: User) ->
     if from_user.username:
         if reason:
             status = get_string(
-                config.admin_lang,
+                config.chat_config.admin.chat_lang,
                 "user_service.moderation.request_status.refused.username.commented",
                 from_user.username, reason
             )
         else:
             status = get_string(
-                config.admin_lang,
+                config.chat_config.admin.chat_lang,
                 "user_service.moderation.request_status.refused.username.nocomment",
                 from_user.username
             )
     else:
         if reason:
             status = get_string(
-                config.admin_lang,
+                config.chat_config.admin.chat_lang,
                 "user_service.moderation.request_status.refused.nousername.commented",
                 from_user.id, from_user.full_name, reason
             )
         else:
             status = get_string(
-                config.admin_lang,
+                config.chat_config.admin.chat_lang,
                 "user_service.moderation.request_status.refused.nousername.nocomment",
                 from_user.id, from_user.full_name
             )
 
     await _bot.edit_message_caption(
-        chat_id=config.chat_config.admin_chat_id,
+        chat_id=config.chat_config.admin.chat_id,
         message_id=callback_data.message,
         caption=new_request_message(
-            config.admin_lang,
+            config.chat_config.admin.chat_lang,
             database_user.fullname,
             database_user.username,
             database_user.user_id,

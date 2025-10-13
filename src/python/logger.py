@@ -1,3 +1,4 @@
+import inspect
 import json
 import logging
 import os
@@ -123,12 +124,12 @@ def setup_logger(
     """
     os.makedirs("storage/logs/json", exist_ok=True)
     log_filename = f"storage/logs/{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.log"
-    json_log_filename = f"storage/logs/json/{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json"
+    json_log_filename = f"storage/logs/json/{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.jsonl"
 
-    logger = logging.getLogger(name)
-    logger.setLevel(TRACE_LEVEL)
+    _logger = logging.getLogger(name)
+    _logger.setLevel(TRACE_LEVEL)
 
-    if not logger.handlers:
+    if not _logger.handlers:
         text_formatter = SafeFormatter(
             "[%(log_id)s] %(asctime)s - %(levelname)s - %(message)s",
             datefmt="%Y-%m-%d %H:%M:%S"
@@ -149,9 +150,9 @@ def setup_logger(
         json_handler.setLevel(get_log_level(json_level.upper()))
         json_handler.setFormatter(JSONFormatter())
 
-        logger.addHandler(console_handler)
-        logger.addHandler(file_handler)
-        logger.addHandler(json_handler)
+        _logger.addHandler(console_handler)
+        _logger.addHandler(file_handler)
+        _logger.addHandler(json_handler)
 
         # --- aiogram logger configuration ---
         aiogram_logger = logging.getLogger("aiogram")
@@ -160,7 +161,7 @@ def setup_logger(
         aiogram_logger.addHandler(file_handler)
         aiogram_logger.addHandler(json_handler)
 
-    return logger
+    return _logger
 
 
 # === AppLogger wrapper ===
@@ -170,14 +171,16 @@ class AppLogger:
     Returns a UUID for each log call and supports *args and **kwargs as extra fields.
     """
 
-    def __init__(self, logger: logging.Logger):
-        self._logger = logger
+    def __init__(self, _logger: logging.Logger):
+        self.logger = _logger
 
     def _log(self, level: int, msg: Any, *args, **kwargs) -> str:
         """
         Core logging method.
-        Accepts any objects in msg, *args, and **kwargs.
-        Detects exceptions automatically, even if multiple arguments are provided.
+        - принимает любые объекты (строки, ошибки и т.п.);
+        - автоматически определяет исключения;
+        - ВСЕГДА добавляет стек вызовов (для JSON-логов);
+        - возвращает UUID лога.
         """
         log_id = str(uuid.uuid4())
         context: dict[str, Any] = {"uuid": log_id}
@@ -185,25 +188,25 @@ class AppLogger:
         detected_exc: BaseException | None = None
         extra_objects: list[Any] = []
 
-        # Detect exceptions among args
+        # === 1. Детектируем исключения среди аргументов ===
         for a in args:
             if isinstance(a, BaseException):
                 detected_exc = a
             else:
                 extra_objects.append(a)
 
-        # Detect exceptions in kwargs (rare but allowed)
+        # === 2. Проверяем исключения в kwargs ===
         for key, value in list(kwargs.items()):
             if isinstance(value, BaseException):
                 detected_exc = value
                 kwargs.pop(key)
 
-        # Detect exception if msg itself is one
+        # === 3. Если msg — ошибка ===
         if isinstance(msg, BaseException):
             detected_exc = msg
             msg = str(msg)
 
-        # Build exception block if found
+        # === 4. Сохраняем исключение ===
         if detected_exc is not None:
             exc_type = type(detected_exc)
             exc_tb = detected_exc.__traceback__
@@ -213,17 +216,33 @@ class AppLogger:
                 "traceback": traceback.format_exception(exc_type, detected_exc, exc_tb),
             }
 
-        # Include remaining args and kwargs
+        # === 5. Собираем стек вызовов (всегда!) ===
+        # Пропускаем первые фреймы (внутри логгера)
+        stack = inspect.stack()
+        simplified_stack = []
+        for frame in stack[2:12]:  # ограничим глубину, чтобы не заливать весь трейс
+            simplified_stack.append({
+                "file": frame.filename,
+                "line": frame.lineno,
+                "function": frame.function,
+                "code": frame.code_context[0].strip() if frame.code_context else None,
+            })
+        context["stack"] = simplified_stack
+
+        # === 6. Добавляем args и kwargs ===
         if extra_objects:
             context["args"] = extra_objects
         if kwargs:
             context["kwargs"] = kwargs
 
-        # Log the message
-        self._logger.log(level, str(msg), extra={
-            "context": context,
-            "log_id": log_id
-        })
+        # === 7. Логируем ===
+        self.logger.log(
+            level,
+            str(msg),
+            extra={"context": context, "log_id": log_id},
+            stacklevel=3  # важно для правильного file/line в record
+        )
+
         return log_id
 
     # --- Public wrappers ---

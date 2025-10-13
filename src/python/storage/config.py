@@ -18,16 +18,25 @@ class DatabaseConfig(BaseModel):
     max_pool_size: int = Field(default=10)
 
 
+class AdminTopics(BaseModel):
+    debug: int | None = Field(default=None)
+    join: int | None = Field(default=None)
+    service: int | None = Field(default=None)
+
+
+class AdminConfig(BaseModel):
+    chat_id: int = Field(default=-1000000000000)
+    chat_lang: str = Field(default="ru")
+    topics: AdminTopics = Field(default_factory=AdminTopics)
+
+
 class ChatConfig(BaseModel):
     owner: int = Field(default=0)
     chat_id: int = Field(default=-1000000000000)
-    admin_chat_id: int = Field(default=-1000000000000)
     hype_chat_id: int = Field(default=-1000000000000)
-    admin_lang: str = Field(default="ru")
-    default_lang: str = Field(default="en")
     invite_link: str | None = Field(default=None)
     echo_auto_delete_secs: int = Field(default=600)
-    admin_debug_topic: int | None = Field(default=None)
+    admin: AdminConfig = Field(default_factory=AdminConfig)
 
 
 class TelegramConfig(BaseModel):
@@ -70,7 +79,6 @@ class BlacklistedChat(BaseModel):
 
 
 class AppConfig(BaseModel):
-    admin_lang: str = Field(default="ru")
     timezone: str = Field(default="Europe/Moscow")
     logger: LoggerConfig = Field(default_factory=LoggerConfig)
     telegram: TelegramConfig = Field(default_factory=TelegramConfig)
@@ -103,12 +111,12 @@ def load_config() -> AppConfig:
         with CONFIG_PATH.open("r", encoding="utf-8") as f:
             raw_data = yaml.safe_load(f) or {}
 
-        config = AppConfig(**raw_data)
+        app_config = AppConfig(**raw_data)
 
-        if config.model_dump() != raw_data:
-            save_config(config)
+        if app_config.model_dump() != raw_data:
+            save_config(app_config)
 
-        return config
+        return app_config
 
     except (yaml.YAMLError, ValidationError, TypeError) as e:
         print(f"Invalid config: {e}. Restoring defaults.")
@@ -117,9 +125,9 @@ def load_config() -> AppConfig:
         return DEFAULT_CONFIG
 
 
-def save_config(config: AppConfig):
+def save_config(app_config: AppConfig):
     with CONFIG_PATH.open("w", encoding="utf-8") as f:
-        yaml.dump(config.model_dump(), f, allow_unicode=True, sort_keys=False)
+        yaml.dump(app_config.model_dump(), f, allow_unicode=True, sort_keys=False)
 
 
-config = load_config()
+config: AppConfig = load_config()

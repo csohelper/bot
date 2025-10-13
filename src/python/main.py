@@ -1,13 +1,13 @@
 import asyncio
 import platform
 
-from aiogram import Bot, Dispatcher, F, Router, types
+from aiogram import Bot, Dispatcher, F, Router
 from aiogram.client.default import DefaultBotProperties
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.client.telegram import TelegramAPIServer
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.storage.redis import RedisStorage
-from aiogram.types import BotCommand, Message, ReplyKeyboardRemove, CallbackQuery, ChatJoinRequest
+from aiogram.types import BotCommand, Message, ReplyKeyboardRemove
 from aiogram.types.link_preview_options import LinkPreviewOptions
 from redis.asyncio import from_url
 
@@ -40,10 +40,10 @@ async def default_private_handler(message: Message):
 
 async def set_commands(info: TelegramCommandsInfo):
     commands = []
-    for l in info.commands_list:
+    for command_name in info.commands_list:
         commands.append(BotCommand(
-            command=l.name,
-            description=l.description,
+            command=command_name.name,
+            description=command_name.description,
         ))
     await bot.set_my_commands(
         commands=commands,

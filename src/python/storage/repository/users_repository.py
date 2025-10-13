@@ -214,7 +214,7 @@ ALLOWED_USER_FIELDS = {
 }
 
 
-async def update_resident_fields(id: int, **fields) -> Optional[Resident]:
+async def update_resident_fields(resident_id: int, **fields) -> Optional[Resident]:
     """
     Обновляет указанные поля пользователя в таблице users.
     Возвращает объект User после обновления или None, если запись не найдена
@@ -227,7 +227,7 @@ async def update_resident_fields(id: int, **fields) -> Optional[Resident]:
     # Формируем SET часть SQL
     set_clause = ", ".join([f"{key} = %s" for key in updates.keys()])
     values = list(updates.values())
-    values.append(id)
+    values.append(resident_id)
 
     query = f"""
         UPDATE residents

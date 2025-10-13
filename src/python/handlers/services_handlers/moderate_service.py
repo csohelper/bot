@@ -104,9 +104,9 @@ async def send_to_moderation(service: Service, sender_name: str, sender_lang) ->
         media = FSInputFile('./src/res/images/services/no_image.jpg')
 
     reply = await _bot.send_photo(
-        chat_id=config.chat_config.admin_chat_id,
+        chat_id=config.chat_config.admin.chat_id,
         photo=media,
-        caption=create_caption(config.admin_lang, service, sender_name),
+        caption=create_caption(config.chat_config.admin.chat_lang, service, sender_name),
         reply_markup=InlineKeyboardBuilder().row(InlineKeyboardButton(
             text='📂Установить категорию',
             callback_data='.'
@@ -116,7 +116,8 @@ async def send_to_moderation(service: Service, sender_name: str, sender_lang) ->
         )).row(InlineKeyboardButton(
             text='✅Одобрить',
             callback_data='.'
-        )).as_markup()
+        )).as_markup(),
+        message_thread_id=config.chat_config.admin.topics.service
     )
 
     await reply.edit_reply_markup(reply_markup=create_markup(
@@ -214,7 +215,7 @@ async def on_category_chosen(message: Message, state: FSMContext) -> None:
             chat_id=message.chat.id,
             message_id=callback_data.original_msg,
             caption=create_caption(
-                config.admin_lang,
+                config.chat_config.admin.chat_lang,
                 update_service,
                 callback_data.author_name
             ),
@@ -222,7 +223,7 @@ async def on_category_chosen(message: Message, state: FSMContext) -> None:
                 service_id=update_service.id,
                 author_name=callback_data.author_name,
                 original_msg=callback_data.original_msg,
-                author_lang=config.admin_lang
+                author_lang=config.chat_config.admin.chat_lang
             )
         )
     except Exception as e:
@@ -278,7 +279,7 @@ async def on_reject_chosen(message: Message, state: FSMContext) -> None:
             chat_id=message.chat.id,
             message_id=callback_data.original_msg,
             caption=create_caption(
-                config.admin_lang,
+                config.chat_config.admin.chat_lang,
                 update_service,
                 callback_data.author_name
             )
@@ -330,7 +331,7 @@ async def on_accept_chosen(message: Message, state: FSMContext) -> None:
             chat_id=message.chat.id,
             message_id=callback_data.original_msg,
             caption=create_caption(
-                config.admin_lang,
+                config.chat_config.admin.chat_lang,
                 update_service,
                 callback_data.author_name
             )
