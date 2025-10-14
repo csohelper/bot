@@ -130,16 +130,22 @@ def list_langs() -> list[str]:
 
 def get_object(locale: str | None, key: str) -> Any | None:
     if locale is None:
-        logger.debug(f"Requested None -> {__lang_info.none_lang} locale")
+        logger.trace(f"Requested None -> {__lang_info.none_lang} locale")
         locale = __lang_info.none_lang
     if locale not in __locales.keys():
-        logger.debug(f"Requested unknown {locale} -> {__lang_info.unknown_lang} locale")
+        logger.trace(f"Requested Unknown {locale} -> {__lang_info.unknown_lang} locale")
         locale = __lang_info.unknown_lang
     result = __get_locale_object(locale, key)
     if result is None:
         result = __get_locale_object(__lang_info.priority_lang, key)
+        if result is not None:
+            logger.trace(f"Requested {locale} -> Priority {__lang_info.priority_lang} locale")
+    if result is not None:
+        logger.trace(f"Requested {locale} locale")
     if result is None:
         result = __get_locale_object("untranslatable", key)
+        if result is not None:
+            logger.trace(f"Requested {locale} -> unstranslatable locale")
     return result
 
 
