@@ -2,9 +2,12 @@ import inspect
 import json
 import logging
 import os
+import re
 import traceback
 import uuid
-from datetime import datetime, timezone, date
+import zipfile
+from datetime import datetime, date
+from logging.handlers import TimedRotatingFileHandler
 from typing import Any
 from zoneinfo import ZoneInfo
 
@@ -12,6 +15,106 @@ from python.storage.config import config
 
 TRACE_LEVEL = 5  # ниже DEBUG (10)
 logging.addLevelName(TRACE_LEVEL, "TRACE")
+
+
+def get_earliest_timestamp(base_dir: str, tz: ZoneInfo | None) -> datetime | None:
+    if tz is None:
+        tz = datetime.now().astimezone().tzinfo
+
+    text_path = os.path.join(base_dir, "latest.log")
+    json_path = os.path.join(base_dir, "latest.jsonl")
+    timestamps = []
+
+    # Парсинг .log
+    if os.path.exists(text_path) and os.path.getsize(text_path) > 0:
+        with open(text_path, "r", encoding="utf-8") as f:
+            for line in f:
+                m = re.search(r"(\d{2}\.\d{2}\.\d{4}) (\d{2}:\d{2}:\d{2}\.\d{3})([+-]\d{4})", line)
+                if m:
+                    date_str, time_str, tz_str = m.groups()
+                    try:
+                        dt = datetime.strptime(f"{date_str} {time_str}{tz_str}", "%d.%m.%Y %H:%M:%S.%f%z")
+                        dt = dt.astimezone(tz)
+                        timestamps.append(dt)
+                        break
+                    except Exception:
+                        pass
+    # Fallback для .log
+    if not timestamps and os.path.exists(text_path):
+        ts = os.path.getmtime(text_path)
+        dt = datetime.fromtimestamp(ts).astimezone(tz)
+        timestamps.append(dt)
+
+    # Парсинг .jsonl
+    if os.path.exists(json_path) and os.path.getsize(json_path) > 0:
+        with open(json_path, "r", encoding="utf-8") as f:
+            first_line = f.readline()
+            if first_line:
+                try:
+                    entry = json.loads(first_line)
+                    dt = datetime.fromisoformat(entry.get("timestamp"))
+                    dt = dt.astimezone(tz)
+                    timestamps.append(dt)
+                except Exception:
+                    pass
+    # Fallback для .jsonl
+    if not timestamps and os.path.exists(json_path):
+        ts = os.path.getmtime(json_path)
+        dt = datetime.fromtimestamp(ts).astimezone(tz)
+        timestamps.append(dt)
+
+    if timestamps:
+        return min(timestamps)
+    return None
+
+
+class PairedZipTimedRotatingFileHandler(TimedRotatingFileHandler):
+    def __init__(self, filename, *args, tz: ZoneInfo | None = None, **kwargs):
+        super().__init__(filename, *args, **kwargs)
+        self.tz = tz
+        self.suffix = "%Y-%m-%d_%H-%M-%S%z"  # Кастомный суффикс
+
+    def rotation_filename(self, default_name):
+        timestamp = get_earliest_timestamp(os.path.dirname(self.baseFilename), self.tz)
+        if timestamp:
+            suffix = timestamp.strftime(self.suffix)
+        else:
+            now = datetime.now(self.tz)
+            suffix = now.strftime(self.suffix)
+        ext = os.path.splitext(self.baseFilename)[1]  # '.log' или '.jsonl'
+        rotated_name = f"{suffix}{ext}"
+        return os.path.join(os.path.dirname(self.baseFilename), rotated_name)
+
+    def doRollover(self):
+        if not os.path.exists(self.baseFilename) or os.path.getsize(self.baseFilename) == 0:
+            return
+
+        try:
+            # Вычисляем rotated_name ДО ротации
+            self.stream.close()  # Закрываем для чтения
+            rotated_name = self.rotation_filename(self.baseFilename)
+            rotated_base = os.path.splitext(rotated_name)[0]
+            super().doRollover()  # Теперь ротация с известным именем
+
+            # Принудительно ротируем пару, если это .log или .jsonl
+            pair_ext = '.jsonl' if self.baseFilename.endswith('.log') else '.log'
+            pair_filename = os.path.join(os.path.dirname(self.baseFilename), f'latest{pair_ext}')
+            if os.path.exists(pair_filename):
+                pair_rotated = f"{rotated_base}{pair_ext}"
+                os.rename(pair_filename, pair_rotated)
+
+            # Архивируем
+            log_file = f"{rotated_base}.log"
+            jsonl_file = f"{rotated_base}.jsonl"
+            zip_path = f"{rotated_base}.zip"
+            if os.path.exists(log_file) or os.path.exists(jsonl_file):
+                with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+                    for f in [log_file, jsonl_file]:
+                        if os.path.exists(f):
+                            zf.write(f, arcname=os.path.basename(f))
+                            os.remove(f)
+        except Exception as e:
+            logging.error(f"Rollover error: {e}")
 
 
 class SafeFormatter(logging.Formatter):
@@ -32,11 +135,42 @@ class SafeFormatter(logging.Formatter):
 
         # базовое форматирование (без %f, чтобы не упасть)
         if datefmt:
-            s = dt.strftime(datefmt)
+            if "%f" in datefmt:
+                s = dt.strftime(datefmt.replace("%f", "{ms:03d}"))
+                s = s.format(ms=dt.microsecond // 1000)
+            else:
+                s = dt.strftime(datefmt)
         else:
             s = dt.strftime("%Y-%m-%d %H:%M:%S")
 
         return s
+
+
+def finalize_previous_logs(base_dir: str, tz: ZoneInfo | None):
+    timestamp = get_earliest_timestamp(base_dir, tz)
+    if not timestamp:
+        return  # Нечего архивировать
+
+    suffix = timestamp.strftime("%Y-%m-%d_%H-%M-%S%z")
+    text_path = os.path.join(base_dir, "latest.log")
+    json_path = os.path.join(base_dir, "latest.jsonl")
+    renamed_log = os.path.join(base_dir, f"{suffix}.log") if os.path.exists(text_path) else None
+    renamed_json = os.path.join(base_dir, f"{suffix}.jsonl") if os.path.exists(json_path) else None
+
+    if renamed_log:
+        os.rename(text_path, renamed_log)
+    if renamed_json:
+        os.rename(json_path, renamed_json)
+
+    zip_path = os.path.join(base_dir, f"{suffix}.zip")
+    try:
+        with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+            for p in [renamed_log, renamed_json]:
+                if p and os.path.exists(p):
+                    zf.write(p, arcname=os.path.basename(p))
+                    os.remove(p)
+    except Exception as e:
+        logging.error(f"Failed to create ZIP in finalize: {e}")
 
 
 # === Safe JSON Encoder ===
@@ -82,13 +216,23 @@ class JSONFormatter(logging.Formatter):
     Converts log records into structured JSON lines.
     """
 
+    def __init__(self, tz: ZoneInfo | None = None):
+        super().__init__()
+        self.tz = tz
+
     def format(self, record):
         if not hasattr(record, "log_id"):
             record.log_id = str(uuid.uuid4())
 
+        dt = datetime.fromtimestamp(record.created)
+        if self.tz is None:
+            dt = dt.astimezone()
+        else:
+            dt = dt.astimezone(self.tz)
+
         log_entry: dict[str, Any] = {
             "id": record.log_id,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": dt.isoformat(timespec='milliseconds'),
             "level": record.levelname,
             "message": record.getMessage(),
             "logger": record.name,
@@ -145,9 +289,7 @@ def setup_logger(
     else:
         tz = None
 
-    os.makedirs("storage/logs/json", exist_ok=True)
-    log_filename = f"storage/logs/{datetime.now(tz).strftime('%Y-%m-%d_%H-%M-%S%z')}.log"
-    json_log_filename = f"storage/logs/json/{datetime.now(tz).strftime('%Y-%m-%d_%H-%M-%S%z')}.jsonl"
+    os.makedirs("storage/logs", exist_ok=True)
 
     _logger = logging.getLogger(name)
     _logger.setLevel(TRACE_LEVEL)
@@ -164,15 +306,33 @@ def setup_logger(
         console_handler.setLevel(get_log_level(console_level.upper()))
         console_handler.setFormatter(text_formatter)
 
+        finalize_previous_logs("storage/logs", tz)
+
         # Text file handler
-        file_handler = logging.FileHandler(log_filename, encoding="utf-8")
+        file_handler = PairedZipTimedRotatingFileHandler(
+            "storage/logs/latest.log",
+            when="midnight",
+            interval=1,
+            backupCount=config.logger.backup_limit,
+            encoding="utf-8",
+            utc=False,
+            tz=tz
+        )
         file_handler.setLevel(get_log_level(file_level.upper()))
         file_handler.setFormatter(text_formatter)
 
         # JSON file handler
-        json_handler = logging.FileHandler(json_log_filename, encoding="utf-8")
+        json_handler = PairedZipTimedRotatingFileHandler(
+            "storage/logs/latest.jsonl",
+            when="midnight",
+            interval=1,
+            backupCount=config.logger.backup_limit,
+            encoding="utf-8",
+            utc=False,
+            tz=tz
+        )
         json_handler.setLevel(get_log_level(json_level.upper()))
-        json_handler.setFormatter(JSONFormatter())
+        json_handler.setFormatter(JSONFormatter(tz=tz))
 
         _logger.addHandler(console_handler)
         _logger.addHandler(file_handler)
