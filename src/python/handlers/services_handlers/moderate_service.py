@@ -164,7 +164,7 @@ async def callbacks_moderate_buttons(
                 await state.set_state(ModerateStates.accept)
         await callback.answer()
     except Exception as e:
-        await log_exception(e, callback)
+        await log_exception(e, callback, state=state)
 
 
 def category_markup() -> ReplyKeyboardMarkup:
@@ -227,7 +227,7 @@ async def on_category_chosen(message: Message, state: FSMContext) -> None:
             )
         )
     except Exception as e:
-        await log_exception(e, message)
+        await log_exception(e, message, state=state)
 
 
 @router.message(
@@ -285,7 +285,7 @@ async def on_reject_chosen(message: Message, state: FSMContext) -> None:
             )
         )
     except Exception as e:
-        await log_exception(e, message)
+        await log_exception(e, message, state=state)
 
 
 @router.message(
@@ -337,4 +337,4 @@ async def on_accept_chosen(message: Message, state: FSMContext) -> None:
             )
         )
     except Exception as e:
-        await log_exception(e, message)
+        await log_exception(e, message, state=state)

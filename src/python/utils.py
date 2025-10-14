@@ -3,9 +3,11 @@ import base64
 from asyncio import sleep
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import List, Optional, Callable, Awaitable
+from typing import List, Optional, Callable, Awaitable, Any
 
 import aiohttp
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.strategy import FSMStrategy
 
 from python.logger import logger
 from python.storage.config import config
@@ -237,14 +239,18 @@ async def check_blacklisted(message: Message) -> bool:
     return False
 
 
-async def log_exception(e: Exception, original: Message | CallbackQuery | ChatJoinRequest) -> None:
-    code = logger.error(e, original)
+async def log_exception(
+        e: Exception,
+        original: Message | CallbackQuery | ChatJoinRequest,
+        **kwargs
+) -> None:
+    code = logger.error(e, message=original, **kwargs)
     await original.reply(
         get_string(
             original.from_user.language_code,
             "exceptions.uncause",
             code,
-            config.chat_config.owner_username
+            config.chat_config.owner_username,
         )
     )
     await original.bot.send_message(
@@ -257,7 +263,7 @@ async def log_exception(e: Exception, original: Message | CallbackQuery | ChatJo
             username=original.from_user.username,
             fullname=original.from_user.full_name,
         ),
-        message_thread_id=config.chat_config.admin.topics.debug
+        message_thread_id=config.chat_config.admin.topics.debug,
     )
 
 

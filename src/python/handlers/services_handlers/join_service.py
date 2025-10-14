@@ -92,7 +92,7 @@ async def join_request(update: ChatJoinRequest, bot: Bot, state: FSMContext) -> 
             update.from_user.id, send.message_id, update.from_user.language_code
         )
     except Exception as e:
-        await log_exception(e, update)
+        await log_exception(e, update, state=state)
 
 
 @router.callback_query(JoinGreetingCallbackFactory.filter())
@@ -120,7 +120,7 @@ async def on_greeting_callback(
                     callback.from_user.id
                 )
     except Exception as e:
-        await log_exception(e, callback)
+        await log_exception(e, callback, state=state)
 
 
 async def on_accept_join_process(message: Message, state: FSMContext):
@@ -138,7 +138,7 @@ async def on_accept_join_process(message: Message, state: FSMContext):
         )
         await state.set_state(JoinStatuses.choosing_room)
     except Exception as e:
-        await log_exception(e, message)
+        await log_exception(e, message, state=state)
 
 
 @router.message(
@@ -174,7 +174,7 @@ async def on_room_chosen(message: Message, state: FSMContext) -> None:
             )
             await state.set_state(JoinStatuses.select_name)
     except Exception as e:
-        await log_exception(e, message)
+        await log_exception(e, message, state=state)
 
 
 @router.message(
@@ -210,7 +210,7 @@ async def on_name_chosen(message: Message, state: FSMContext) -> None:
             )
             await state.set_state(JoinStatuses.select_surname)
     except Exception as e:
-        await log_exception(e, message)
+        await log_exception(e, message, state=state)
 
 
 cached_confirm_sample_file_id = None
@@ -275,7 +275,7 @@ async def on_surname_chosen(message: Message, state: FSMContext) -> None:
 
             await state.set_state(JoinStatuses.send_picture)
     except Exception as e:
-        await log_exception(e, message)
+        await log_exception(e, message, state=state)
 
 
 @router.message(
@@ -328,7 +328,7 @@ async def on_picture_chosen(message: Message, state: FSMContext) -> None:
         )
         await state.set_state(JoinStatuses.waiting_send)
     except Exception as e:
-        await log_exception(e, message)
+        await log_exception(e, message, state=state)
 
 
 class ModerateUserCallbackFactory(CallbackData, prefix="moderateuser"):
@@ -420,7 +420,7 @@ async def on_send_chosen(message: Message, state: FSMContext) -> None:
                 ).as_markup(resize_keyboard=True, one_time_keyboard=True)
             )
     except Exception as e:
-        await log_exception(e, message)
+        await log_exception(e, message, state=state)
 
 
 class JoinModerateStatuses(StatesGroup):
@@ -661,7 +661,7 @@ async def on_join_accept(
                 await state.clear()
         await callback.answer()
     except Exception as e:
-        await log_exception(e, callback)
+        await log_exception(e, callback, state=state)
 
 
 async def refuse_user(reason: str | None, state: FSMContext, from_user: User) -> None:
@@ -749,7 +749,7 @@ async def on_refuse_description_accept(message: Message, state: FSMContext) -> N
             await refuse_user(message.text, state, message.from_user)
             await state.clear()
     except Exception as e:
-        await log_exception(e, message)
+        await log_exception(e, message, state=state)
 
 
 def new_request_message(

@@ -165,7 +165,7 @@ async def add_service_button(
             await my_services_command.on_my_services(callback.message, state, callback.from_user.language_code)
             await callback.answer()
     except Exception as e:
-        await log_exception(e, callback)
+        await log_exception(e, callback,state=state)
 
 
 @router.message(Command("services"))

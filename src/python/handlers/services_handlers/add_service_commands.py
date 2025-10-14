@@ -65,7 +65,7 @@ async def on_addservice(message: Message, state: FSMContext, lang=None) -> None:
         )
         await state.set_state(AddServiceStates.choosing_name_state)
     except Exception as e:
-        await log_exception(e, message)
+        await log_exception(e, message, state=state)
 
 
 @router.message(
@@ -99,7 +99,7 @@ async def on_name_chosen(message: Message, state: FSMContext) -> None:
         )
         await state.set_state(AddServiceStates.choosing_description_state)
     except Exception as e:
-        await log_exception(e, message)
+        await log_exception(e, message, state=state)
 
 
 @router.message(
@@ -133,7 +133,7 @@ async def on_description_chosen(message: Message, state: FSMContext) -> None:
         )
         await state.set_state(AddServiceStates.choosing_cost_state)
     except Exception as e:
-        await log_exception(e, message)
+        await log_exception(e, message, state=state)
 
 
 @router.message(
@@ -172,7 +172,7 @@ async def on_cost_chosen(message: Message, state: FSMContext) -> None:
         )
         await state.set_state(AddServiceStates.choosing_cost_per_state)
     except Exception as e:
-        await log_exception(e, message)
+        await log_exception(e, message, state=state)
 
 
 @router.message(
@@ -207,7 +207,7 @@ async def on_cost_per_chosen(message: Message, state: FSMContext) -> None:
         )
         await state.set_state(AddServiceStates.choosing_picture_state)
     except Exception as e:
-        await log_exception(e, message)
+        await log_exception(e, message, state=state)
 
 
 @router.message(
@@ -254,7 +254,7 @@ async def on_picture_chosen(message: Message, state: FSMContext) -> None:
         await process_create_service(message, state)
         await state.clear()
     except Exception as e:
-        await log_exception(e, message)
+        await log_exception(e, message, state=state)
 
 
 async def process_create_service(message: Message, state: FSMContext) -> None:
@@ -369,7 +369,7 @@ async def process_create_service(message: Message, state: FSMContext) -> None:
             reply_markup=update_keyboard.as_markup()
         )
     except Exception as e:
-        await log_exception(e, message)
+        await log_exception(e, message, state=state)
 
 
 class EditServiceCallbackFactory(CallbackData, prefix="editsrvc"):
@@ -434,7 +434,7 @@ async def callbacks_edit_service(
 
         await callback.answer()
     except Exception as e:
-        await log_exception(e, callback)
+        await log_exception(e, callback, state)
 
 
 class EditServiceStates(StatesGroup):
@@ -562,7 +562,7 @@ async def on_name_edit(message: Message, state: FSMContext) -> None:
                                       service)
         await state.clear()
     except Exception as e:
-        await log_exception(e, message)
+        await log_exception(e, message, state=state)
 
 
 @router.message(
@@ -596,7 +596,7 @@ async def on_description_edit(message: Message, state: FSMContext) -> None:
                                       service)
         await state.clear()
     except Exception as e:
-        await log_exception(e, message)
+        await log_exception(e, message, state=state)
 
 
 @router.message(
@@ -633,7 +633,7 @@ async def on_cost_edit(message: Message, state: FSMContext) -> None:
                                       service)
         await state.clear()
     except Exception as e:
-        await log_exception(e, message)
+        await log_exception(e, message, state=state)
 
 
 @router.message(
@@ -665,7 +665,7 @@ async def on_cost_per_edit(message: Message, state: FSMContext) -> None:
                                       service)
         await state.clear()
     except Exception as e:
-        await log_exception(e, message)
+        await log_exception(e, message, state=state)
 
 
 @router.message(
@@ -713,4 +713,4 @@ async def on_picture_edit(message: Message, state: FSMContext) -> None:
         await _bot.delete_message(message.chat.id, message.message_id)
         await state.clear()
     except Exception as e:
-        await log_exception(e, message)
+        await log_exception(e, message, state=state)

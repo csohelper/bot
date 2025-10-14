@@ -90,7 +90,7 @@ async def start_collector_command(message: Message, state: FSMContext):
         )
         await state.set_state(HypeStates.waiting_start)
     except Exception as e:
-        await log_exception(e, message)
+        await log_exception(e, message, state=state)
 
 
 @router.message(
@@ -126,7 +126,7 @@ async def on_accept(message: Message, state: FSMContext) -> None:
                 'hype_collector.greeting'
             ))
     except Exception as e:
-        await log_exception(e, message)
+        await log_exception(e, message, state=state)
 
 
 @router.message(
@@ -191,7 +191,7 @@ async def on_room(message: Message, state: FSMContext):
                 ).as_markup(resize_keyboard=True, one_time_keyboard=False)
             )
     except Exception as e:
-        await log_exception(e, message)
+        await log_exception(e, message, state=state)
 
 
 @dataclass(frozen=True)
@@ -270,7 +270,7 @@ async def on_contact(message: Message, state: FSMContext):
                 ).as_markup(resize_keyboard=True, one_time_keyboard=False)
             )
     except Exception as e:
-        await log_exception(e, message)
+        await log_exception(e, message, state=state)
 
 
 @router.message(HypeStates.sending_description)
@@ -318,7 +318,7 @@ async def on_description(message: Message, state: FSMContext):
             ).as_markup(resize_keyboard=True, one_time_keyboard=False)
         )
     except Exception as e:
-        await log_exception(e, message)
+        await log_exception(e, message, state=state)
 
 
 @router.message(HypeStates.sending_photos, F.media_group_id, F.content_type.in_({'photo'}))
@@ -356,7 +356,7 @@ async def on_single_photo(message: Message, state: FSMContext):
         else:
             await process_photos([message], state)
     except Exception as e:
-        await log_exception(e, message)
+        await log_exception(e, message, state=state)
 
 
 async def parse_contact(from_user: User):
@@ -482,7 +482,7 @@ async def process_video(message: Message, state: FSMContext):
         await state.set_state(HypeStates.sending_confirm)
         await create_confirm(message, state)
     except Exception as e:
-        await log_exception(e, message)
+        await log_exception(e, message, state=state)
 
 
 async def create_confirm(message: Message, state: FSMContext):
@@ -528,7 +528,7 @@ async def create_confirm(message: Message, state: FSMContext):
             ).as_markup(resize_keyboard=True, one_time_keyboard=False)
         )
     except Exception as e:
-        await log_exception(e, message)
+        await log_exception(e, message, state=state)
 
 
 async def video_callback_handler(percentage: int, wait_msg: Message, user_message: Message) -> None:
@@ -722,4 +722,4 @@ async def process_confirm(message: Message, state: FSMContext):
                 except TelegramRetryAfter:
                     await sleep(1)
     except Exception as e:
-        await log_exception(e, message)
+        await log_exception(e, message, state=state)
