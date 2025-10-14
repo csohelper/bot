@@ -88,17 +88,23 @@ def get_string(locale: str | None, key: str, *args: str | int | float | None, **
     """
 
     if locale is None:
-        logger.debug(f"Requested None -> {__lang_info.none_lang} locale")
+        logger.trace(f"Requested None -> {__lang_info.none_lang} locale")
         locale = __lang_info.none_lang
     if locale not in __locales.keys():
-        logger.debug(f"Requested unknown {locale} -> {__lang_info.unknown_lang} locale")
+        logger.trace(f"Requested unknown {locale} -> {__lang_info.unknown_lang} locale")
         locale = __lang_info.unknown_lang
 
     result = __get_locale_string(locale, key, *args, **kwargs)
     if result is None:
         result = __get_locale_string(__lang_info.priority_lang, key, *args, **kwargs)
+        if result is not None:
+            logger.trace(f"Requested {locale} -> Priority {__lang_info.priority_lang} locale")
+    if result is not None:
+        logger.trace(f"Requested {locale} locale")
     if result is None:
         result = __get_locale_string("untranslatable", key, *args, **kwargs)
+        if result is not None:
+            logger.trace(f"Requested {locale} -> unstranslatable locale")
     return result
 
 
@@ -172,14 +178,20 @@ def __get_locale_strings(locale: str | None, string_key: str, *args: Any) -> lis
 
 def get_strings(locale: str | None, key: str, *args: Any) -> list[str] | None:
     if locale is None:
-        logger.debug(f"Requested None -> {__lang_info.none_lang} locale")
+        logger.trace(f"Requested None -> {__lang_info.none_lang} locale")
         locale = __lang_info.none_lang
     if locale not in __locales.keys():
-        logger.debug(f"Requested unknown {locale} -> {__lang_info.unknown_lang} locale")
+        logger.trace(f"Requested unknown {locale} -> {__lang_info.unknown_lang} locale")
         locale = __lang_info.unknown_lang
     result = __get_locale_strings(locale, key, *args)
     if result is None:
         result = __get_locale_strings(__lang_info.priority_lang, key, *args)
+        if result is not None:
+            logger.trace(f"Requested {locale} -> Priority {__lang_info.priority_lang} locale")
+    if result is not None:
+        logger.trace(f"Requested {locale} locale")
     if result is None:
         result = __get_locale_strings("untranslatable", key, *args)
+        if result is not None:
+            logger.trace(f"Requested {locale} -> unstranslatable locale")
     return result
