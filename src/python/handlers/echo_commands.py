@@ -1,6 +1,7 @@
 import asyncio
 import datetime
 import random
+from dataclasses import dataclass
 from typing import List
 
 from aiogram import Router, Bot
@@ -11,12 +12,12 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, InputMediaPhoto, FSInputFile, ChatMemberRestricted
 from aiogram.utils.payload import decode_payload
 
+from python import utils
 from python.handlers.hype_collector import start_collector_command
 from python.handlers.services_handlers.add_service_commands import on_addservice
 from python.handlers.services_handlers.join_service import on_accept_join_process
-from python import utils
 from python.logger import logger
-from python.storage.command_loader import get_echo_commands, EchoCommand, TimeInfo
+from python.storage.command_loader import get_echo_commands, EchoCommand, TimeInfo, ImageFileInfo
 from python.storage.config import config, save_config
 from python.storage.repository.users_repository import check_user, UserRecord
 from python.storage.strings import get_string, get_strings
@@ -41,14 +42,45 @@ class TriggerFilter(BaseFilter):
         return bool(message.text and message.text.lower() in self.triggers)
 
 
-images_caches: dict[str, list[str]] = {}
-
-
 async def check_and_delete_after(*messages: Message):
     await asyncio.sleep(config.chat_config.echo_auto_delete_secs)
     if messages[0].chat.id == config.chat_config.chat_id:
         for message in messages:
             await message.delete()
+
+
+# File path -> File telegram ID
+images_caches: dict[str, str] = {}
+image_index = {}
+
+
+@dataclass(frozen=True)
+class ImagePath:
+    path: str
+
+
+@dataclass(frozen=True)
+class ImageId:
+    id: str
+
+
+def get_file_list(files: list[ImageFileInfo]) -> list[ImagePath | ImageId]:
+    result = []
+    for info in files:
+        if info.file:
+            if info.file in images_caches:
+                result.append(ImageId(images_caches[info.file]))
+            else:
+                result.append(ImagePath(info.file))
+        if info.cycle:
+            index = (image_index.get(info.cycle.name, 0) + 1) % len(info.cycle.files)
+            image_index[info.cycle.name] = index
+
+            result.extend(
+                get_file_list([info.cycle.files[index]])
+            )
+
+    return result
 
 
 def make_image_handler(command_info: EchoCommand):
@@ -65,52 +97,49 @@ def make_image_handler(command_info: EchoCommand):
                     message.from_user.full_name,
                     message.from_user.language_code,
                 ))
-            global images_caches
+            global images_caches, image_index
             delete_messages = [message]
-            while True:
-                if (
-                        command_info.name not in images_caches or
-                        images_caches[command_info.name] is None or
-                        len(images_caches[command_info.name]) == 0
-                ):
-                    media = [
-                        InputMediaPhoto(
-                            media=FSInputFile(x),
-                            show_caption_above_media=command_info.images.caption_above
-                        ) for x in command_info.images.files
-                    ]
-                    media[0].caption = get_string(
-                        message.from_user.language_code,
-                        command_info.message_path,
-                        **build_kwargs(command_info.times, message.from_user.language_code)
-                    )
-                    sent = await message.reply_media_group(media=media)
 
-                    images_caches[command_info.name] = []
-                    for msg in sent:
-                        delete_messages.append(msg)
-                        if msg.photo:
-                            largest_photo = msg.photo[-1]
-                            images_caches[command_info.name].append(largest_photo.file_id)
-                else:
-                    try:
-                        media = [
-                            InputMediaPhoto(
-                                media=file_id,
-                                show_caption_above_media=command_info.images.caption_above
-                            ) for file_id in images_caches[command_info.name]
-                        ]
-                        media[0].caption = get_string(
-                            message.from_user.language_code, command_info.message_path,
-                            **build_kwargs(command_info.times, message.from_user.language_code)
-                        )
-                        delete_messages.extend(await message.reply_media_group(media=media))
-                    except Exception as e:
-                        logger.error(f"{e}")
-                        images_caches[command_info.name] = []
-                        continue
+            while True:
+                file_list: list[ImagePath | ImageId] = get_file_list(command_info.images.files)
+                print(file_list)
+                media = []
+
+                for file in file_list:
+                    if isinstance(file, ImagePath):
+                        media.append(InputMediaPhoto(
+                            media=FSInputFile(file.path),
+                            show_caption_above_media=command_info.images.caption_above
+                        ))
+                    elif isinstance(file, ImageId):
+                        media.append(InputMediaPhoto(
+                            media=file.id,
+                            show_caption_above_media=command_info.images.caption_above
+                        ))
+
+                media[0].caption = get_string(
+                    message.from_user.language_code, command_info.message_path,
+                    **build_kwargs(command_info.times, message.from_user.language_code)
+                )
+
+                try:
+                    reply = await message.reply_media_group(media=media)
+
+                    for message, file in zip(reply, file_list):
+                        if isinstance(file, ImagePath):
+                            images_caches[file.path] = message.photo[-1].file_id
+
+                    delete_messages.extend(reply)
+                except Exception as e:
+                    logger.error(f"{e}")
+                    for file in file_list:
+                        if isinstance(file, ImageId):
+                            del images_caches[file.id]
+                    continue
+
                 break
             asyncio.create_task(check_and_delete_after(*delete_messages))
+
         except Exception as e:
             await log_exception(e, message)
 

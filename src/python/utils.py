@@ -1,5 +1,6 @@
 import asyncio
 import base64
+import os
 from asyncio import sleep
 from dataclasses import dataclass
 from datetime import datetime, timedelta
@@ -253,18 +254,19 @@ async def log_exception(
             config.chat_config.owner_username,
         )
     )
-    await original.bot.send_message(
-        config.chat_config.admin.chat_id,
-        get_string(
-            config.chat_config.admin.chat_lang,
-            "exceptions.debug",
-            code=code, exc=str(e),
-            userid=original.from_user.id,
-            username=original.from_user.username,
-            fullname=original.from_user.full_name,
-        ),
-        message_thread_id=config.chat_config.admin.topics.debug,
-    )
+    if config.chat_config.admin.chat_id and config.chat_config.admin.chat_id != -1000000000000:
+        await original.bot.send_message(
+            config.chat_config.admin.chat_id,
+            get_string(
+                config.chat_config.admin.chat_lang,
+                "exceptions.debug",
+                code=code, exc=str(e),
+                userid=original.from_user.id,
+                username=original.from_user.username,
+                fullname=original.from_user.full_name,
+            ),
+            message_thread_id=config.chat_config.admin.topics.debug,
+        )
 
 
 async def download_photos(
@@ -366,3 +368,20 @@ async def download_video(
 
     # Encode to Base64
     return base64.b64encode(data_bytes).decode("utf-8")
+
+
+def list_files_recursively(directory_path):
+    """
+    Lists all files in a given directory and its subdirectories.
+
+    Args:
+        directory_path (str): The path to the starting directory.
+
+    Returns:
+        list: A list of absolute paths to all files found.
+    """
+    file_paths = []
+    for root, _, files in os.walk(directory_path):
+        for file in files:
+            file_paths.append(os.path.join(root, file))
+    return file_paths

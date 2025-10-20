@@ -464,7 +464,7 @@ echo_commands:
     images:
       caption_above: true
       files:
-        - src/res/images/cafe_vost.jpg
+        - file: src/res/images/cafe_vost.jpg
   - name: buffet
     message: echo_commands.cafe_buffet
     times:
@@ -475,7 +475,7 @@ echo_commands:
     images:
       caption_above: true
       files:
-        - src/res/images/cafe_buffet.jpg
+        - file: src/res/images/cafe_buffet.jpg
   - name: canteen
     message: echo_commands.cafe_canteen
     times:
@@ -483,8 +483,8 @@ echo_commands:
     images:
       caption_above: true
       files:
-        - src/res/images/canteen/1.jpg
-        - src/res/images/canteen/2.jpg
+        - file: src/res/images/canteen/1.jpg
+        - file: src/res/images/canteen/2.jpg
   - name: linen
     message: echo_commands.linen
     times:
@@ -492,29 +492,34 @@ echo_commands:
     images:
       caption_above: true
       files:
-        - src/res/images/linen.jpg
+        - file: src/res/images/linen.jpg
   - name: laundress
     message: echo_commands.laundress
     times:
       - time: laundress
     images:
       files:
-        - src/res/images/laundress/1.jpg
-        - src/res/images/laundress/2.jpg
+        - file: src/res/images/laundress/1.jpg
+        - file: src/res/images/laundress/2.jpg
   - name: cards
     message: echo_commands.cards
     images:
       files:
-        - src/res/images/cards/1.jpg
-        - src/res/images/cards/2.jpg
-        - src/res/images/cards/3.jpg
-        - src/res/images/cards/4.jpg
-        - src/res/images/cards/5.jpg
-        - src/res/images/cards/6.jpg
-        - src/res/images/cards/7.jpg
-        - src/res/images/cards/8.jpg
-        - src/res/images/cards/9.jpg
-        - src/res/images/cards/10.jpg
+        - file: src/res/images/cards/1.jpg
+        - file: src/res/images/cards/2.jpg
+        - cycle:
+            name: x5_cards
+            files:
+              - file: src/res/images/cards/x5/1.jpg
+              - file: src/res/images/cards/x5/2.jpg
+              - file: src/res/images/cards/x5/3.png
+        - file: src/res/images/cards/4.jpg
+        - file: src/res/images/cards/5.jpg
+        - file: src/res/images/cards/6.jpg
+        - file: src/res/images/cards/7.jpg
+        - file: src/res/images/cards/8.jpg
+        - file: src/res/images/cards/9.jpg
+        - file: src/res/images/cards/10.jpg
   - name: incorrect_director
     message: echo_commands.incorrect_director
   - name: deanit

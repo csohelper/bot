@@ -16,9 +16,39 @@ class TimeInfoModel(BaseModel):
     time: str = Field()
 
 
+class CycleInfoModel(BaseModel):
+    name: str = Field()
+    files: list["ImageInfoModel"] = Field(default_factory=list)
+
+    @staticmethod
+    def to_cyclefileinfo(original: "CycleInfoModel"):
+        return CycleFileInfo(
+            original.name,
+            [ImageInfoModel.to_imagefileinfo(x) for x in original.files]
+        )
+
+
+class ImageInfoModel(BaseModel):
+    file: Optional[str] = Field(default=None)
+    cycle: Optional[CycleInfoModel] = Field(default=None)
+
+    @staticmethod
+    def to_imagefileinfo(original: "ImageInfoModel") -> "ImageFileInfo":
+        cycle: CycleInfoModel = original.cycle
+
+        cycle_info: CycleFileInfo | None = None
+        if cycle and len(cycle.files) != 0:
+            cycle_info = CycleInfoModel.to_cyclefileinfo(cycle)
+
+        return ImageFileInfo(
+            original.file,
+            cycle_info
+        )
+
+
 class ImagesInfoModel(BaseModel):
     caption_above: bool = Field(default=False)
-    files: List[str] = Field(default_factory=list)
+    files: List[ImageInfoModel] = Field(default_factory=list)
 
 
 class EchoCommandModel(BaseModel):
@@ -86,9 +116,21 @@ class TimeInfo:
 
 
 @dataclass(frozen=True)
+class ImageFileInfo:
+    file: Optional[str]
+    cycle: Optional["CycleFileInfo"]
+
+
+@dataclass(frozen=True)
+class CycleFileInfo:
+    name: str
+    files: list["ImageFileInfo"]
+
+
+@dataclass(frozen=True)
 class ImageInfo:
     caption_above: bool
-    files: List[str]
+    files: List[ImageFileInfo]
 
 
 @dataclass(frozen=True)
@@ -116,7 +158,9 @@ def get_echo_commands() -> List[EchoCommand]:
             info.name, info.message,
             ImageInfo(
                 info.images.caption_above,
-                info.images.files
+                [
+                    ImageInfoModel.to_imagefileinfo(file) for file in info.images.files
+                ]
             ) if info.images else None,
             [TimeInfo(time.key, time.time) for time in info.times],
             get_all_triggers(info.name)
