@@ -64,20 +64,24 @@ class ImageId:
     id: str
 
 
-def get_file_list(files: list[ImageFileInfo]) -> list[ImagePath | ImageId]:
+def get_file_list(*files: ImageFileInfo) -> list[ImagePath | ImageId]:
     result = []
     for info in files:
-        if info.file:
+        if info.file is not None:
             if info.file in images_caches:
                 result.append(ImageId(images_caches[info.file]))
             else:
                 result.append(ImagePath(info.file))
-        if info.cycle:
+        elif info.cycle is not None:
             index = (image_index.get(info.cycle.name, 0) + 1) % len(info.cycle.files)
             image_index[info.cycle.name] = index
 
             result.extend(
-                get_file_list([info.cycle.files[index]])
+                get_file_list(info.cycle.files[index])
+            )
+        elif info.random is not None:
+            result.extend(
+                get_file_list(random.choice(info.random.files))
             )
 
     return result
@@ -101,8 +105,7 @@ def make_image_handler(command_info: EchoCommand):
             delete_messages = [message]
 
             while True:
-                file_list: list[ImagePath | ImageId] = get_file_list(command_info.images.files)
-                print(file_list)
+                file_list: list[ImagePath | ImageId] = get_file_list(*command_info.images.files)
                 media = []
 
                 for file in file_list:

@@ -21,8 +21,20 @@ class CycleInfoModel(BaseModel):
     files: list["ImageInfoModel"] = Field(default_factory=list)
 
     @staticmethod
-    def to_cyclefileinfo(original: "CycleInfoModel"):
+    def to_cyclefileinfo(original: "CycleInfoModel") -> "CycleFileInfo":
         return CycleFileInfo(
+            original.name,
+            [ImageInfoModel.to_imagefileinfo(x) for x in original.files]
+        )
+
+
+class RandomInfoModel(BaseModel):
+    name: str = Field()
+    files: list["ImageInfoModel"] = Field(default_factory=list)
+
+    @staticmethod
+    def to_randomfileinfo(original: "RandomInfoModel") -> "RandomFileInfo":
+        return RandomFileInfo(
             original.name,
             [ImageInfoModel.to_imagefileinfo(x) for x in original.files]
         )
@@ -31,18 +43,24 @@ class CycleInfoModel(BaseModel):
 class ImageInfoModel(BaseModel):
     file: Optional[str] = Field(default=None)
     cycle: Optional[CycleInfoModel] = Field(default=None)
+    random: Optional[RandomInfoModel] = Field(default=None)
 
     @staticmethod
     def to_imagefileinfo(original: "ImageInfoModel") -> "ImageFileInfo":
         cycle: CycleInfoModel = original.cycle
-
         cycle_info: CycleFileInfo | None = None
         if cycle and len(cycle.files) != 0:
             cycle_info = CycleInfoModel.to_cyclefileinfo(cycle)
 
+        random: RandomInfoModel = original.random
+        random_info: RandomFileInfo | None = None
+        if random and len(random.files) != 0:
+            random_info = RandomInfoModel.to_randomfileinfo(random)
+
         return ImageFileInfo(
             original.file,
-            cycle_info
+            cycle_info,
+            random_info
         )
 
 
@@ -119,10 +137,17 @@ class TimeInfo:
 class ImageFileInfo:
     file: Optional[str]
     cycle: Optional["CycleFileInfo"]
+    random: Optional["RandomFileInfo"]
 
 
 @dataclass(frozen=True)
 class CycleFileInfo:
+    name: str
+    files: list["ImageFileInfo"]
+
+
+@dataclass(frozen=True)
+class RandomFileInfo:
     name: str
     files: list["ImageFileInfo"]
 
