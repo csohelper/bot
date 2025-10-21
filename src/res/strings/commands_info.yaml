@@ -512,7 +512,9 @@ echo_commands:
             files:
               - file: src/res/images/cards/x5/1.jpg
               - file: src/res/images/cards/x5/2.jpg
-              - file: src/res/images/cards/x5/3.png
+              - file: src/res/images/cards/x5/3.jpg
+              - file: src/res/images/cards/x5/4.jpg
+              - file: src/res/images/cards/x5/5.jpg
         - file: src/res/images/cards/4.jpg
         - file: src/res/images/cards/5.jpg
         - file: src/res/images/cards/6.jpg
