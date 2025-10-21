@@ -158,7 +158,14 @@ async def on_room_chosen(message: Message, state: FSMContext) -> None:
                 message.from_user.id
             )
             await users_repository.mark_request_processed(message.from_user.id)
-        elif not message.text or len(message.text) != 3 or not message.text.isdigit() or int(message.text) < 0:
+        elif (
+                not message.text or
+                len(message.text) != 3 or
+                not message.text.isdigit() or
+                int(message.text) < 0 or
+                int(message.text[0]) > 5 or
+                int(message.text[1:2]) > 50
+        ):
             await message.reply(
                 get_string(message.from_user.language_code, "user_service.select_room_unknown"),
                 reply_markup=ReplyKeyboardBuilder().row(
