@@ -307,6 +307,7 @@ async def download_photos(
                 except Exception as e:
                     if att < 9:
                         logger.warning(f"Downloading attempt {att}")
+                        await asyncio.sleep(0.2)
                         continue
                     else:
                         raise IOError("Failed to download after 10 attempts") from e
@@ -376,6 +377,7 @@ async def download_video(
                 except Exception as e:
                     if att < 9:
                         logger.warning(f"Downloading attempt {att}")
+                        await asyncio.sleep(0.2)
                         continue
                     else:
                         raise IOError("Failed to download after 10 attempts") from e
