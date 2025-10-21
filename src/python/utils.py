@@ -305,7 +305,7 @@ async def download_photos(
 
                     break
                 except Exception as e:
-                    if att < 9:
+                    if att < 10:
                         logger.warning(f"Downloading attempt {att}")
                         await asyncio.sleep(0.2)
                         continue
@@ -375,7 +375,7 @@ async def download_video(
                                 await progress_callback(percentage)
                     break
                 except Exception as e:
-                    if att < 9:
+                    if att < 10:
                         logger.warning(f"Downloading attempt {att}")
                         await asyncio.sleep(0.2)
                         continue

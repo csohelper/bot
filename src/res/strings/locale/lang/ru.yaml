@@ -1029,7 +1029,7 @@ user_service:
     refuse_confirm_empty: ⚠️ Отправьте причину отказа или выберите соответсвующий вариант
 exceptions:
   debug: |
-    <b>LOG #<code>{code}</code></b>
+    <b>LOG <code>#</code><code>{code}</code></b>
     <pre language="python">{exc}</pre>
     <b>userid</b>: <code>#{userid}</code>
     <b>username</b>: <code>@{username}</code>
