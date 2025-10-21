@@ -238,17 +238,6 @@ async def check_blacklisted(message: Message) -> bool:
     return False
 
 
-def format_full_trace(e: Exception, limit=None, compact=False, chain=True) -> str:
-    te = traceback.TracebackException(
-        type(e),
-        e,
-        e.__traceback__,
-        limit=limit,
-        compact=compact,
-    )
-    return ''.join(te.format(chain=chain))
-
-
 async def log_exception(
         e: Exception,
         original: Message | CallbackQuery | ChatJoinRequest,
@@ -269,7 +258,9 @@ async def log_exception(
             get_string(
                 config.chat_config.admin.chat_lang,
                 "exceptions.debug",
-                code=code, exc=format_full_trace(e),
+                code=code, exc='\n'.join(traceback.format_exception(
+                    e
+                )),
                 userid=original.from_user.id,
                 username=original.from_user.username,
                 fullname=original.from_user.full_name,
@@ -291,29 +282,31 @@ async def download_photos(
         await progress_callback(0, len(file_ids))
     async with aiohttp.ClientSession() as session:
         for i, file_id in enumerate(file_ids):
-            try:
-                # Получаем информацию о файле через nginx
-                file: File = await bot.get_file(file_id)
+            for att in range(10):  # 10 attempts
+                try:
+                    # Получаем информацию о файле через nginx
+                    file: File = await bot.get_file(file_id)
 
-                # Обрезаем префикс /var/lib/telegram-bot-api/
-                relative_path = file.file_path.lstrip('/var/lib/telegram-bot-api/')
+                    # Обрезаем префикс /var/lib/telegram-bot-api/
+                    relative_path = file.file_path.lstrip('/var/lib/telegram-bot-api/')
 
-                # Формируем URL для скачивания
-                download_url = f"{config.telegram.download_server}/file/{relative_path}"
+                    # Формируем URL для скачивания
+                    download_url = f"{config.telegram.download_server}/file/{relative_path}"
 
-                # Скачиваем файл
-                async with session.get(download_url) as response:
-                    if response.status != 200:
-                        raise Exception(f"Ошибка скачивания: {response.status}, URL: {download_url}")
-                    file_bytes = await response.read()
+                    # Скачиваем файл
+                    async with session.get(download_url) as response:
+                        if response.status != 200:
+                            raise Exception(f"Ошибка скачивания: {response.status}, URL: {download_url}")
+                        file_bytes = await response.read()
 
-                # Преобразуем в Base64
-                photo_b64 = base64.b64encode(file_bytes).decode('utf-8')
-                base64_photos.append(photo_b64)
+                    # Преобразуем в Base64
+                    photo_b64 = base64.b64encode(file_bytes).decode('utf-8')
+                    base64_photos.append(photo_b64)
 
-            except Exception as e:
-                logger.error(f"Ошибка при скачивании file_id={file_id}: {str(e)}")
-                continue  # Пропускаем ошибочный файл
+                    break
+                except IOError:
+                    if att < 9:
+                        continue
 
             if progress_callback:
                 await progress_callback(i + 1, len(file_ids))
@@ -356,24 +349,30 @@ async def download_video(
             if response.status != 200:
                 raise Exception(f"Download error: {response.status}, URL: {download_url}")
 
-            # Get total size of the file (if available)
-            total_size = int(response.headers.get('Content-Length', 0))
-            downloaded = 0
-            last_reported_percentage = -1  # Track last reported percentage to avoid duplicates
-            data_bytes = bytearray()
+            for att in range(10):
+                try:
+                    # Get total size of the file (if available)
+                    total_size = int(response.headers.get('Content-Length', 0))
+                    downloaded = 0
+                    last_reported_percentage = -1  # Track last reported percentage to avoid duplicates
+                    data_bytes = bytearray()
 
-            # Read response in chunks to track progress
-            chunk_size = 1024 * 1024  # 1MB chunks
-            async for chunk in response.content.iter_chunked(chunk_size):
-                data_bytes.extend(chunk)
-                downloaded += len(chunk)
+                    # Read response in chunks to track progress
+                    chunk_size = 1024 * 1024  # 1MB chunks
+                    async for chunk in response.content.iter_chunked(chunk_size):
+                        data_bytes.extend(chunk)
+                        downloaded += len(chunk)
 
-                # Calculate and report progress if total_size is known
-                if total_size > 0 and progress_callback:
-                    percentage = int((downloaded / total_size) * 100)
-                    if percentage != last_reported_percentage:
-                        last_reported_percentage = percentage
-                        await progress_callback(percentage)
+                        # Calculate and report progress if total_size is known
+                        if total_size > 0 and progress_callback:
+                            percentage = int((downloaded / total_size) * 100)
+                            if percentage != last_reported_percentage:
+                                last_reported_percentage = percentage
+                                await progress_callback(percentage)
+                    break
+                except IOError:
+                    if att < 9:
+                        continue
 
     # Encode to Base64
     return base64.b64encode(data_bytes).decode("utf-8")
