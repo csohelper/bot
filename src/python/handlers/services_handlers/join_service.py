@@ -12,7 +12,6 @@ from aiogram.types import ChatJoinRequest, Message, KeyboardButton, FSInputFile,
     InlineKeyboardButton, ReplyKeyboardRemove, User
 from aiogram.utils.deep_linking import create_start_link
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
-from aiohttp import ClientConnectorError
 
 from python.logger import logger
 from python.storage.config import config
@@ -164,7 +163,7 @@ async def on_room_chosen(message: Message, state: FSMContext) -> None:
                 not message.text.isdigit() or
                 int(message.text) < 0 or
                 int(message.text[0]) > 5 or
-                int(message.text[1:2]) > 50
+                int(message.text[1:3]) > 50
         ):
             await message.reply(
                 get_string(message.from_user.language_code, "user_service.select_room_unknown"),
