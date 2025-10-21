@@ -1,22 +1,20 @@
 import asyncio
 import base64
 import os
+import traceback
 from asyncio import sleep
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import List, Optional, Callable, Awaitable, Any
+from typing import List, Optional, Callable, Awaitable
 
 import aiohttp
-from aiogram.fsm.context import FSMContext
-from aiogram.fsm.strategy import FSMStrategy
+from aiogram import Bot
+from aiogram.types import (ChatMember, Message, ReactionTypeEmoji, CallbackQuery, ChatJoinRequest, File,
+                           ChatMemberLeft, ChatMemberBanned)
 
 from python.logger import logger
 from python.storage.config import config
 from python.storage.strings import get_string
-
-from aiogram import Bot
-from aiogram.types import (ChatMember, Message, ReactionTypeEmoji, CallbackQuery, ChatJoinRequest, File,
-                           ChatMemberLeft, ChatMemberBanned)
 
 
 def get_week_number(current_date: datetime) -> int:
@@ -260,7 +258,7 @@ async def log_exception(
             get_string(
                 config.chat_config.admin.chat_lang,
                 "exceptions.debug",
-                code=code, exc=str(e),
+                code=code, exc='\n'.join(traceback.format_exception(e)),
                 userid=original.from_user.id,
                 username=original.from_user.username,
                 fullname=original.from_user.full_name,

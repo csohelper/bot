@@ -1029,12 +1029,12 @@ user_service:
     refuse_confirm_empty: ⚠️ Отправьте причину отказа или выберите соответсвующий вариант
 exceptions:
   debug: |
-    <b>LOG <code>#{code}</code></b>
+    <b>LOG #<code>{code}</code></b>
     <pre language="python">{exc}</pre>
     
-    <b>userid</b> = <code>{userid}</code>
-    <b>username</b> = <code>{username}</code>
-    <b>fullname</b> = <code>{fullname}</code>
+    <b>userid</b>: <code>#{userid}</code>
+    <b>username</b>: <code>@{username}</code>
+    <b>fullname</b>: <code>{fullname}</code>
   uncause: |
-    ⚠️ Произошло неожидаемое исключение <code>#{0}</code> при обработке сообщения.
+    ⚠️ Произошло неожидаемое исключение #<code>{0}</code> при обработке сообщения.
     Обратитесь к <a href="https://t.me/{1}">администратору</a> для обратной связи

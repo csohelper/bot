@@ -1043,12 +1043,12 @@ user_service:
     refuse_confirm_empty: ⚠️ Send a reason for rejection or choose the corresponding option
 exceptions:
   debug: |
-    <b>LOG <code>#{code}</code></b>
+    <b>LOG #<code>{code}</code></b>
     <pre language="python">{exc}</pre>
     
-    <b>userid</b> = <code>{userid}</code>
-    <b>username</b> = <code>{username}</code>
-    <b>fullname</b> = <code>{fullname}</code>
+    <b>userid</b>: <code>#{userid}</code>
+    <b>username</b>: <code>@{username}</code>
+    <b>fullname</b>: <code>{fullname}</code>
   uncause: |
-    ⚠️ An unexpected exception occurred <code>#{0}</code> while processing the message.
+    ⚠️ An unexpected exception occurred #<code>{0}</code> while processing the message.
     Contact the <a href="https://t.me/{1}">administrator</a> for feedback
