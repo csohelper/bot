@@ -304,7 +304,7 @@ async def download_photos(
                     base64_photos.append(photo_b64)
 
                     break
-                except IOError as e:
+                except Exception as e:
                     if att < 9:
                         continue
                     else:
@@ -372,7 +372,7 @@ async def download_video(
                                 last_reported_percentage = percentage
                                 await progress_callback(percentage)
                     break
-                except IOError as e:
+                except Exception as e:
                     if att < 9:
                         continue
                     else:

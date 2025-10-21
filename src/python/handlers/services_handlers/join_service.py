@@ -12,6 +12,7 @@ from aiogram.types import ChatJoinRequest, Message, KeyboardButton, FSInputFile,
     InlineKeyboardButton, ReplyKeyboardRemove, User
 from aiogram.utils.deep_linking import create_start_link
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
+from aiohttp import ClientConnectorError
 
 from python.logger import logger
 from python.storage.config import config
@@ -311,7 +312,6 @@ async def on_picture_chosen(message: Message, state: FSMContext) -> None:
                 [largest_photo.file_id]
             ))[0]
         )
-
         await message.reply_photo(
             photo=largest_photo.file_id,
             caption=get_string(
