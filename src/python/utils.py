@@ -238,6 +238,102 @@ async def check_blacklisted(message: Message) -> bool:
     return False
 
 
+def html_escape(text: str) -> str:
+    """Escape special HTML characters to prevent parsing issues inside tags like <pre>."""
+    return text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+
+
+def extract_tag_name(full_tag: str) -> str:
+    """Extract the tag name from a full opening tag, e.g., '<pre language="python">' -> 'pre'."""
+    name = full_tag.lstrip('<').split()[0]
+    return name.rstrip('/>')
+
+
+def split_html(html_str: str, max_len: int = 4000) -> list[str]:
+    """
+    Split a long HTML string into parts, each <= max_len characters.
+    At split points, close open tags in the current part and reopen them in the next part
+    to maintain styling continuity. Each part has balanced tags.
+    """
+    parts = []
+    current = []
+    stack = []  # Stack of full opening tags (with attributes)
+    i = 0
+    n = len(html_str)
+
+    while i < n:
+        if html_str[i] == '<':
+            # Parse tag
+            tag_start = i
+            tag_end = html_str.find('>', i)
+            if tag_end == -1:
+                # Invalid HTML, append rest as text
+                current.append(html_str[i:])
+                i = n
+                continue
+            tag = html_str[tag_start:tag_end + 1]
+            i = tag_end + 1
+
+            if tag.startswith('</'):
+                # Closing tag
+                if stack:
+                    expected = extract_tag_name(stack[-1])
+                    closing_name = extract_tag_name(tag)
+                    if expected == closing_name:
+                        stack.pop()
+                current.append(tag)
+            else:
+                # Opening tag (assume no self-closing for Telegram HTML)
+                current.append(tag)
+                if not tag.endswith('/>'):
+                    stack.append(tag)
+        else:
+            # Text content
+            text_start = i
+            while i < n and html_str[i] != '<':
+                i += 1
+            text = html_str[text_start:i]
+
+            # Add text, splitting if necessary
+            while text:
+                current_str = ''.join(current)
+                avail = max_len - len(current_str)
+                if avail <= 0:
+                    # Force split even if no space
+                    for full_tag in reversed(stack):
+                        name = extract_tag_name(full_tag)
+                        current.append(f'</{name}>')
+                    parts.append(''.join(current))
+                    current = []
+                    for full_tag in stack:
+                        current.append(full_tag)
+                    current_str = ''.join(current)
+                    avail = max_len - len(current_str)
+
+                chunk_size = min(len(text), avail)
+                current.append(text[:chunk_size])
+                text = text[chunk_size:]
+
+                # If more text remains and current is at or over limit, split
+                if text and len(''.join(current)) >= max_len:
+                    for full_tag in reversed(stack):
+                        name = extract_tag_name(full_tag)
+                        current.append(f'</{name}>')
+                    parts.append(''.join(current))
+                    current = []
+                    for full_tag in stack:
+                        current.append(full_tag)
+
+    # Append the last part, closing any remaining tags
+    if current:
+        for full_tag in reversed(stack):
+            name = extract_tag_name(full_tag)
+            current.append(f'</{name}>')
+        parts.append(''.join(current))
+
+    return parts
+
+
 async def log_exception(
         e: Exception,
         original: Message | CallbackQuery | ChatJoinRequest,
@@ -253,20 +349,24 @@ async def log_exception(
         )
     )
     if config.chat_config.admin.chat_id and config.chat_config.admin.chat_id != -1000000000000:
-        await original.bot.send_message(
-            config.chat_config.admin.chat_id,
-            get_string(
-                config.chat_config.admin.chat_lang,
-                "exceptions.debug",
-                code=code, exc='\n'.join(traceback.format_exception(
-                    e
-                )),
-                userid=original.from_user.id,
-                username=original.from_user.username,
-                fullname=original.from_user.full_name,
-            ),
-            message_thread_id=config.chat_config.admin.topics.debug,
+        escaped_exc = html_escape(''.join(traceback.format_exception(e)))
+        full_message = get_string(
+            config.chat_config.admin.chat_lang,
+            "exceptions.debug",
+            code=code,
+            exc=escaped_exc,
+            userid=original.from_user.id,
+            username=original.from_user.username,
+            fullname=original.from_user.full_name,
         )
+        message_parts = split_html(full_message, max_len=4000)
+
+        for part in message_parts:
+            await original.bot.send_message(
+                config.chat_config.admin.chat_id,
+                part,
+                message_thread_id=config.chat_config.admin.topics.debug,
+            )
 
 
 async def download_photos(
