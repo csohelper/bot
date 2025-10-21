@@ -238,6 +238,17 @@ async def check_blacklisted(message: Message) -> bool:
     return False
 
 
+def format_full_trace(e: Exception, limit=None, compact=False, chain=True) -> str:
+    te = traceback.TracebackException(
+        type(e),
+        e,
+        e.__traceback__,
+        limit=limit,
+        compact=compact,
+    )
+    return ''.join(te.format(chain=chain))
+
+
 async def log_exception(
         e: Exception,
         original: Message | CallbackQuery | ChatJoinRequest,
@@ -258,7 +269,7 @@ async def log_exception(
             get_string(
                 config.chat_config.admin.chat_lang,
                 "exceptions.debug",
-                code=code, exc='\n'.join(traceback.format_exception(e)),
+                code=code, exc=format_full_trace(e),
                 userid=original.from_user.id,
                 username=original.from_user.username,
                 fullname=original.from_user.full_name,
