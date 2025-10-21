@@ -306,9 +306,10 @@ async def download_photos(
                     break
                 except Exception as e:
                     if att < 9:
+                        logger.warning(f"Downloading attempt {att}")
                         continue
                     else:
-                        raise e
+                        raise IOError("Failed to download after 10 attempts") from e
 
             if progress_callback:
                 await progress_callback(i + 1, len(file_ids))
@@ -374,9 +375,10 @@ async def download_video(
                     break
                 except Exception as e:
                     if att < 9:
+                        logger.warning(f"Downloading attempt {att}")
                         continue
                     else:
-                        raise e
+                        raise IOError("Failed to download after 10 attempts") from e
 
     # Encode to Base64
     return base64.b64encode(data_bytes).decode("utf-8")
