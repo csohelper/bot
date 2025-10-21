@@ -304,9 +304,11 @@ async def download_photos(
                     base64_photos.append(photo_b64)
 
                     break
-                except IOError:
+                except IOError as e:
                     if att < 9:
                         continue
+                    else:
+                        raise e
 
             if progress_callback:
                 await progress_callback(i + 1, len(file_ids))
@@ -370,9 +372,11 @@ async def download_video(
                                 last_reported_percentage = percentage
                                 await progress_callback(percentage)
                     break
-                except IOError:
+                except IOError as e:
                     if att < 9:
                         continue
+                    else:
+                        raise e
 
     # Encode to Base64
     return base64.b64encode(data_bytes).decode("utf-8")
