@@ -193,7 +193,6 @@ async def command_start_handler(message: Message, command: CommandObject, state:
             return
         args = command.args
         payload = decode_payload(args)
-        logger.debug(payload)
 
         match payload:
             case 'addservice':

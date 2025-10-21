@@ -178,7 +178,6 @@ async def get_resident_by_id(user_id: int) -> Resident | None:
                     """
             values = (user_id,)
             logger.trace_db(query, values)
-            logger.debug(values)
             await cur.execute(
                 query,
                 values
