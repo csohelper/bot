@@ -239,35 +239,28 @@ async def check_blacklisted(message: Message) -> bool:
 
 
 def html_escape(text: str) -> str:
-    """Escape special HTML characters to prevent parsing issues inside tags like <pre>."""
+    """Эскейпинг специальных символов для HTML."""
     return text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
 
 
-def extract_tag_name(full_tag: str) -> str:
-    """Extract the tag name from a full opening tag, e.g., '<pre language="python">' -> 'pre'."""
-    name = full_tag.lstrip('<').split()[0]
-    return name.rstrip('/>')
-
-
-def split_html(html_str: str, max_len: int = 4000) -> list[str]:
+def split_html_simple(html_str: str, max_len: int = 4000) -> list[str]:
     """
-    Split a long HTML string into parts, each <= max_len characters.
-    At split points, close open tags in the current part and reopen them in the next part
-    to maintain styling continuity. Each part has balanced tags.
+    Разбивает HTML на части <= max_len, сохраняя структуру тегов.
+    Закрывает открытые теги в конце части и открывает заново в следующей.
     """
     parts = []
     current = []
-    stack = []  # Stack of full opening tags (with attributes)
+    stack = []  # Стек полных открывающих тегов (с атрибутами)
     i = 0
     n = len(html_str)
 
     while i < n:
         if html_str[i] == '<':
-            # Parse tag
+            # Парсим тег
             tag_start = i
             tag_end = html_str.find('>', i)
             if tag_end == -1:
-                # Invalid HTML, append rest as text
+                # Некорректный HTML, добавляем остаток как текст
                 current.append(html_str[i:])
                 i = n
                 continue
@@ -275,38 +268,42 @@ def split_html(html_str: str, max_len: int = 4000) -> list[str]:
             i = tag_end + 1
 
             if tag.startswith('</'):
-                # Closing tag
-                if stack:
-                    expected = extract_tag_name(stack[-1])
-                    closing_name = extract_tag_name(tag)
-                    if expected == closing_name:
-                        stack.pop()
+                # Закрывающий тег
+                name = extract_tag_name(tag)
+                if stack and extract_tag_name(stack[-1]) == name:
+                    stack.pop()
+                current.append(tag)
+            elif tag.endswith('/>'):
+                # Самозакрывающийся тег
                 current.append(tag)
             else:
-                # Opening tag (assume no self-closing for Telegram HTML)
+                # Открывающий тег - сохраняем ПОЛНЫЙ тег с атрибутами
                 current.append(tag)
-                if not tag.endswith('/>'):
-                    stack.append(tag)
+                stack.append(tag)  # Сохраняем полный тег!
         else:
-            # Text content
+            # Текст
             text_start = i
             while i < n and html_str[i] != '<':
                 i += 1
             text = html_str[text_start:i]
 
-            # Add text, splitting if necessary
+            # Добавляем текст по частям, если нужно разбить
             while text:
                 current_str = ''.join(current)
                 avail = max_len - len(current_str)
+
                 if avail <= 0:
-                    # Force split even if no space
-                    for full_tag in reversed(stack):
-                        name = extract_tag_name(full_tag)
-                        current.append(f'</{name}>')
+                    # Разбиваем: закрываем стек
+                    for opening_tag in reversed(stack):
+                        tag_name = extract_tag_name(opening_tag)
+                        current.append(f'</{tag_name}>')
                     parts.append(''.join(current))
+
+                    # Начинаем новую часть и открываем стек заново
                     current = []
-                    for full_tag in stack:
-                        current.append(full_tag)
+                    for opening_tag in stack:
+                        current.append(opening_tag)  # Используем полный оригинальный тег!
+
                     current_str = ''.join(current)
                     avail = max_len - len(current_str)
 
@@ -314,24 +311,42 @@ def split_html(html_str: str, max_len: int = 4000) -> list[str]:
                 current.append(text[:chunk_size])
                 text = text[chunk_size:]
 
-                # If more text remains and current is at or over limit, split
+                # Если после добавления всё равно >= max_len, force split
                 if text and len(''.join(current)) >= max_len:
-                    for full_tag in reversed(stack):
-                        name = extract_tag_name(full_tag)
-                        current.append(f'</{name}>')
+                    for opening_tag in reversed(stack):
+                        tag_name = extract_tag_name(opening_tag)
+                        current.append(f'</{tag_name}>')
                     parts.append(''.join(current))
-                    current = []
-                    for full_tag in stack:
-                        current.append(full_tag)
 
-    # Append the last part, closing any remaining tags
+                    current = []
+                    for opening_tag in stack:
+                        current.append(opening_tag)
+
+    # Добавляем последнюю часть, закрывая стек
     if current:
-        for full_tag in reversed(stack):
-            name = extract_tag_name(full_tag)
-            current.append(f'</{name}>')
+        for opening_tag in reversed(stack):
+            tag_name = extract_tag_name(opening_tag)
+            current.append(f'</{tag_name}>')
         parts.append(''.join(current))
 
     return parts
+
+
+def extract_tag_name(tag: str) -> str:
+    """Извлекает имя тега из строки тега."""
+    tag = tag.strip('<>/')
+    # Берем первое слово (до пробела или конца строки)
+    space_idx = tag.find(' ')
+    if space_idx > 0:
+        return tag[:space_idx]
+    return tag
+
+
+# Пример использования (замените на ваш get_string)
+# escaped_exc = html_escape(traceback_text)
+# full_message = your_template_with_escaped_exc
+# message_parts = split_html_simple(full_message, max_len=4000)
+# Затем отправляйте каждую part с parse_mode='HTML'
 
 
 async def log_exception(
@@ -359,7 +374,7 @@ async def log_exception(
             username=original.from_user.username,
             fullname=original.from_user.full_name,
         )
-        message_parts = split_html(full_message, max_len=4000)
+        message_parts = split_html_simple(full_message, max_len=4000)
 
         for part in message_parts:
             await original.bot.send_message(
@@ -367,6 +382,7 @@ async def log_exception(
                 part,
                 message_thread_id=config.chat_config.admin.topics.debug,
             )
+            await asyncio.sleep(0.2)
 
 
 async def download_photos(

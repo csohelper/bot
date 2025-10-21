@@ -104,7 +104,9 @@ def make_image_handler(command_info: EchoCommand):
             global images_caches, image_index
             delete_messages = [message]
 
+            tries = 0
             while True:
+                tries += 1
                 file_list: list[ImagePath | ImageId] = get_file_list(*command_info.images.files)
                 media = []
 
@@ -135,9 +137,16 @@ def make_image_handler(command_info: EchoCommand):
                     delete_messages.extend(reply)
                 except Exception as e:
                     logger.error(f"{e}")
+                    affected = 0
                     for file in file_list:
                         if isinstance(file, ImageId):
+                            affected += 1
                             del images_caches[file.id]
+                    if affected == 0:
+                        logger.warning(f"Tried {tries} times send images")
+                        if tries >= 10:
+                            raise IOError("Too many tries to send images") from e
+                    await asyncio.sleep(0.2)
                     continue
 
                 break
