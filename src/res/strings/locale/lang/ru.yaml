@@ -754,6 +754,20 @@ echo_commands:
     i.a.poleshchuk@mtuci.ru
     
     {working_status}
+  miloffice: |
+    <b>Лефортовский Военкомат</b>
+    <a href="https://yandex.ru/maps/-/CLbvjTKu">Саратовская улица, 21с4</a>
+    
+    <b>График работы</b>
+    Военкомата
+    ПН-ЧТ 09:00 - 18:00
+    ПТ        09:00 - 16:45
+    {working_miloffice}
+    
+    Приём граждан
+    ПН,СР  10:00 - 17:00
+    Обед    13:00 - 14:00
+    {working_consuming}
   kek:
     anecdote: |
       {0}

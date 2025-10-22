@@ -771,6 +771,20 @@ echo_commands:
     i.a.poleshchuk@mtuci.ru
     
     {working_status}
+  miloffice: |
+    <b>Lefortovo Military Enlistment Office</b> (Лефортовский Военкомат)
+    <a href="https://yandex.ru/maps/-/CLbvjTKu">21 Saratovskaya street, building 4</a> (Саратовская улица, 21c4)
+    
+    <b>Working Hours</b>
+    Mil Office
+    MON-THU 09:00 - 18:00
+    FRI        09:00 - 16:45
+    {working_miloffice}
+    
+    Приём граждан
+    MON,WED  10:00 - 17:00
+    Break    13:00 - 14:00
+    {working_consuming}
   kek:
     anecdote: |
       {0}

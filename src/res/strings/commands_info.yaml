@@ -359,6 +359,12 @@ triggers:
     - seconddep
     - secdep
     - вт отдел
+  miloffice:
+    - военкомат
+    - miloffice
+    - millitary office
+    - военный коммисариат
+    - военком
 commands_list:
   - cards
   - index
@@ -388,6 +394,7 @@ commands_list:
   - deancais
   - deandeamc
   - deanforeign
+  - miloffice
 echo_commands:
   - name: help
     message: echo_commands.help
@@ -626,3 +633,13 @@ echo_commands:
     message: echo_commands.second_department
     times:
       - time: university.second_department
+  - name: miloffice
+    message: echo_commands.miloffice
+    times:
+      - time: miloffice.office
+        key: working_miloffice
+      - time: miloffice.consuming
+        key: working_consuming
+    images:
+      files:
+        - file: src/res/images/miloffice.jpg
