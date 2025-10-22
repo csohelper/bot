@@ -352,6 +352,13 @@ triggers:
     - кафедра би
   hype_collector_greeting:
     - хайп коллектор
+  seconddep:
+    - второй отдел
+    - second department
+    - second departament
+    - seconddep
+    - secdep
+    - вт отдел
 commands_list:
   - cards
   - index
@@ -360,6 +367,7 @@ commands_list:
   - jko
   - hr
   - polyclinic
+  - seconddep
   - library
   - services
   - vost
@@ -614,3 +622,7 @@ echo_commands:
     message: echo_commands.departments.deamc.for
   - name: depdeamcbcs
     message: echo_commands.departments.deamc.bcs
+  - name: seconddep
+    message: echo_commands.second_department
+    times:
+      - time: university.second_department

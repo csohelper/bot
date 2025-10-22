@@ -290,6 +290,28 @@ university:
         times:
           - start: 10:00
             end: 15:00
+  second_department:
+    - days:
+        - 0
+        - 2
+      times:
+        - start: 9:30
+          end: 13:00
+    - days:
+        - 1
+        - 3
+      times:
+        - start: 9:30
+          end: 13:00
+        - start: 14:00
+          end: 17:00
+    - days:
+        - 4
+      times:
+        - start: 9:30
+          end: 13:00
+        - start: 14:00
+          end: 16:00
 polyclinic:
   - days:
       - 0

@@ -52,6 +52,7 @@ echo_commands:
     <b>Housing and Utilities Department</b> - all information about the department (or /jko)
     <b>Human Resources Department</b> - all information about the department (or /hr)
     <b>Polyclinic</b> - address of the center (or /polyclinic)
+    <b>SecDep</b> - Second Department (or /seconddep)
     <b>Library</b> - all information about it (or /library)
     <b>Services</b> - list of services from residents (or /services)
     <b>Vostochka</b> - working hours and café menu (or /vost)
@@ -748,6 +749,27 @@ echo_commands:
     (Обмен белья)
     Mon 10:00 - 17:00
     Break 13:00 - 14:00
+    {working_status}
+  second_department: |
+    <b>Second department</b>
+    (Второй отдел)
+    <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.711828,55.754161,pm2rdm">Room.: L-610</a>
+    
+    MON 09:30 - 13:00
+    THU 09:30 - 17:00
+    THR 09:30 - 13:00
+    THU 09:30 - 17:00
+    FRI 09:30 - 16:00
+    Break 13:00 - 14:00
+    
+    <b>Head of Department</b>
+    Poleshchuk Igor Alexandrovich
+    (Полещук Игорь Александрович)
+    +7(495)957-77-99 (ext. 451)
+    +7(495)957-77-99 (ext. 452)
+    +7(495)957-77-99 (ext. 458)
+    i.a.poleshchuk@mtuci.ru
+    
     {working_status}
   kek:
     anecdote: |
