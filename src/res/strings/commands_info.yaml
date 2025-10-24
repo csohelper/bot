@@ -374,6 +374,9 @@ triggers:
     - linen
     - linen exchange
     - storage room
+  vostok:
+    - vostok
+    - восток
 commands_list:
   - cards
   - index
@@ -386,6 +389,7 @@ commands_list:
   - library
   - services
   - vost
+  - vostok
   - buffet
   - canteen
   - week
@@ -489,6 +493,13 @@ echo_commands:
       caption_above: true
       files:
         - file: src/res/images/cafe_vost.jpg
+  - name: vostok
+    message: echo_commands.cafe_vostok
+    images:
+      files:
+        - file: src/res/images/vostok/map.jpg
+        - file: src/res/images/vostok/menu_1.jpg
+        - file: src/res/images/vostok/menu_2.jpg
   - name: buffet
     message: echo_commands.cafe_buffet
     times:

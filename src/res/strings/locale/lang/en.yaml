@@ -10,7 +10,8 @@ commands_description:
   address: Dormitory address
   commandant: Phone number and email of the duty commandant
   director: Information about the head of the dormitory
-  vost: Working hours and menu of the cafe
+  vost: Working hours and menu of the café
+  vostok: Café on Aviamotornaya street
   jko: Information about the Housing and Utilities Department
   hr: Information about the HR Department
   ed: Information about the Unified Deans Office
@@ -59,6 +60,7 @@ echo_commands:
     <b>Library</b> - all information about it (or /library)
     <b>Services</b> - list of services from residents (or /services)
     <b>Vostochka</b> - working hours and café menu (or /vost)
+    <b>Vostok</b> - café on the Aviamotornaya street (or /vostok)
     <b>Buffet</b> - Buffet (A) and dining hall (ULK) (or /buffet)
     <b>Canteen</b> - Canteen в Н-317 (или /canteen)
     <b>Week</b> - information about the current academic week (or /week)
@@ -710,6 +712,10 @@ echo_commands:
     {working_status}
 
     <u>Menu:</u>
+  cafe_vostok: |
+    <b>Café «Vostok»</b>
+    <a href="https://yandex.ru/maps/-/CLb2ULnO">Aviamotornaya street, 4 building 1</a>
+    🟢 24 / 7
   week: |
     {0} week ({1}) - #{2}
   week_types_up_down:
