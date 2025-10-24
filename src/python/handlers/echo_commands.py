@@ -1,12 +1,13 @@
 import asyncio
 import datetime
 import random
+import traceback
 from dataclasses import dataclass
 from typing import List
 
 from aiogram import Router, Bot
 from aiogram.enums import ChatMemberStatus
-from aiogram.exceptions import TelegramAPIError
+from aiogram.exceptions import TelegramAPIError, TelegramBadRequest
 from aiogram.filters import Command, CommandStart, CommandObject, BaseFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, InputMediaPhoto, FSInputFile, ChatMemberRestricted
@@ -22,7 +23,7 @@ from python.storage.config import config, save_config
 from python.storage.repository.users_repository import check_user, UserRecord
 from python.storage.strings import get_string, get_strings
 from python.storage.times import get_time_status
-from python.utils import check_blacklisted, log_exception
+from python.utils import check_blacklisted, log_exception, html_escape, split_html_simple
 
 router = Router()
 
@@ -43,10 +44,35 @@ class TriggerFilter(BaseFilter):
 
 
 async def check_and_delete_after(*messages: Message):
-    await asyncio.sleep(config.chat_config.echo_auto_delete_secs)
-    if messages[0].chat.id == config.chat_config.chat_id:
-        for message in messages:
-            await message.delete()
+    try:
+        await asyncio.sleep(config.chat_config.echo_auto_delete_secs)
+        if messages[0].chat.id == config.chat_config.chat_id:
+            for message in messages:
+                try:
+                    await message.delete()
+                except TelegramBadRequest:
+                    pass
+    except Exception as e:
+        code = logger.error(e, messages)
+        escaped_exc = html_escape(''.join(traceback.format_exception(e)))
+        full_message = get_string(
+            config.chat_config.admin.chat_lang,
+            "exceptions.debug",
+            code=code,
+            exc=escaped_exc,
+            userid=messages[0].chat.id,
+            username='SuperGroup',
+            fullname=messages[0].chat.title,
+        )
+        message_parts = split_html_simple(full_message, max_len=4000)
+
+        for part in message_parts:
+            await messages[0].bot.send_message(
+                config.chat_config.admin.chat_id,
+                part,
+                message_thread_id=config.chat_config.admin.topics.debug,
+            )
+            await asyncio.sleep(0.2)
 
 
 # File path -> File telegram ID
