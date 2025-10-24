@@ -32,6 +32,8 @@ commands_description:
   deancais: Deans Office of Cybernetics and Information Security
   deandeamc: Deans Office of Digital Economy and Mass Communications
   deanforeign: Foreign departament
+  seconddep: Second (millitary) department
+  miloffice: Military commissariat of the Lefortovo district
 echo_commands:
   start: |
     Hello!
@@ -53,6 +55,7 @@ echo_commands:
     <b>Human Resources Department</b> - all information about the department (or /hr)
     <b>Polyclinic</b> - address of the center (or /polyclinic)
     <b>SecDep</b> - Second Department (or /seconddep)
+    <b>MilOffice</b> - Military commissariat of the Lefortovo  (or /miloffice)
     <b>Library</b> - all information about it (or /library)
     <b>Services</b> - list of services from residents (or /services)
     <b>Vostochka</b> - working hours and café menu (or /vost)
@@ -134,7 +137,8 @@ echo_commands:
       <b>Unified Dean’s Office</b>
       <u>Working hours:</u>
       MON-FRI      08:50 - 19:00
-      SAT                   09:00 - 15:00
+      SAT 
+      09:00 - 15:00
       <u>Email:</u>
       ed@mtuci.ru
       <u>Addresses:</u>
@@ -772,7 +776,7 @@ echo_commands:
     
     {working_status}
   miloffice: |
-    <b>Lefortovo Military Enlistment Office</b> (Лефортовский Военкомат)
+    <b>Military commissariat of the Lefortovo district</b> (Военный комиссариат Лефортовского района)
     <a href="https://yandex.ru/maps/-/CLbvjTKu">21 Saratovskaya street, building 4</a> (Саратовская улица, 21c4)
     
     <b>Working Hours</b>
@@ -785,6 +789,23 @@ echo_commands:
     MON,WED  10:00 - 17:00
     Break    13:00 - 14:00
     {working_consuming}
+  housekeeper: |
+    <b>Housekeeper</b>
+    Lyudmila Nikolaevna Barinova
+    MON-THU 09:00 - 18:00
+    FRI              09:00 - 16:45
+    Break         13:00 - 14:00
+    {working_time}
+    
+    <b>Linen exchange</b>
+    MON          10:00 - 17:00
+    Break         13:00 - 14:00
+    {working_linen}
+    
+    <b>Storage room</b>
+    MON-FRI   10:00 - 17:00
+    Break         10:00 - 17:00
+    {working_room}
   kek:
     anecdote: |
       {0}

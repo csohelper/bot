@@ -44,14 +44,45 @@ dorm:
       times:
         - start: 06:00
           end: 01:00
-  linen:
-    - days:
-        - 0
-      times:
-        - start: 10:00
-          end: 13:00
-        - start: 14:00
-          end: 17:00
+  housekeeper:
+    work:
+      - days:
+          - 0
+          - 1
+          - 2
+          - 3
+        times:
+          - start: 10:00
+            end: 13:00
+          - start: 14:00
+            end: 18:00
+      - days:
+          - 4
+        times:
+          - start: 10:00
+            end: 13:00
+          - start: 14:00
+            end: 16:45
+    linen:
+      - days:
+          - 0
+        times:
+          - start: 10:00
+            end: 13:00
+          - start: 14:00
+            end: 17:00
+    storage:
+      - days:
+          - 0
+          - 1
+          - 2
+          - 3
+          - 4
+        times:
+          - start: 10:00
+            end: 13:00
+          - start: 14:00
+            end: 17:00
 university:
   accounting:
     - days:

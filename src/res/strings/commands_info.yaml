@@ -365,6 +365,15 @@ triggers:
     - millitary office
     - военный коммисариат
     - военком
+  housekeeper:
+    - кастелянша
+    - обмен белья
+    - комната хранения
+    - комната хранения вещей
+    - housekeeper
+    - linen
+    - linen exchange
+    - storage room
 commands_list:
   - cards
   - index
@@ -384,7 +393,7 @@ commands_list:
   - shower
   - kitchen
   - laundress
-  - linen
+  - housekeeper
   - accounting
   - help
   - ed
@@ -500,14 +509,6 @@ echo_commands:
       files:
         - file: src/res/images/canteen/1.jpg
         - file: src/res/images/canteen/2.jpg
-  - name: linen
-    message: echo_commands.linen
-    times:
-      - time: dorm.linen
-    images:
-      caption_above: true
-      files:
-        - file: src/res/images/linen.jpg
   - name: laundress
     message: echo_commands.laundress
     times:
@@ -636,10 +637,19 @@ echo_commands:
   - name: miloffice
     message: echo_commands.miloffice
     times:
-      - time: miloffice.office
-        key: working_miloffice
-      - time: miloffice.consuming
-        key: working_consuming
+      - key: working_miloffice
+        time: miloffice.office
+      - key: working_consuming
+        time: miloffice.consuming
     images:
       files:
         - file: src/res/images/miloffice.jpg
+  - name: housekeeper
+    message: echo_commands.housekeeper
+    times:
+      - key: working_time
+        time: dorm.housekeeper.work
+      - key: working_linen
+        time: dorm.housekeeper.linen
+      - key: working_room
+        time: dorm.housekeeper.storage
