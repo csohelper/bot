@@ -298,6 +298,11 @@ university:
         times:
           - start: 9:00
             end: 18:00
+      - days:
+          - 5
+        times:
+          - start: 10:00
+            end: 17:00
     buffet:
       a:
         - days:

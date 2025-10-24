@@ -690,7 +690,8 @@ echo_commands:
     <b>Vostočka</b>
     (Восточка)
     <u>Working hours:</u>
-    Mon-Fri 09:00 - 19:00
+    MON-FRI 09:00 - 19:00
+    SAT           10:00 - 17:00
     {working_status}
     
     <u>Menu:</u>
