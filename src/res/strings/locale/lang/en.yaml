@@ -35,6 +35,7 @@ commands_description:
   deanforeign: Foreign departament
   seconddep: Second (millitary) department
   miloffice: Military commissariat of the Lefortovo district
+  dryer: Drying room
 echo_commands:
   start: |
     Hello!
@@ -716,6 +717,10 @@ echo_commands:
     <b>Café «Vostok»</b>
     <a href="https://yandex.ru/maps/-/CLb2ULnO">Aviamotornaya street, 4 building 1</a>
     🟢 24 / 7
+  dryer: |
+    <b>Drying Room</b>
+    09:00 - 00:00
+    {working_status}
   week: |
     {0} week ({1}) - #{2}
   week_types_up_down:

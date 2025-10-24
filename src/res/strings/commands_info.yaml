@@ -377,6 +377,13 @@ triggers:
   vostok:
     - vostok
     - восток
+  dryer:
+    - dryer
+    - drying room
+    - сушилка
+    - комната сушки
+    - сушильная комната
+    - сушка
 commands_list:
   - cards
   - index
@@ -395,6 +402,7 @@ commands_list:
   - week
   - soft
   - shower
+  - dryer
   - kitchen
   - laundress
   - housekeeper
@@ -664,3 +672,7 @@ echo_commands:
         time: dorm.housekeeper.linen
       - key: working_room
         time: dorm.housekeeper.storage
+  - name: dryer
+    message: echo_commands.dryer
+    times:
+      - time: dorm.dryer

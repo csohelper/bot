@@ -83,6 +83,18 @@ dorm:
             end: 13:00
           - start: 14:00
             end: 17:00
+  dryer:
+    - days:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+      times:
+        - start: 09:00
+          end: 00:00
 university:
   accounting:
     - days:
