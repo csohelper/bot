@@ -699,8 +699,8 @@ echo_commands:
     
     <u>Меню:</u>
   cafe_vostok: |
-    <b>Café «Vostok»</b>
-    <a href="https://yandex.ru/maps/-/CLb2ULnO">Aviamotornaya street, 4 building 1</a>
+    <b>Кафе «Восток»</b>
+    <a href="https://yandex.ru/maps/-/CLb2ULnO">Авиамоторная улица, 4с1</a>
     🟢 24 / 7
   week: |
     {0} неделя ({1}) - №{2}
