@@ -24,7 +24,7 @@ commands_description:
   shower: Shower schedule
   kitchen: Kitchen schedule
   laundress: MPEI laundress
-  linen: Information about linen exchange
+  housekeeper: Housekeeper, linen exchange, storage room
   dean: Information of all Deans Offices
   deanit: Deans Office of Information Technology
   deanrit: Deans Office of Radio and Television
@@ -66,7 +66,7 @@ echo_commands:
     <b>Shower</b> - working hours (or /shower)
     <b>Kitchen</b> - working hours (or /kitchen)
     <b>Laundress</b> - information about her (or /laundress)
-    <b>Linen exchange</b> - working hours (or /linen)
+    <b>Housekeeper</b> - working hours, linen exchange, storage room (или /housekeeper)
     <b>Accounting</b> - location, phone numbers, and working hours (or /accounting)
     <b>Commands / Help</b> - to call up this list (or /help)
     Other commands:
@@ -748,16 +748,9 @@ echo_commands:
     <a href="https://yandex.ru/maps/-/CHWdN8JD">Lapina St, 1</a>
     
     {working_status}
-  linen: |
-    <b>Linen Exchange</b>
-    (Обмен белья)
-    Mon 10:00 - 17:00
-    Break 13:00 - 14:00
-    {working_status}
   second_department: |
-    <b>Second department</b>
-    (Второй отдел)
-    <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.711828,55.754161,pm2rdm">Room.: L-610</a>
+    <b>Second department</b> (Второй отдел)
+    <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=55.754323,37.712294,pm2rdm">Room.: L-610</a>
     
     MON 09:30 - 13:00
     THU 09:30 - 17:00

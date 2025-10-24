@@ -24,7 +24,7 @@ commands_description:
   shower: График работы душа
   kitchen: График работы кухни
   laundress: Прачка МЭИ
-  linen: Информация об обмене белья
+  housekeeper: Кастелянша, обмен белья, комната хранения
   dean: Информация о всех деканатах
   deanit: Деканат Информационные Технологии
   deanrit: Деканат Радио и Телевидение
@@ -66,7 +66,7 @@ echo_commands:
     <b>Душ</b> - график работы (или /shower)
     <b>Кухня</b> - график работы (или /kitchen)
     <b>Прачка</b> - информация о ней (или /laundress)
-    <b>Обмен белья</b> - график работы (или /linen)
+    <b>Кастелянша</b> - график работы, обмен белья, комната хранения (или /housekeeper)
     <b>Бухгалтерия</b> - расположение, номера и график (или /accounting)
     <b>Команды / Помощь</b> - для вызова данного списка (или /help)
     Остальные команды:
@@ -733,14 +733,9 @@ echo_commands:
     <a href="https://yandex.ru/maps/-/CHWdN8JD">ул. Лапина, 1</a>
     
     {working_status}
-  linen: |
-    <b>Обмен белья</b>
-    ПН 10:00 - 17:00
-    Перерыв 13:00 - 14:00
-    {working_status}
   second_department: |
     <b><a href="https://mtuci.ru/upload/iblock/f34/hu81fgj7am27u69a6m9drxw50ax64j6k/2_y-otdel.pdf">Второй отдел</a></b>
-    <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=37.711828,55.754161,pm2rdm">Ауд.: Л-610</a>
+    <a href="https://yandex.ru/maps/?ll=37.712891%2C55.754971&z=18&pt=55.754323,37.712294,pm2rdm">Ауд.: Л-610</a>
 
     ПН     09:30 - 13:00
     ВТ      09:30 - 17:00

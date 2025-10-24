@@ -4,6 +4,7 @@ from enum import Enum
 
 from aiogram import Bot
 from aiogram import Router, types
+from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters.callback_data import CallbackData
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
@@ -126,9 +127,12 @@ async def on_greeting_callback(
 async def on_accept_join_process(message: Message, state: FSMContext):
     try:
         greeting_message_id: int = await state.get_value('greeting_message')
-        await _bot.edit_message_reply_markup(
-            chat_id=message.chat.id, message_id=greeting_message_id, reply_markup=None
-        )
+        try:
+            await _bot.edit_message_reply_markup(
+                chat_id=message.chat.id, message_id=greeting_message_id, reply_markup=None
+            )
+        except TelegramBadRequest:
+            pass
         await state.clear()
         await message.reply(
             get_string(message.from_user.language_code, "user_service.select_room"),
