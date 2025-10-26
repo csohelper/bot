@@ -706,6 +706,7 @@ echo_commands:
     🟢 24 / 7
   dryer: |
     <b>Сушилка</b>
+    Комната: 219
     09:00 - 00:00
     {working_status}
   week: |

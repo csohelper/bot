@@ -719,7 +719,8 @@ echo_commands:
     <a href="https://yandex.ru/maps/-/CLb2ULnO">Aviamotornaya street, 4 building 1</a>
     🟢 24 / 7
   dryer: |
-    <b>Drying Room</b>
+    <b>Drying Room</b> (Сушилка)
+    Room: 219
     09:00 - 00:00
     {working_status}
   week: |
