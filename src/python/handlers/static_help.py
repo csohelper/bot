@@ -1,13 +1,12 @@
-from pathlib import Path
-
 from aiogram import Bot, Router
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import Command
 from aiogram.types import Message
 
 from python.logger import logger
-from python.storage.cache import cache
+from python.storage import cache as cache_module
 from python.storage.strings import get_string
+from python.utils import log_exception
 
 router = Router()
 _bot: Bot
@@ -22,7 +21,7 @@ async def on_start() -> None:
     """
     Do an update of help messages on startup
     """
-    for pin_message in cache.help_pin_messages:
+    for pin_message in cache_module.cache.help_pin_messages:
         try:
             await _bot.edit_message_text(
                 text=get_string(
@@ -41,11 +40,17 @@ async def on_start() -> None:
 
 @router.message(Command("statichelp"))
 async def static_help(message: Message):
-    send = await message.answer(
-        text=get_string(
-            message.from_user.language_code,
-            "echo_commands.help"
+    """
+    Sends help message and storing message id in cache_module.caches for future auto-updates
+    """
+    try:
+        send = await message.answer(
+            text=get_string(
+                message.from_user.language_code,
+                "echo_commands.help"
+            )
         )
-    )
-    await message.delete()
-    cache.add_pin_message(message.chat.id, send.message_id, message.from_user.language_code)
+        await message.delete()
+        await cache_module.cache.add_pin_message(message.chat.id, send.message_id, message.from_user.language_code)
+    except Exception as e:
+        await log_exception(e, message)

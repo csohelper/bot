@@ -12,9 +12,11 @@ from aiogram.utils.deep_linking import create_start_link
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 from aiogram_media_group import media_group_handler
 
-from python.logger import logger
+# === ЗАМЕНА ИМПОРТОВ ===
+import python.logger as logger_module
+from python.storage import config as config_module
+
 from python.storage.command_loader import get_all_triggers
-from python.storage.config import config
 from python.storage.repository import hype_repository
 from python.storage.strings import get_string, get_string_variants
 from python.utils import log_exception, download_photos, download_video
@@ -56,8 +58,8 @@ async def greet(message: Message):
             get_string(
                 message.from_user.language_code,
                 "exceptions.uncause",
-                logger.error(e, message),
-                config.chat_config.owner_username
+                logger_module.logger.error(e, message),
+                config_module.config.chat_config.owner_username
             )
         )
 
@@ -407,8 +409,8 @@ async def process_photos(messages: List[types.Message], state: FSMContext):
             get_string(
                 messages[-1].from_user.language_code,
                 "exceptions.uncause",
-                logger.error(e, messages[-1]),
-                config.chat_config.owner_username
+                logger_module.logger.error(e, messages[-1]),
+                config_module.config.chat_config.owner_username
             )
         )
 
@@ -548,14 +550,14 @@ async def video_callback_handler(percentage: int, wait_msg: Message, user_messag
         except TelegramRetryAfter:
             pass
         except TelegramBadRequest as e:
-            logger.error(f"Cannot edit message: {e}")
+            logger_module.logger.error(f"Cannot edit message: {e}")
     except Exception as e:
         await user_message.reply(
             get_string(
                 user_message.from_user.language_code,
                 "exceptions.uncause",
-                logger.error(e, user_message),
-                config.chat_config.owner_username
+                logger_module.logger.error(e, user_message),
+                config_module.config.chat_config.owner_username
             )
         )
 
@@ -575,14 +577,14 @@ async def photo_callback_handler(download: int, count: int, wait_msg: Message, u
         except TelegramRetryAfter:
             pass
         except TelegramBadRequest as e:
-            logger.error(f"Cannot edit message: {e}")
+            logger_module.logger.error(f"Cannot edit message: {e}")
     except Exception as e:
         await user_message.reply(
             get_string(
                 user_message.from_user.language_code,
                 "exceptions.uncause",
-                logger.error(e, user_message),
-                config.chat_config.owner_username
+                logger_module.logger.error(e, user_message),
+                config_module.config.chat_config.owner_username
             )
         )
 
@@ -704,7 +706,7 @@ async def process_confirm(message: Message, state: FSMContext):
                 )
             )
             await _bot.send_media_group(
-                config.chat_config.hype_chat_id,
+                config_module.config.chat_config.hype_chat_id,
                 medias
             )
 

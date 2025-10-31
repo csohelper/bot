@@ -434,7 +434,7 @@ async def callbacks_edit_service(
 
         await callback.answer()
     except Exception as e:
-        await log_exception(e, callback, state)
+        await log_exception(e, callback, state=state)
 
 
 class EditServiceStates(StatesGroup):

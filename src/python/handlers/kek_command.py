@@ -8,8 +8,10 @@ from aiogram.exceptions import TelegramBadRequest, TelegramRetryAfter
 from aiogram.filters import Command
 from aiogram.types import ChatPermissions, Message
 
-from python.logger import logger
-from python.storage.config import config
+# === ЗАМЕНА ИМПОРТОВ ===
+import python.logger as logger_module
+from python.storage import config as config_module
+
 from python.storage.strings import get_string
 from python.utils import check_blacklisted, log_exception
 from .. import anecdote_poller
@@ -47,7 +49,7 @@ async def command_anecdote_handler(message: Message) -> None:
             return
 
         delta: datetime.timedelta = datetime.datetime.now() - last_use_chat
-        antiflood_time = config.anecdote.antiflood_time
+        antiflood_time = config_module.config.anecdote.antiflood_time
         remain = antiflood_time - int(delta.total_seconds())
         if delta < datetime.timedelta(seconds=antiflood_time):
             reply = await message.reply(get_string(
@@ -61,11 +63,11 @@ async def command_anecdote_handler(message: Message) -> None:
             try:
                 await message.delete()
             except Exception as e:
-                logger.error(f"Failed delete user message", e, message=message)
+                logger_module.logger.error(f"Failed delete user message", e, message=message)
             try:
                 await reply.delete()
             except Exception as e:
-                logger.error(f"Failed delete reply message", e, reply=reply, message=message)
+                logger_module.logger.error(f"Failed delete reply message", e, reply=reply, message=message)
             return
 
         if random.random() < 0.05:
@@ -102,7 +104,7 @@ async def command_anecdote_handler(message: Message) -> None:
                             message.from_user.full_name,
                             ban_time
                         ))
-                        logger.error("Failed to restrict user. User not admin and bot has rights", e, message=message)
+                        logger_module.logger.error("Failed to restrict user. User not admin and bot has rights", e, message=message)
             else:
                 await message.reply(get_string(
                     message.from_user.language_code,
@@ -113,7 +115,7 @@ async def command_anecdote_handler(message: Message) -> None:
 
         kek_last_use[message.chat.id] = datetime.datetime.now()
 
-        if config.anecdote.enabled:
+        if config_module.config.anecdote.enabled:
             for i in range(100):
                 if i % 5 == 0:
                     try:
@@ -123,7 +125,7 @@ async def command_anecdote_handler(message: Message) -> None:
                             message_thread_id=message.message_thread_id
                         )
                     except TelegramRetryAfter:
-                        logger.warning("Telegram action type status restricted by flood control")
+                        logger_module.logger.warning("Telegram action type status restricted by flood control")
                 try:
                     anecdote = await anecdote_poller.get_anecdote()
                     if anecdote:
@@ -135,7 +137,7 @@ async def command_anecdote_handler(message: Message) -> None:
                         ))
                         return
                 except Exception as e:
-                    logger.error("Failed to generate anecdote. Retrying...", e, message=message)
+                    logger_module.logger.error("Failed to generate anecdote. Retrying...", e, message=message)
         await message.reply(get_string(
             message.from_user.language_code,
             'echo_commands.kek.not_found'

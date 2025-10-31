@@ -13,14 +13,16 @@ from aiogram.types import InaccessibleMessage, InlineKeyboardButton, InputMediaP
 from aiogram.utils.deep_linking import create_start_link
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from python.handlers.echo_commands import check_and_delete_after
+from python.handlers.echo_commands import create_delete_task
 from python.handlers.services_handlers import add_service_commands, my_services_command
-from python.logger import logger
-from python.storage.config import config
 from python.storage.repository import services_repository
 from python.storage.strings import get_string
 from python.utils import check_blacklisted, log_exception
 from aiogram.filters.callback_data import CallbackData
+
+# === ЗАМЕНА ИМПОРТОВ ===
+from python.storage import config as config_module
+from python import logger as logger_module
 
 _bot_username: str
 _bot: Bot
@@ -56,7 +58,7 @@ PAGE_SIZE = 5
 async def parse_folder_keyboard(lang: str, path: str, offset=0, is_pm=False) -> tuple[InlineKeyboardBuilder, int, int]:
     services = await services_repository.get_service_list(path)
     builder = InlineKeyboardBuilder()
-    logger.debug(f"{path}: {services}")
+    logger_module.logger.debug(f"{path}: {services}")
 
     if path == "/":
         if is_pm:
@@ -193,13 +195,13 @@ async def command_services_handler(message: Message) -> None:
             reply_markup=builder.as_markup()
         )
     except Exception as e:
-        asyncio.create_task(check_and_delete_after(
+        asyncio.create_task(create_delete_task(
             message, await message.reply(
                 get_string(
                     message.from_user.language_code,
                     "exceptions.uncause",
-                    logger.error(e, message),
-                    config.chat_config.owner_username
+                    logger_module.logger.error(e, message),
+                    config_module.config.chat_config.owner_username
                 )
             )
         ))
@@ -241,7 +243,7 @@ async def callbacks_num_change_fab(
                     show_alert=True,
                     text="Server error"
                 )
-                logger.error(f"Callback message not present or it is InaccessibleMessage: {callback.message}")
+                logger_module.logger.error(f"Callback message not present or it is InaccessibleMessage: {callback.message}")
                 return
             try:
                 if service.image:
@@ -264,7 +266,7 @@ async def callbacks_num_change_fab(
                     reply_markup=builder.as_markup()
                 )
             except Exception as e:
-                logger.error(f"Cannot proccess image: {e}")
+                logger_module.logger.error(f"Cannot proccess image: {e}")
                 await callback.message.edit_caption(
                     caption=get_string(
                         callback.from_user.language_code,
@@ -282,7 +284,7 @@ async def callbacks_num_change_fab(
                     show_alert=True,
                     text="Server error"
                 )
-                logger.error(f"Callback message not present or it is InaccessibleMessage: {callback.message}")
+                logger_module.logger.error(f"Callback message not present or it is InaccessibleMessage: {callback.message}")
                 return
             new_keyboard, page, pages = await parse_folder_keyboard(
                 callback.from_user.language_code,

@@ -11,8 +11,6 @@ from logging.handlers import TimedRotatingFileHandler
 from typing import Any
 from zoneinfo import ZoneInfo
 
-from python.storage.config import config
-
 TRACE_LEVEL = 5  # ниже DEBUG (10)
 logging.addLevelName(TRACE_LEVEL, "TRACE")
 
@@ -278,14 +276,16 @@ def setup_logger(
         console_level: str = "INFO",
         file_level: str = "DEBUG",
         json_level: str = "ERROR",
-        aiogram_level: str = "INFO"
+        aiogram_level: str = "INFO",
+        timezone: str | None = None,
+        backup_limit: int = 0
 ) -> logging.Logger:
     """
     Initializes a base logger with console, text, and JSON handlers.
     """
 
-    if config.timezone:
-        tz = ZoneInfo(config.timezone)
+    if timezone:
+        tz = ZoneInfo(timezone)
     else:
         tz = None
 
@@ -313,7 +313,7 @@ def setup_logger(
             "storage/logs/latest.log",
             when="midnight",
             interval=1,
-            backupCount=config.logger.backup_limit,
+            backupCount=backup_limit,
             encoding="utf-8",
             utc=False,
             tz=tz
@@ -326,7 +326,7 @@ def setup_logger(
             "storage/logs/latest.jsonl",
             when="midnight",
             interval=1,
-            backupCount=config.logger.backup_limit,
+            backupCount=backup_limit,
             encoding="utf-8",
             utc=False,
             tz=tz
@@ -446,7 +446,7 @@ class AppLogger:
     def error(self, msg: Any, *args, **kwargs) -> str:
         return self._log(logging.ERROR, msg, *args, **kwargs)
 
-    def _log_query(self, query: str, args: tuple = (), level: int = logging.INFO) -> str:
+    def _log_query(self, query: str, args: tuple | list = (), level: int = logging.INFO) -> str:
         """
         Private method to log database queries at a given level.
         Combines query and args into a single string.
@@ -481,27 +481,60 @@ class AppLogger:
 
         return self._log(level, log_query)
 
-    def trace_db(self, query: str, args: tuple = ()) -> str:
+    def trace_db(self, query: str, args: tuple | list = ()) -> str:
         return self._log_query(query, args, level=TRACE_LEVEL)
 
-    def debug_db(self, query: str, args: tuple = ()) -> str:
+    def debug_db(self, query: str, args: tuple | list = ()) -> str:
         return self._log_query(query, args, level=logging.DEBUG)
 
-    def info_db(self, query: str, args: tuple = ()) -> str:
+    def info_db(self, query: str, args: tuple | list = ()) -> str:
         return self._log_query(query, args, level=logging.INFO)
 
-    def warning_db(self, query: str, args: tuple = ()) -> str:
+    def warning_db(self, query: str, args: tuple | list = ()) -> str:
         return self._log_query(query, args, level=logging.WARNING)
 
-    def error_db(self, query: str, args: tuple = ()) -> str:
+    def error_db(self, query: str, args: tuple | list = ()) -> str:
         return self._log_query(query, args, level=logging.ERROR)
 
 
-# === Global logger instance ===
-_base_logger = setup_logger(
-    console_level=config.logger.console_level,
-    file_level=config.logger.file_level,
-    json_level=config.logger.json_level,
-    aiogram_level=config.logger.aiogram_level
-)
-logger = AppLogger(_base_logger)
+# === Глобальный экземпляр (инициализируется явно после загрузки конфига) ===
+logger: AppLogger | None = None
+
+
+def init_logger(
+        console_level: str = "INFO",
+        file_level: str = "DEBUG",
+        json_level: str = "ERROR",
+        aiogram_level: str = "INFO",
+        timezone: str | None = None,
+        backup_limit: int = 0
+) -> AppLogger:
+    """
+    Инициализировать глобальный логгер с заданными параметрами.
+
+    Должна быть вызвана после загрузки конфигурации в main.py.
+
+    Args:
+        console_level: Уровень логирования для консоли
+        file_level: Уровень логирования для файла
+        json_level: Уровень логирования для JSON
+        aiogram_level: Уровень логирования для aiogram
+        timezone: Временная зона
+        backup_limit: Лимит бэкапов лог-файлов
+
+    Returns:
+        Инициализированный AppLogger
+    """
+    global logger
+
+    _base_logger = setup_logger(
+        console_level=console_level,
+        file_level=file_level,
+        json_level=json_level,
+        aiogram_level=aiogram_level,
+        timezone=timezone,
+        backup_limit=backup_limit
+    )
+    logger = AppLogger(_base_logger)
+
+    return logger

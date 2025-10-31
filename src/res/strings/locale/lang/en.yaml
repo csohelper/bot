@@ -47,8 +47,6 @@ echo_commands:
   first_start: |
     Since you are the first one to start the bot, you have been added as a chat administrator
   help: |
-    <b>List of commands:</b>
-
     <b>Cards</b> - discount cards of all popular chains (or /cards)
     <b>Index</b> - dormitory postal code (or /index)
     <b>Address</b> - dormitory address (or /address)

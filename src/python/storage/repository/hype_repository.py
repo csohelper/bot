@@ -1,4 +1,4 @@
-from python.logger import logger
+from python import logger as logger_module
 from python.storage import database
 
 
@@ -16,7 +16,7 @@ async def init_database_module() -> None:
                     description TEXT
                 );
             """
-            logger.trace_db(query)
+            logger_module.logger.trace_db(query)
             await cur.execute(query)
             query = """
                 CREATE TABLE IF NOT EXISTS hype_photos (
@@ -26,7 +26,7 @@ async def init_database_module() -> None:
                     mime TEXT NOT NULL
                 );
             """
-            logger.trace_db(query)
+            logger_module.logger.trace_db(query)
             await cur.execute(query)
             await conn.commit()
 
@@ -51,7 +51,7 @@ async def insert_form(
                 RETURNING id
             """
             values = (userid, username, phone, vcard, fullname, description)
-            logger.trace_db(query_form, values)
+            logger_module.logger.trace_db(query_form, values)
             await cur.execute(query_form, values)
             form_id_row = await cur.fetchone()
             form_id = form_id_row[0]
@@ -62,12 +62,12 @@ async def insert_form(
             """
             for photo_b64 in photos_b64:
                 values = (form_id, photo_b64, photo_mime)
-                logger.trace_db(query_photo, values)
+                logger_module.logger.trace_db(query_photo, values)
                 await cur.execute(query_photo, values)
 
             if video_b64 and video_mime:
                 values = (form_id, video_b64, video_mime)
-                logger.trace_db(query_photo, values)
+                logger_module.logger.trace_db(query_photo, values)
                 await cur.execute(query_photo, values)
 
             await conn.commit()

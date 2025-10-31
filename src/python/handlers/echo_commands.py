@@ -17,17 +17,36 @@ from python import utils
 from python.handlers.hype_collector import start_collector_command
 from python.handlers.services_handlers.add_service_commands import on_addservice
 from python.handlers.services_handlers.join_service import on_accept_join_process
-from python.logger import logger
+from python.storage import cache as cache_module
 from python.storage.command_loader import get_echo_commands, EchoCommand, TimeInfo, ImageFileInfo
-from python.storage.config import config, save_config
 from python.storage.repository.users_repository import check_user, UserRecord
 from python.storage.strings import get_string, get_strings
 from python.storage.times import get_time_status
-from python.utils import check_blacklisted, log_exception, html_escape, split_html_simple
+from python.utils import check_blacklisted, log_exception, html_escape, split_html_simple, await_and_run
+
+# === ЗАМЕНА ИМПОРТОВ ===
+import python.logger as logger_module
+from python.storage import config as config_module
 
 router = Router()
+_bot: Bot
 
-echo_commands = get_echo_commands()
+
+async def init(bot: Bot):
+    global _bot
+    _bot = bot
+
+
+_echo_commands_cache = None
+_handlers_registered = False  # Флаг для отслеживания регистрации
+
+
+def get_echo_commands_cached():
+    """Получить эхо-команды с кешированием."""
+    global _echo_commands_cache
+    if _echo_commands_cache is None:
+        _echo_commands_cache = get_echo_commands()
+    return _echo_commands_cache
 
 
 def build_kwargs(working_status: List[TimeInfo], lang: str) -> dict[str, str]:
@@ -43,20 +62,27 @@ class TriggerFilter(BaseFilter):
         return bool(message.text and message.text.lower() in self.triggers)
 
 
+async def create_delete_task(*messages: Message) -> None:
+    """Добавить сообщения в кэш для автоматического удаления."""
+    for message in messages:
+        await cache_module.cache.insert_message(message.chat.id, message.message_id)
+    await cache_module.cache.save()
+
+
 async def check_and_delete_after(*messages: Message):
     try:
-        await asyncio.sleep(config.chat_config.echo_auto_delete_secs)
-        if messages[0].chat.id == config.chat_config.chat_id:
+        await asyncio.sleep(config_module.config.chat_config.echo_auto_delete_secs)
+        if messages[0].chat.id == config_module.config.chat_config.chat_id:
             for message in messages:
                 try:
                     await message.delete()
                 except TelegramBadRequest:
                     pass
     except Exception as e:
-        code = logger.error(e, messages)
+        code = logger_module.logger.error(e, messages)
         escaped_exc = html_escape(''.join(traceback.format_exception(e)))
         full_message = get_string(
-            config.chat_config.admin.chat_lang,
+            config_module.config.chat_config.admin.chat_lang,
             "exceptions.debug",
             code=code,
             exc=escaped_exc,
@@ -68,9 +94,9 @@ async def check_and_delete_after(*messages: Message):
 
         for part in message_parts:
             await messages[0].bot.send_message(
-                config.chat_config.admin.chat_id,
+                config_module.config.chat_config.admin.chat_id,
                 part,
-                message_thread_id=config.chat_config.admin.topics.debug,
+                message_thread_id=config_module.config.chat_config.admin.topics.debug,
             )
             await asyncio.sleep(0.2)
 
@@ -162,21 +188,21 @@ def make_image_handler(command_info: EchoCommand):
 
                     delete_messages.extend(reply)
                 except Exception as e:
-                    logger.error(f"{e}")
+                    logger_module.logger.error(f"{e}")
                     affected = 0
                     for file in file_list:
                         if isinstance(file, ImageId):
                             affected += 1
                             del images_caches[file.id]
                     if affected == 0:
-                        logger.warning(f"Tried {tries} times send images")
+                        logger_module.logger.warning(f"Tried {tries} times send images")
                         if tries >= 10:
                             raise IOError("Too many tries to send images") from e
                     await asyncio.sleep(0.2)
                     continue
 
                 break
-            asyncio.create_task(check_and_delete_after(*delete_messages))
+            asyncio.create_task(create_delete_task(*delete_messages))
 
         except Exception as e:
             await log_exception(e, message)
@@ -203,7 +229,7 @@ def make_text_handler(command_info: EchoCommand):
                 command_info.message_path,
                 **build_kwargs(command_info.times, message.from_user.language_code)
             ))
-            asyncio.create_task(check_and_delete_after(message, sent))
+            asyncio.create_task(create_delete_task(message, sent))
         except Exception as e:
             await log_exception(e, message)
 
@@ -217,8 +243,25 @@ def make_handler(command_info: EchoCommand):
         make_text_handler(command_info)
 
 
-for echo_command in echo_commands:
-    make_handler(echo_command)
+def register_echo_handlers():
+    """
+    Регистрация хэндлеров для всех эхо-команд.
+
+    Должна быть вызвана после инициализации всех систем хранения.
+    """
+    global _handlers_registered
+
+    if _handlers_registered:
+        logger_module.logger.warning("Echo handlers already registered, skipping")
+        return
+
+    logger_module.logger.info("Registering echo command handlers...")
+
+    for echo_command in get_echo_commands_cached():
+        make_handler(echo_command)
+
+    _handlers_registered = True
+    logger_module.logger.info(f"Registered {len(get_echo_commands_cached())} echo command handlers")
 
 
 @router.message(CommandStart(deep_link=True))
@@ -237,7 +280,7 @@ async def command_start_handler(message: Message, command: CommandObject, state:
             case _ if payload == get_string(None, "payloads.greeting_button"):
                 await on_accept_join_process(message, state)
             case _:
-                logger.error(f"Can't handle start payload - Args: {args}, Payload: {payload}")
+                logger_module.logger.error(f"Can't handle start payload - Args: {args}, Payload: {payload}")
     except Exception as e:
         await log_exception(e, message)
 
@@ -268,20 +311,22 @@ async def command_start_handler(message: Message) -> None:
         if await check_blacklisted(message):
             return
         sent = await message.reply(get_string(message.from_user.language_code, 'echo_commands.start'))
-        asyncio.create_task(check_and_delete_after(
+        asyncio.create_task(create_delete_task(
             message, sent
         ))
 
         if message.chat.type == "private":
-            if config.chat_config.owner == 0 or config.chat_config.owner is None:
+            if config_module.config.chat_config.owner == 0 or config_module.config.chat_config.owner is None:
                 await message.answer(get_string(message.from_user.language_code, 'echo_commands.first_start'))
-                config.chat_config.owner = message.from_user.id
-                config.chat_config.owner_username = message.from_user.username
-                save_config(config)
-            if await in_chat(message.bot, message.chat.id, message.from_user.id) and config.chat_config.invite_link:
+                config_module.config.chat_config.owner = message.from_user.id
+                config_module.config.chat_config.owner_username = message.from_user.username
+                await config_module.config.save_config(config_module.config)
+            if await in_chat(
+                    message.bot, message.chat.id, message.from_user.id
+            ) and config_module.config.chat_config.invite_link:
                 await message.answer(get_string(
                     message.from_user.language_code, 'echo_commands.invite',
-                    invite=config.chat_config.invite_link
+                    invite=config_module.config.chat_config.invite_link
                 ))
 
     except Exception as e:
@@ -299,7 +344,7 @@ async def command_mei_handler(message: Message) -> None:
                 get_strings(message.from_user.language_code, 'echo_commands.mei')
             )
         )
-        asyncio.create_task(check_and_delete_after(message, sent))
+        asyncio.create_task(create_delete_task(message, sent))
     except Exception as e:
         await log_exception(e, message)
 
@@ -315,7 +360,7 @@ async def command_meishniky_handler(message: Message) -> None:
                 get_strings(message.from_user.language_code, 'echo_commands.meishniky')
             )
         )
-        asyncio.create_task(check_and_delete_after(message, sent))
+        asyncio.create_task(create_delete_task(message, sent))
     except Exception as e:
         await log_exception(e, message)
 
@@ -331,7 +376,7 @@ async def command_mai_handler(message: Message) -> None:
                 get_strings(message.from_user.language_code, 'echo_commands.mai')
             )
         )
-        asyncio.create_task(check_and_delete_after(message, sent))
+        asyncio.create_task(create_delete_task(message, sent))
     except Exception as e:
         await log_exception(e, message)
 
@@ -347,7 +392,7 @@ async def command_maishniky_handler(message: Message) -> None:
                 get_strings(message.from_user.language_code, 'echo_commands.maishniky')
             )
         )
-        asyncio.create_task(check_and_delete_after(message, sent))
+        asyncio.create_task(create_delete_task(message, sent))
     except Exception as e:
         await log_exception(e, message)
 
@@ -368,6 +413,57 @@ async def command_week_handler(message: Message) -> None:
                 week_number
             )
         )
-        asyncio.create_task(check_and_delete_after(message, sent))
+        asyncio.create_task(create_delete_task(message, sent))
     except Exception as e:
         await log_exception(e, message)
+
+
+async def delete_cycle():
+    try:
+        # 1. Получаем сообщения, которые нужно удалить
+        messages = cache_module.cache.get_old_messages(
+            config_module.config.chat_config.echo_auto_delete_secs
+        )
+
+        if not messages:
+            logger_module.logger.trace("Delete cycle: No messages to delete (cache empty or all fresh)")
+            asyncio.create_task(await_and_run(60, delete_cycle))
+            return
+
+        logger_module.logger.debug(f"Delete cycle: Found {len(messages)} message(s) to delete")
+
+        deleted_count = 0
+        failed_messages = []
+
+        # 2. Удаляем каждое сообщение в Telegram
+        for msg in messages:
+            try:
+                await _bot.delete_message(chat_id=msg.chat_id, message_id=msg.message_id)
+                logger_module.logger.debug(f"Deleted message: chat_id={msg.chat_id}, message_id={msg.message_id}")
+                deleted_count += 1
+            except Exception as e:
+                logger_module.logger.warning(
+                    f"Failed to delete message in Telegram: chat_id={msg.chat_id}, "
+                    f"message_id={msg.message_id}, error: {type(e).__name__}: {e}"
+                )
+                failed_messages.append(msg)
+
+        # 3. Удаляем из кэша только успешно удалённые
+        if deleted_count > 0:
+            successful_messages = [m for m in messages if m not in failed_messages]
+            await cache_module.cache.delete_messages(*successful_messages)
+            logger_module.logger.info(f"Successfully deleted {deleted_count} message(s) from Telegram and cache")
+        else:
+            logger_module.logger.warning("Delete cycle: No messages were deleted in Telegram")
+
+        # 4. Итог по ошибкам
+        if failed_messages:
+            failed_ids = [(m.chat_id, m.message_id) for m in failed_messages]
+            logger_module.logger.error(f"Failed to delete {len(failed_messages)} message(s): {failed_ids}")
+
+    except Exception as e:
+        logger_module.logger.error(f"Unexpected error in delete_cycle: {type(e).__name__}: {e}", exc_info=True)
+    finally:
+        # 5. Перезапуск цикла
+        logger_module.logger.trace("Delete cycle: Scheduling next run in 60 seconds")
+        asyncio.create_task(await_and_run(60, delete_cycle))

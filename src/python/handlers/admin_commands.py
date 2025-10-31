@@ -4,9 +4,11 @@ from aiogram import Router, Bot
 from aiogram.filters import Command
 from aiogram.types import Message, ReactionTypeEmoji
 
-from python.storage.config import config, save_config, BlacklistedChat
 from python.storage.strings import get_string
 from python.utils import log_exception
+
+# === ЗАМЕНА ИМПОРТА ===
+from python.storage import config as config_module
 
 router = Router()
 
@@ -23,21 +25,21 @@ async def init(bot_username: str, bot: Bot):
 @router.message(Command("initchat"))
 async def init_chat(message: Message) -> None:
     try:
-        if not config.chat_config.owner:
+        if not config_module.config.chat_config.owner:
             reply = await message.reply(get_string(message.from_user.language_code, "admin_commands.admin_not_install"))
             await sleep(3)
             await reply.delete()
             await message.delete()
             return
-        if config.chat_config.owner != message.from_user.id:
+        if config_module.config.chat_config.owner != message.from_user.id:
             reply = await message.reply(get_string(message.from_user.language_code, "admin_commands.not_admin"))
             await sleep(3)
             await reply.delete()
             await message.delete()
             return
-        await message.react([ReactionTypeEmoji(emoji="🤝")])
-        config.chat_config.chat_id = message.chat.id
-        save_config(config)
+        await message.react([ReactionTypeEmoji(emoji="handshake")])
+        config_module.config.chat_config.chat_id = message.chat.id
+        await config_module.save_config(config_module.config)
         await sleep(3)
         await message.delete()
     except Exception as e:
@@ -47,21 +49,21 @@ async def init_chat(message: Message) -> None:
 @router.message(Command("initadmin"))
 async def init_admin(message: Message) -> None:
     try:
-        if not config.chat_config.owner:
+        if not config_module.config.chat_config.owner:
             reply = await message.reply(get_string(message.from_user.language_code, "admin_commands.admin_not_install"))
             await sleep(3)
             await reply.delete()
             await message.delete()
             return
-        if config.chat_config.owner != message.from_user.id:
+        if config_module.config.chat_config.owner != message.from_user.id:
             reply = await message.reply(get_string(message.from_user.language_code, "admin_commands.not_admin"))
             await sleep(3)
             await reply.delete()
             await message.delete()
             return
-        await message.react([ReactionTypeEmoji(emoji="🤝")])
-        config.chat_config.admin_chat_id = message.chat.id
-        save_config(config)
+        await message.react([ReactionTypeEmoji(emoji="handshake")])
+        config_module.config.chat_config.admin_chat_id = message.chat.id
+        await config_module.save_config(config_module.config)
         await sleep(3)
         await message.delete()
     except Exception as e:
@@ -71,28 +73,28 @@ async def init_admin(message: Message) -> None:
 @router.message(Command("inithype"))
 async def init_admin(message: Message) -> None:
     try:
-        if not config.chat_config.owner:
+        if not config_module.config.chat_config.owner:
             reply = await message.reply(get_string(message.from_user.language_code, "admin_commands.admin_not_install"))
             await sleep(3)
             await reply.delete()
             await message.delete()
             return
-        if config.chat_config.owner != message.from_user.id:
+        if config_module.config.chat_config.owner != message.from_user.id:
             reply = await message.reply(get_string(message.from_user.language_code, "admin_commands.not_admin"))
             await sleep(3)
             await reply.delete()
             await message.delete()
             return
-        await message.react([ReactionTypeEmoji(emoji="🤝")])
-        config.chat_config.hype_chat_id = message.chat.id
-        save_config(config)
+        await message.react([ReactionTypeEmoji(emoji="handshake")])
+        config_module.config.chat_config.hype_chat_id = message.chat.id
+        await config_module.save_config(config_module.config)
         await sleep(3)
         await message.delete()
     except Exception as e:
         await log_exception(e, message)
 
 
-def find_chat(blacklisted: list[BlacklistedChat], chat_id: int) -> BlacklistedChat | None:
+def find_chat(blacklisted: list[config_module.BlacklistedChat], chat_id: int) -> config_module.BlacklistedChat | None:
     for chat in blacklisted:
         if chat.chat_id == chat_id:
             return chat
@@ -102,13 +104,13 @@ def find_chat(blacklisted: list[BlacklistedChat], chat_id: int) -> BlacklistedCh
 @router.message(Command("blacklist"))
 async def blacklist(message: Message) -> None:
     try:
-        if not config.chat_config.owner:
+        if not config_module.config.chat_config.owner:
             reply = await message.reply(get_string(message.from_user.language_code, "admin_commands.admin_not_install"))
             await sleep(3)
             await reply.delete()
             await message.delete()
             return
-        if config.chat_config.owner != message.from_user.id:
+        if config_module.config.chat_config.owner != message.from_user.id:
             reply = await message.reply(get_string(message.from_user.language_code, "admin_commands.not_admin"))
             await sleep(3)
             await reply.delete()
@@ -116,24 +118,24 @@ async def blacklist(message: Message) -> None:
             return
 
         if message.chat.type == "supergroup" and message.chat.is_forum:
-            await message.react([ReactionTypeEmoji(emoji="🤝")])
-            chat = find_chat(config.blacklisted, message.chat.id)
+            await message.react([ReactionTypeEmoji(emoji="handshake")])
+            chat = find_chat(config_module.config.blacklisted, message.chat.id)
             if not chat:
-                chat = BlacklistedChat(chat_id=message.chat.id)
-                config.blacklisted.append(chat)
+                chat = config_module.BlacklistedChat(chat_id=message.chat.id)
+                config_module.config.blacklisted.append(chat)
             if not chat.topics:
                 chat.topics = []
             chat.topics.append(message.message_thread_id)
         elif message.chat.type in ("supergroup", "group"):
-            await message.react([ReactionTypeEmoji(emoji="🤝")])
-            chat = find_chat(config.blacklisted, message.chat.id)
+            await message.react([ReactionTypeEmoji(emoji="handshake")])
+            chat = find_chat(config_module.config.blacklisted, message.chat.id)
             if not chat:
-                chat = BlacklistedChat(chat_id=message.chat.id)
-                config.blacklisted.append(chat)
+                chat = config_module.BlacklistedChat(chat_id=message.chat.id)
+                config_module.config.blacklisted.append(chat)
         else:
-            await message.react([ReactionTypeEmoji(emoji="👎")])
+            await message.react([ReactionTypeEmoji(emoji="thumbs_down")])
 
-        save_config(config)
+        await config_module.save_config(config_module.config)
         await sleep(3)
         await message.delete()
     except Exception as e:
@@ -143,13 +145,13 @@ async def blacklist(message: Message) -> None:
 @router.message(Command("unblacklist"))
 async def blacklist(message: Message) -> None:
     try:
-        if not config.chat_config.owner:
+        if not config_module.config.chat_config.owner:
             reply = await message.reply(get_string(message.from_user.language_code, "admin_commands.admin_not_install"))
             await sleep(3)
             await reply.delete()
             await message.delete()
             return
-        if config.chat_config.owner != message.from_user.id:
+        if config_module.config.chat_config.owner != message.from_user.id:
             reply = await message.reply(get_string(message.from_user.language_code, "admin_commands.not_admin"))
             await sleep(3)
             await reply.delete()
@@ -157,17 +159,17 @@ async def blacklist(message: Message) -> None:
             return
 
         if message.chat.type == "supergroup" and message.chat.is_forum:
-            await message.react([ReactionTypeEmoji(emoji="🤝")])
-            chat = find_chat(config.blacklisted, message.chat.id)
+            await message.react([ReactionTypeEmoji(emoji="handshake")])
+            chat = find_chat(config_module.config.blacklisted, message.chat.id)
             if chat:
                 chat.topics.remove(message.message_thread_id)
         elif message.chat.type in ("supergroup", "group"):
-            chat = find_chat(config.blacklisted, message.chat.id)
-            config.blacklisted.remove(chat)
+            chat = find_chat(config_module.config.blacklisted, message.chat.id)
+            config_module.config.blacklisted.remove(chat)
         else:
-            await message.react([ReactionTypeEmoji(emoji="👎")])
+            await message.react([ReactionTypeEmoji(emoji="thumbs_down")])
 
-        save_config(config)
+        await config_module.save_config(config_module.config)
         await sleep(3)
         await message.delete()
     except Exception as e:

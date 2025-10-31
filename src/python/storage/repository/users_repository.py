@@ -3,8 +3,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional, FrozenSet
 
-from python.logger import logger
 from python.storage import database
+from python import logger as logger_module
 
 
 @dataclass(frozen=True)
@@ -30,48 +30,51 @@ async def init_database_module() -> None:
     async with database.get_db_connection() as conn:
         async with conn.cursor() as cur:
             query = """
-                CREATE TABLE IF NOT EXISTS users (
-                    id SERIAL PRIMARY KEY,
-                    user_id BIGINT NOT NULL UNIQUE,
-                    username TEXT NOT NULL,
-                    fullname TEXT NOT NULL,
-                    lang TEXT
-                )
-            """
-            logger.trace_db(query)
+                    CREATE TABLE IF NOT EXISTS users
+                    (
+                        id       SERIAL PRIMARY KEY,
+                        user_id  BIGINT NOT NULL UNIQUE,
+                        username TEXT   NOT NULL,
+                        fullname TEXT   NOT NULL,
+                        lang     TEXT
+                    ) \
+                    """
+            logger_module.logger.trace_db(query)
             await cur.execute(query)
             query = """
-                CREATE TABLE IF NOT EXISTS residents (
-                    id SERIAL PRIMARY KEY,
-                    user_id BIGINT NOT NULL UNIQUE,
-                    username TEXT,
-                    fullname TEXT NOT NULL,
-                    name TEXT NOT NULL,
-                    surname TEXT NOT NULL,
-                    room INTEGER,
-                    image TEXT,
-                    status TEXT DEFAULT 'moderation',
-                    processed_by BIGINT,
-                    processed_by_fullname TEXT,
-                    processed_by_username TEXT,
-                    refuse_reason TEXT,
-                    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    lang TEXT
-                )
-            """
-            logger.trace_db(query)
+                    CREATE TABLE IF NOT EXISTS residents
+                    (
+                        id                    SERIAL PRIMARY KEY,
+                        user_id               BIGINT    NOT NULL UNIQUE,
+                        username              TEXT,
+                        fullname              TEXT      NOT NULL,
+                        name                  TEXT      NOT NULL,
+                        surname               TEXT      NOT NULL,
+                        room                  INTEGER,
+                        image                 TEXT,
+                        status                TEXT               DEFAULT 'moderation',
+                        processed_by          BIGINT,
+                        processed_by_fullname TEXT,
+                        processed_by_username TEXT,
+                        refuse_reason         TEXT,
+                        created_at            TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        lang                  TEXT
+                    ) \
+                    """
+            logger_module.logger.trace_db(query)
             await cur.execute(query)
             query = """
-                CREATE TABLE IF NOT EXISTS requests (
-                    id SERIAL PRIMARY KEY,
-                    user_id BIGINT NOT NULL UNIQUE,
-                    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    processed BOOLEAN NOT NULL DEFAULT FALSE,
-                    greeting_msg INTEGER,
-                    lang TEXT
-                )
-            """
-            logger.trace_db(query)
+                    CREATE TABLE IF NOT EXISTS requests
+                    (
+                        id           SERIAL PRIMARY KEY,
+                        user_id      BIGINT    NOT NULL UNIQUE,
+                        created_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        processed    BOOLEAN   NOT NULL DEFAULT FALSE,
+                        greeting_msg INTEGER,
+                        lang         TEXT
+                    ) \
+                    """
+            logger_module.logger.trace_db(query)
             await cur.execute(query)
             await conn.commit()
 
@@ -90,14 +93,14 @@ async def check_user(user: UserRecord):
             async with conn.cursor() as cur:
                 query = """
                         INSERT INTO users (user_id, username, fullname, lang)
-                        VALUES (%s, %s, %s, %s) ON CONFLICT (user_id) DO
-                        UPDATE
+                        VALUES (%s, %s, %s, %s)
+                        ON CONFLICT (user_id) DO UPDATE
                             SET username = EXCLUDED.username,
-                            fullname = EXCLUDED.fullname,
-                            lang = EXCLUDED.lang \
+                                fullname = EXCLUDED.fullname,
+                                lang     = EXCLUDED.lang \
                         """
                 values = (user.user_id, user.username, user.fullname, user.lang)
-                logger.trace_db(query, values)
+                logger_module.logger.trace_db(query, values)
                 await cur.execute(
                     query,
                     values
@@ -138,10 +141,11 @@ async def add_resident(
         async with conn.cursor() as cur:
             query = """
                     INSERT INTO residents (user_id, username, fullname, name, surname, room, status, image, lang)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id \
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    RETURNING id \
                     """
             values = (user_id, username, fullname, name, surname, room, status, image, lang)
-            logger.trace_db(query, values)
+            logger_module.logger.trace_db(query, values)
             await cur.execute(query, values)
             row = await cur.fetchone()
             await conn.commit()
@@ -177,7 +181,7 @@ async def get_resident_by_id(user_id: int) -> Resident | None:
                     WHERE id = %s \
                     """
             values = (user_id,)
-            logger.trace_db(query, values)
+            logger_module.logger.trace_db(query, values)
             await cur.execute(
                 query,
                 values
@@ -237,7 +241,7 @@ async def update_resident_fields(resident_id: int, **fields) -> Optional[Residen
                   refuse_reason, created_at, image, lang
     """
 
-    logger.trace_db(query, values)
+    logger_module.logger.trace_db(query, values)
 
     async with database.get_db_connection() as conn:
         async with conn.cursor() as cur:
@@ -275,7 +279,7 @@ async def delete_resident_by_user_id(user_id: int) -> bool:
         async with conn.cursor() as cur:
             query = "DELETE FROM residents WHERE user_id = %s RETURNING id"
             values = (user_id,)
-            logger.trace_db(query, values)
+            logger_module.logger.trace_db(query, values)
             await cur.execute(
                 query,
                 values
@@ -294,7 +298,7 @@ async def delete_residents_by_user_id(user_id: int) -> int:
         async with conn.cursor() as cur:
             query = "DELETE FROM residents WHERE user_id = %s"
             values = (user_id,)
-            logger.trace_db(query, values)
+            logger_module.logger.trace_db(query, values)
             await cur.execute(
                 query,
                 values
@@ -314,7 +318,7 @@ async def create_or_replace_request(user_id: int, greeting_msg: int, lang: str) 
             # Сначала удаляем, если есть
             delete_query = "DELETE FROM requests WHERE user_id = %s"
             delete_values = (user_id,)
-            logger.trace_db(delete_query, delete_values)
+            logger_module.logger.trace_db(delete_query, delete_values)
             await cur.execute(delete_query, delete_values)
 
             # Теперь вставляем новую запись
@@ -323,7 +327,7 @@ async def create_or_replace_request(user_id: int, greeting_msg: int, lang: str) 
                            VALUES (%s, %s, %s) \
                            """
             insert_values = (user_id, greeting_msg, lang)
-            logger.trace_db(insert_query, insert_values)
+            logger_module.logger.trace_db(insert_query, insert_values)
             await cur.execute(insert_query, insert_values)
             await conn.commit()
 
@@ -347,11 +351,11 @@ async def pop_unprocessed_requests_older_than(hours: int) -> FrozenSet[RequestIn
                     UPDATE requests
                     SET processed = TRUE
                     WHERE processed = FALSE
-                      AND created_at <= NOW() - (%s * INTERVAL '1 hour') 
+                      AND created_at <= NOW() - (%s * INTERVAL '1 hour')
                     RETURNING user_id, created_at, greeting_msg, lang \
                     """
             values = (hours,)
-            logger.trace_db(query, values)
+            logger_module.logger.trace_db(query, values)
             await cur.execute(query, values)
             rows = await cur.fetchall()
 
@@ -375,7 +379,7 @@ async def mark_request_processed(user_id: int) -> int:
                     WHERE user_id = %s \
                     """
             values = (user_id,)
-            logger.trace_db(query, values)
+            logger_module.logger.trace_db(query, values)
             await cur.execute(query, values)
             updated_count = cur.rowcount
             await conn.commit()

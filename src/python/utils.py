@@ -13,7 +13,7 @@ from aiogram.types import (ChatMember, Message, ReactionTypeEmoji, CallbackQuery
                            ChatMemberLeft, ChatMemberBanned)
 
 from python.logger import logger
-from python.storage.config import config
+from python.storage import config as config_module
 from python.storage.strings import get_string
 
 
@@ -221,7 +221,7 @@ class TimeDelta:
 
 
 async def check_blacklisted(message: Message) -> bool:
-    for chat in config.blacklisted:
+    for chat in config_module.config.blacklisted:
         if message.chat.id == chat.chat_id:
             if chat.topics:
                 for topic in chat.topics:
@@ -360,13 +360,16 @@ async def log_exception(
             original.from_user.language_code,
             "exceptions.uncause",
             code,
-            config.chat_config.owner_username,
+            config_module.config.chat_config.owner_username,
         )
     )
-    if config.chat_config.admin.chat_id and config.chat_config.admin.chat_id != -1000000000000:
+    if (
+            config_module.config.chat_config.admin.chat_id and
+            config_module.config.chat_config.admin.chat_id != -1000000000000
+    ):
         escaped_exc = html_escape(''.join(traceback.format_exception(e)))
         full_message = get_string(
-            config.chat_config.admin.chat_lang,
+            config_module.config.chat_config.admin.chat_lang,
             "exceptions.debug",
             code=code,
             exc=escaped_exc,
@@ -378,9 +381,9 @@ async def log_exception(
 
         for part in message_parts:
             await original.bot.send_message(
-                config.chat_config.admin.chat_id,
+                config_module.config.chat_config.admin.chat_id,
                 part,
-                message_thread_id=config.chat_config.admin.topics.debug,
+                message_thread_id=config_module.config.chat_config.admin.topics.debug,
             )
             await asyncio.sleep(0.2)
 
@@ -407,7 +410,7 @@ async def download_photos(
                     relative_path = file.file_path.lstrip('/var/lib/telegram-bot-api/')
 
                     # Формируем URL для скачивания
-                    download_url = f"{config.telegram.download_server}/file/{relative_path}"
+                    download_url = f"{config_module.config.telegram.download_server}/file/{relative_path}"
 
                     # Скачиваем файл
                     async with session.get(download_url) as response:
@@ -461,7 +464,7 @@ async def download_video(
     relative_path = file_info.file_path.lstrip('/var/lib/telegram-bot-api/')
 
     # Form the download URL for nginx
-    download_url = f"{config.telegram.download_server}/file/{relative_path}"
+    download_url = f"{config_module.config.telegram.download_server}/file/{relative_path}"
 
     # Download file with progress tracking
     async with aiohttp.ClientSession() as session:
