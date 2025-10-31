@@ -128,4 +128,4 @@ class CacheStorage(BaseModel):
         self.save()
 
 
-cache = CacheStorage.from_file("cache.yaml")
+cache = CacheStorage.from_file("storage/cache.yaml")

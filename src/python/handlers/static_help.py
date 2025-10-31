@@ -1,4 +1,7 @@
+from pathlib import Path
+
 from aiogram import Bot, Router
+from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import Command
 from aiogram.types import Message
 
@@ -8,8 +11,6 @@ from python.storage.strings import get_string
 
 router = Router()
 _bot: Bot
-
-kek_last_use = {}
 
 
 async def init(bot: Bot):
@@ -31,6 +32,9 @@ async def on_start() -> None:
                 chat_id=pin_message.chat_id,
                 message_id=pin_message.message_id
             )
+        except TelegramBadRequest:
+            # Message not modified
+            pass
         except Exception as e:
             logger.error("Can't change pin help message", e)
 
