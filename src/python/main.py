@@ -15,6 +15,7 @@ from python import anecdote_poller, join_refuser
 from python.handlers import echo_commands, kek_command, admin_commands, hype_collector
 from python.handlers.services_handlers import add_service_commands, list_services_command, moderate_service, \
     join_service, my_services_command
+from python.handlers import static_help
 from python.logger import logger
 from python.storage import command_loader
 from python.storage.command_loader import TelegramCommandsInfo
@@ -81,6 +82,7 @@ async def main() -> None:
         admin_commands.router,
         join_service.router,
         hype_collector.router,
+        static_help.router,
         default_router  # Must be in ending
     )
 
@@ -99,6 +101,7 @@ async def main() -> None:
         await join_refuser.init(bot=bot, storage=dp.storage)
         await join_service.init(bot=bot)
         await hype_collector.init(bot_username=bot_username, bot=bot)
+        await static_help.init(bot=bot)
         await services_repository.init_database_module()
         await anecdotes_repository.init_database_module()
         await users_repository.init_database_module()
@@ -109,12 +112,13 @@ async def main() -> None:
             asyncio.create_task(await_and_run(10, join_refuser.refuser_loop_check))
 
         commands_list = command_loader.get_telegram_commands_list()
-        # print(json.dumps([asdict(cmd) for cmd in commands_list], indent=4, ensure_ascii=False))
         for commands in commands_list:
             try:
                 await set_commands(commands)
             except Exception as e:
                 logger.error(e)
+
+        await static_help.on_start()
 
     @dp.shutdown()
     async def on_shutdown() -> None:
