@@ -5,7 +5,7 @@ from zoneinfo import ZoneInfo
 
 import yaml
 
-from python.storage.config import config
+from python.storage import config as config_module
 from python.storage.strings import get_string
 from python.utils import TimeDelta
 
@@ -110,8 +110,8 @@ def get_time(time_address: str) -> TimeDeltaInfo | None:
     if not isinstance(node, list):
         return None
 
-    if config.timezone:
-        tz = ZoneInfo(config.timezone)
+    if config_module.config.timezone:
+        tz = ZoneInfo(config_module.config.timezone)
     else:
         tz = None
     now = datetime.now(tz)

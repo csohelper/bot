@@ -12,7 +12,7 @@ from aiogram import Bot
 from aiogram.types import (ChatMember, Message, ReactionTypeEmoji, CallbackQuery, ChatJoinRequest, File,
                            ChatMemberLeft, ChatMemberBanned)
 
-from python.logger import logger
+from python import logger as logger_module
 from python.storage import config as config_module
 from python.storage.strings import get_string
 
@@ -354,7 +354,7 @@ async def log_exception(
         original: Message | CallbackQuery | ChatJoinRequest,
         **kwargs
 ) -> None:
-    code = logger.error(e, message=original, **kwargs)
+    code = logger_module.logger.error(e, message=original, **kwargs)
     await original.reply(
         get_string(
             original.from_user.language_code,
@@ -425,7 +425,7 @@ async def download_photos(
                     break
                 except Exception as e:
                     if att < 10:
-                        logger.warning(f"Downloading attempt {att}")
+                        logger_module.logger.warning(f"Downloading attempt {att}")
                         await asyncio.sleep(0.2)
                         continue
                     else:
@@ -495,7 +495,7 @@ async def download_video(
                     break
                 except Exception as e:
                     if att < 10:
-                        logger.warning(f"Downloading attempt {att}")
+                        logger_module.logger.warning(f"Downloading attempt {att}")
                         await asyncio.sleep(0.2)
                         continue
                     else:
