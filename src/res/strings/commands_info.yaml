@@ -536,6 +536,7 @@ echo_commands:
       files:
         - file: src/res/images/laundress/1.jpg
         - file: src/res/images/laundress/2.jpg
+        - file: src/res/images/laundress/3.jpg
   - name: cards
     message: echo_commands.cards
     images:

@@ -74,11 +74,15 @@ class CacheStorage(BaseModel):
     Attributes:
         remove_messages: Список сообщений для автоматического удаления
         help_pin_messages: Список закрепленных справочных сообщений
+        images_caches: File path - Telegram File ID
+        image_index: Для ротации изображений соответсвие rotation_id - индекс в списке
         path: Путь к файлу кэша
     """
 
     remove_messages: List[RemoveMessage] = Field(default_factory=list)
     help_pin_messages: List[PinMessage] = Field(default_factory=list)
+    images_caches: dict[str, str] = Field(default_factory=dict)
+    image_index: dict[str, int] = Field(default_factory=dict)
     path: Path = Path("cache.yaml")
 
     def __init__(self, path: Optional[str | Path] = None, **data):

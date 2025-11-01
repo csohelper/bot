@@ -389,10 +389,9 @@ laundress:
       - 4
       - 5
       - 6
-      - 7
     times:
       - start: 10:00
-        end: 21:00
+        end: 19:30
 miloffice:
   office:
     - days:

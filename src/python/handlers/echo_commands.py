@@ -13,20 +13,18 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, InputMediaPhoto, FSInputFile, ChatMemberRestricted
 from aiogram.utils.payload import decode_payload
 
+import python.logger as logger_module
 from python import utils
 from python.handlers.hype_collector import start_collector_command
 from python.handlers.services_handlers.add_service_commands import on_addservice
 from python.handlers.services_handlers.join_service import on_accept_join_process
 from python.storage import cache as cache_module
+from python.storage import config as config_module
 from python.storage.command_loader import get_echo_commands, EchoCommand, TimeInfo, ImageFileInfo
 from python.storage.repository.users_repository import check_user, UserRecord
 from python.storage.strings import get_string, get_strings
 from python.storage.times import get_time_status
 from python.utils import check_blacklisted, log_exception, html_escape, split_html_simple, await_and_run
-
-# === ЗАМЕНА ИМПОРТОВ ===
-import python.logger as logger_module
-from python.storage import config as config_module
 
 router = Router()
 _bot: Bot
@@ -101,11 +99,6 @@ async def check_and_delete_after(*messages: Message):
             await asyncio.sleep(0.2)
 
 
-# File path -> File telegram ID
-images_caches: dict[str, str] = {}
-image_index = {}
-
-
 @dataclass(frozen=True)
 class ImagePath:
     path: str
@@ -116,24 +109,25 @@ class ImageId:
     id: str
 
 
-def get_file_list(*files: ImageFileInfo) -> list[ImagePath | ImageId]:
+async def get_file_list(*files: ImageFileInfo) -> list[ImagePath | ImageId]:
     result = []
     for info in files:
         if info.file is not None:
-            if info.file in images_caches:
-                result.append(ImageId(images_caches[info.file]))
+            if info.file in cache_module.cache.images_caches:
+                result.append(ImageId(cache_module.cache.images_caches[info.file]))
             else:
                 result.append(ImagePath(info.file))
         elif info.cycle is not None:
-            index = (image_index.get(info.cycle.name, 0) + 1) % len(info.cycle.files)
-            image_index[info.cycle.name] = index
+            index = (cache_module.cache.image_index.get(info.cycle.name, 0) + 1) % len(info.cycle.files)
+            cache_module.cache.image_index[info.cycle.name] = index
+            await cache_module.cache.save()
 
             result.extend(
-                get_file_list(info.cycle.files[index])
+                await get_file_list(info.cycle.files[index])
             )
         elif info.random is not None:
             result.extend(
-                get_file_list(random.choice(info.random.files))
+                await get_file_list(random.choice(info.random.files))
             )
 
     return result
@@ -153,13 +147,13 @@ def make_image_handler(command_info: EchoCommand):
                     message.from_user.full_name,
                     message.from_user.language_code,
                 ))
-            global images_caches, image_index
+            # global images_caches, image_index
             delete_messages = [message]
 
             tries = 0
             while True:
                 tries += 1
-                file_list: list[ImagePath | ImageId] = get_file_list(*command_info.images.files)
+                file_list: list[ImagePath | ImageId] = await get_file_list(*command_info.images.files)
                 media = []
 
                 for file in file_list:
@@ -180,12 +174,15 @@ def make_image_handler(command_info: EchoCommand):
                 )
 
                 try:
-                    reply = await message.reply_media_group(media=media)
+                    reply = await _bot.send_media_group(
+                        chat_id=message.chat.id,
+                        media=media
+                    )
 
                     for message, file in zip(reply, file_list):
                         if isinstance(file, ImagePath):
-                            images_caches[file.path] = message.photo[-1].file_id
-
+                            cache_module.cache.images_caches[file.path] = message.photo[-1].file_id
+                    await cache_module.cache.save()
                     delete_messages.extend(reply)
                 except Exception as e:
                     logger_module.logger.error(f"{e}")
@@ -193,7 +190,8 @@ def make_image_handler(command_info: EchoCommand):
                     for file in file_list:
                         if isinstance(file, ImageId):
                             affected += 1
-                            del images_caches[file.id]
+                            del cache_module.cache.images_caches[file.id]
+                            await cache_module.cache.save()
                     if affected == 0:
                         logger_module.logger.warning(f"Tried {tries} times send images")
                         if tries >= 10:
