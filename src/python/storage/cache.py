@@ -145,6 +145,8 @@ class CacheStorage(BaseModel):
             # Десериализация данных в модели Pydantic
             self.remove_messages = [RemoveMessage(**m) for m in data.get("remove_messages", [])]
             self.help_pin_messages = [PinMessage(**p) for p in data.get("pin_help_messages", [])]
+            self.images_caches = data.get("images_caches", {})
+            self.image_index = data.get("image_index", {})
 
             logger.info(
                 f"Cache loaded: {len(self.remove_messages)} removable messages, "
@@ -190,6 +192,8 @@ class CacheStorage(BaseModel):
                 {
                     "remove_messages": [m.model_dump() for m in self.remove_messages],
                     "pin_help_messages": [p.model_dump() for p in self.help_pin_messages],
+                    "images_caches": self.images_caches,
+                    "image_index": self.image_index,
                 },
                 allow_unicode=True,
                 sort_keys=False,
