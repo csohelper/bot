@@ -176,7 +176,8 @@ def make_image_handler(command_info: EchoCommand):
                 try:
                     reply = await _bot.send_media_group(
                         chat_id=message.chat.id,
-                        media=media
+                        media=media,
+                        reply_to_message_id=message.message_id
                     )
 
                     for message, file in zip(reply, file_list):
