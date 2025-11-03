@@ -250,9 +250,6 @@ async def main() -> None:
 
         logger.info("Aiogram: bot started successfully")
 
-        for i in range(5):
-            logger.error("Test error")
-
     @dp.shutdown()
     async def on_shutdown() -> None:
         """Хук, выполняемый при остановке бота."""
