@@ -440,10 +440,14 @@ async def delete_cycle():
                 await _bot.delete_message(chat_id=msg.chat_id, message_id=msg.message_id)
                 logger_module.logger.debug(f"Deleted message: chat_id={msg.chat_id}, message_id={msg.message_id}")
                 deleted_count += 1
+            except TelegramBadRequest:
+                # Message not found
+                logger_module.logger.debug(f"Message not found: chat_id={msg.chat_id}, message_id={msg.message_id}")
+                deleted_count += 1
             except Exception as e:
                 logger_module.logger.warning(
                     f"Failed to delete message in Telegram: chat_id={msg.chat_id}, "
-                    f"message_id={msg.message_id}, error: {type(e).__name__}: {e}"
+                    f"message_id={msg.message_id}, error: {type(e).__name__}: {e}", e
                 )
                 failed_messages.append(msg)
 
