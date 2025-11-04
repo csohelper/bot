@@ -1,4 +1,5 @@
 import asyncio
+import os
 import platform
 
 from aiogram import Bot, Dispatcher, F, Router
@@ -138,7 +139,7 @@ async def main() -> None:
 
     # Инициализация бота
     bot = Bot(
-        token=config_module.config.telegram.token,
+        token=os.getenv("TELEGRAM_BOT_TOKEN", default=config_module.config.telegram.token),
         default=DefaultBotProperties(
             parse_mode=config_module.config.telegram.parse_mode,
             link_preview=LinkPreviewOptions(is_disabled=True),

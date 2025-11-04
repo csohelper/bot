@@ -102,7 +102,7 @@ class TelegramConfig(BaseModel):
         local_server: URL локального Telegram Bot API сервера
         download_server: URL сервера для скачивания файлов через nginx
     """
-    token: str = Field(default="0000000000:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+    token: str | None = Field(default=None)
     parse_mode: str = Field(default="HTML")
     local_server: str = Field(default="http://telegram-bot-api:8081")
     download_server: str = Field(default="http://nginx:8082")
