@@ -10,6 +10,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.storage.redis import RedisStorage
 from aiogram.types import BotCommand, Message, ReplyKeyboardRemove
 from aiogram.types.link_preview_options import LinkPreviewOptions
+from aiohttp import TCPConnector, ClientTimeout
 from redis.asyncio import from_url
 
 from python import anecdote_poller, join_refuser
@@ -132,14 +133,38 @@ async def main() -> None:
     # Теперь logger и config инициализированы
     from python.logger import logger
 
-    # Создание сессии для подключения к Telegram API
-    # Таймаут должен быть БОЛЬШЕ чем long polling timeout (обычно 60 секунд)
-    session = AiohttpSession(
-        api=TelegramAPIServer.from_base(config_module.config.telegram.server),
-        timeout=120  # Простое число в секундах (больше чем long polling ~60 сек)
+    # Правильные таймауты для long polling
+    timeout = ClientTimeout(
+        total=None,  # Общий таймаут отключен для long polling
+        connect=10,  # 10 секунд на подключение
+        sock_connect=10,  # 10 секунд на socket connect
+        sock_read=120  # 120 секунд на чтение (УВЕЛИЧЕНО, больше чем long polling)
     )
 
-    logger.info("AiohttpSession configured with increased timeout for long polling")
+    # Connector с force_close для избежания проблем с переиспользованием
+    connector = TCPConnector(
+        limit=100,
+        limit_per_host=30,
+        ttl_dns_cache=300,
+        force_close=True,  # ВАЖНО: закрывать соединения после каждого запроса
+        enable_cleanup_closed=True
+    )
+
+    # Создание сессии для подключения к Telegram API
+    session = AiohttpSession(
+        api=TelegramAPIServer.from_base(config_module.config.telegram.server),
+        timeout=timeout
+    )
+
+    # Заменяем внутреннюю сессию на нашу с правильным connector
+    import aiohttp
+    session._session = aiohttp.ClientSession(
+        connector=connector,
+        timeout=timeout,
+        json_serialize=__import__('json').dumps
+    )
+
+    logger.info("AiohttpSession configured with long polling timeouts and force_close")
 
     # Инициализация бота
     bot = Bot(
