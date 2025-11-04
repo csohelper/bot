@@ -56,8 +56,6 @@ services:
     restart: always
     environment:
       TZ: ${TZ}
-      NGINX_LOG_LEVEL: ${NGINX_LOG_LEVEL}
-      LOG_ACCESS: ${LOG_ACCESS}
     volumes:
       - ./storage/tgapi/:/var/lib/telegram-bot-api:ro
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
