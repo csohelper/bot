@@ -63,40 +63,9 @@ class TriggerFilter(BaseFilter):
 async def create_delete_task(*messages: Message) -> None:
     """Добавить сообщения в кэш для автоматического удаления."""
     for message in messages:
-        await cache_module.cache.insert_message(message.chat.id, message.message_id)
+        if message.chat.type in ('group', 'supergroup'):
+            await cache_module.cache.insert_message(message.chat.id, message.message_id)
     await cache_module.cache.save()
-
-
-async def check_and_delete_after(*messages: Message):
-    try:
-        await asyncio.sleep(config_module.config.chat_config.echo_auto_delete_secs)
-        if messages[0].chat.id == config_module.config.chat_config.chat_id:
-            for message in messages:
-                try:
-                    await message.delete()
-                except TelegramBadRequest:
-                    pass
-    except Exception as e:
-        code = logger_module.logger.error(e, messages)
-        escaped_exc = html_escape(''.join(traceback.format_exception(e)))
-        full_message = get_string(
-            config_module.config.chat_config.admin.chat_lang,
-            "exceptions.debug",
-            code=code,
-            exc=escaped_exc,
-            userid=messages[0].chat.id,
-            username='SuperGroup',
-            fullname=messages[0].chat.title,
-        )
-        message_parts = split_html_simple(full_message, max_len=4000)
-
-        for part in message_parts:
-            await messages[0].bot.send_message(
-                config_module.config.chat_config.admin.chat_id,
-                part,
-                message_thread_id=config_module.config.chat_config.admin.topics.debug,
-            )
-            await asyncio.sleep(0.2)
 
 
 @dataclass(frozen=True)
