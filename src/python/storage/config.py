@@ -103,7 +103,7 @@ class TelegramConfig(BaseModel):
     """
     token: str | None = Field(default=None)
     parse_mode: str = Field(default="HTML")
-    server: str = Field(default="http://telegram-bot-api:8081")
+    server: str = Field(default="http://csohelper-nginx:8081")
 
 
 class AnecdoteConfig(BaseModel):
