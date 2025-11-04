@@ -99,13 +99,11 @@ class TelegramConfig(BaseModel):
     Attributes:
         token: Токен бота от BotFather
         parse_mode: Режим парсинга сообщений (HTML/Markdown)
-        local_server: URL локального Telegram Bot API сервера
-        download_server: URL сервера для скачивания файлов через nginx
+        server: URL локального Telegram Bot API сервера (Nginx Proxy)
     """
     token: str | None = Field(default=None)
     parse_mode: str = Field(default="HTML")
-    local_server: str = Field(default="http://telegram-bot-api:8081")
-    download_server: str = Field(default="http://nginx:8082")
+    server: str = Field(default="http://telegram-bot-api:8081")
 
 
 class AnecdoteConfig(BaseModel):

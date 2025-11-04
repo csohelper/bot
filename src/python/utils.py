@@ -410,7 +410,7 @@ async def download_photos(
                     relative_path = file.file_path.lstrip('/var/lib/telegram-bot-api/')
 
                     # Формируем URL для скачивания
-                    download_url = f"{config_module.config.telegram.download_server}/file/{relative_path}"
+                    download_url = f"{config_module.config.telegram.server}/file/{relative_path}"
 
                     # Скачиваем файл
                     async with session.get(download_url) as response:
@@ -464,7 +464,7 @@ async def download_video(
     relative_path = file_info.file_path.lstrip('/var/lib/telegram-bot-api/')
 
     # Form the download URL for nginx
-    download_url = f"{config_module.config.telegram.download_server}/file/{relative_path}"
+    download_url = f"{config_module.config.telegram.server}/file/{relative_path}"
 
     # Download file with progress tracking
     async with aiohttp.ClientSession() as session:

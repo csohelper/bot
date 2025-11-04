@@ -134,7 +134,8 @@ async def main() -> None:
 
     # Создание сессии для подключения к Telegram API
     session = AiohttpSession(
-        api=TelegramAPIServer.from_base(config_module.config.telegram.local_server)
+        api=TelegramAPIServer.from_base(config_module.config.telegram.server),
+        timeout=60  # увеличить таймаут
     )
 
     # Инициализация бота
