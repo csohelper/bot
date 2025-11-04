@@ -11,17 +11,16 @@ from aiogram.fsm.storage.redis import RedisStorage
 from aiogram.types import BotCommand, Message, ReplyKeyboardRemove
 from aiogram.types.link_preview_options import LinkPreviewOptions
 from redis.asyncio import from_url
-from aiohttp import ClientTimeout, TCPConnector  # Добавить эти импорты
 
 from python import anecdote_poller, join_refuser
 from python.handlers import echo_commands, kek_command, admin_commands, hype_collector
+from python.handlers import static_help
 from python.handlers.services_handlers import add_service_commands, list_services_command, moderate_service, \
     join_service, my_services_command
-from python.handlers import static_help
 from python.storage import command_loader
+from python.storage import config as config_module
 from python.storage.cache import init_cache
 from python.storage.command_loader import TelegramCommandsInfo, init_commands_info
-from python.storage import config as config_module
 from python.storage.database import open_database_pool, close_database_pool
 from python.storage.repository import services_repository, users_repository, anecdotes_repository, hype_repository
 from python.storage.strings import get_string, init_strings
@@ -133,40 +132,14 @@ async def main() -> None:
     # Теперь logger и config инициализированы
     from python.logger import logger
 
-    # Правильные таймауты для long polling
-    timeout = ClientTimeout(
-        total=None,  # Общий таймаут отключен для long polling
-        connect=10,  # 10 секунд на подключение
-        sock_connect=10,  # 10 секунд на socket connect
-        sock_read=90  # 90 секунд на чтение (больше чем timeout long polling в getUpdates)
-    )
-
-    # Connector для управления соединениями
-    connector = TCPConnector(
-        limit=100,  # Общий лимит соединений
-        limit_per_host=30,  # Лимит на хост
-        ttl_dns_cache=300,  # Кэш DNS на 5 минут
-        force_close=False,  # Переиспользовать соединения
-        enable_cleanup_closed=True  # Автоматическая очистка закрытых соединений
-    )
-
     # Создание сессии для подключения к Telegram API
-    # Используем json параметр для передачи настроек в aiohttp ClientSession
+    # Таймаут должен быть БОЛЬШЕ чем long polling timeout (обычно 60 секунд)
     session = AiohttpSession(
         api=TelegramAPIServer.from_base(config_module.config.telegram.server),
-        timeout=timeout,
-        json_loads=__import__('json').loads,  # Для совместимости
+        timeout=120  # Простое число в секундах (больше чем long polling ~60 сек)
     )
 
-    # Заменяем внутреннюю сессию на нашу с правильным connector
-    import aiohttp
-    session._session = aiohttp.ClientSession(
-        connector=connector,
-        timeout=timeout,
-        json_serialize=__import__('json').dumps
-    )
-
-    logger.info("AiohttpSession configured with long polling timeouts")
+    logger.info("AiohttpSession configured with increased timeout for long polling")
 
     # Инициализация бота
     bot = Bot(
