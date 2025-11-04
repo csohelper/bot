@@ -1,0 +1,74 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Storage & Data (монтируется через volumes)
+storage/
+data/
+
+# Environment & Config
+.env
+.env.*
+*.env
+
+# Logs
+*.log
+logs/
+
+# Documentation
+README.md
+README.ru.md
+*.md
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Poetry
+poetry.lock
+
+# Scripts (если они только для локальной разработки)
+run
+drun
