@@ -133,15 +133,7 @@ async def main() -> None:
     # Теперь logger и config инициализированы
     from python.logger import logger
 
-    # Правильные таймауты для long polling
-    timeout = ClientTimeout(
-        total=None,  # Общий таймаут отключен для long polling
-        connect=10,  # 10 секунд на подключение
-        sock_connect=10,  # 10 секунд на socket connect
-        sock_read=120  # 120 секунд на чтение (УВЕЛИЧЕНО, больше чем long polling)
-    )
-
-    # Connector с force_close для избежания проблем с переиспользованием
+    # Connector с настройками для long polling
     connector = TCPConnector(
         limit=100,
         limit_per_host=30,
@@ -151,16 +143,24 @@ async def main() -> None:
     )
 
     # Создание сессии для подключения к Telegram API
+    # timeout должен быть числом (в секундах) для совместимости с aiogram
     session = AiohttpSession(
         api=TelegramAPIServer.from_base(config_module.config.telegram.server),
-        timeout=timeout
+        timeout=120  # 120 секунд для long polling
     )
 
-    # Заменяем внутреннюю сессию на нашу с правильным connector
+    # Заменяем внутреннюю сессию на нашу с правильным connector и детальными таймаутами
     import aiohttp
+    custom_timeout = ClientTimeout(
+        total=None,  # Общий таймаут отключен для long polling
+        connect=10,  # 10 секунд на подключение
+        sock_connect=10,  # 10 секунд на socket connect
+        sock_read=120  # 120 секунд на чтение
+    )
+
     session._session = aiohttp.ClientSession(
         connector=connector,
-        timeout=timeout,
+        timeout=custom_timeout,
         json_serialize=__import__('json').dumps
     )
 
