@@ -395,12 +395,12 @@ async def delete_cycle():
 
         if not messages:
             logger_module.logger.trace("Delete cycle: No messages to delete (cache empty or all fresh)")
-            asyncio.create_task(await_and_run(60, delete_cycle))
             return
 
         logger_module.logger.debug(f"Delete cycle: Found {len(messages)} message(s) to delete")
 
-        deleted_count = 0
+        # Используем set для эффективного поиска (O(1) вместо O(n))
+        to_remove_from_cache = set()
         failed_messages = []
 
         # 2. Удаляем каждое сообщение в Telegram
@@ -408,34 +408,54 @@ async def delete_cycle():
             try:
                 await _bot.delete_message(chat_id=msg.chat_id, message_id=msg.message_id)
                 logger_module.logger.debug(f"Deleted message: chat_id={msg.chat_id}, message_id={msg.message_id}")
-                deleted_count += 1
+                to_remove_from_cache.add(msg)
+
             except TelegramBadRequest:
-                # Message not found
+                # Сообщение не найдено - уже удалено или никогда не существовало
+                # Убираем из кэша, чтобы не пытаться удалить снова
                 logger_module.logger.debug(f"Message not found: chat_id={msg.chat_id}, message_id={msg.message_id}")
-                deleted_count += 1
+                to_remove_from_cache.add(msg)
+
             except Exception as e:
+                # Другие ошибки - временные проблемы с API
                 logger_module.logger.warning(
                     f"Failed to delete message in Telegram: chat_id={msg.chat_id}, "
-                    f"message_id={msg.message_id}, error: {type(e).__name__}: {e}", e
+                    f"message_id={msg.message_id}, error: {type(e).__name__}: {e}"
                 )
                 failed_messages.append(msg)
 
-        # 3. Удаляем из кэша только успешно удалённые
-        if deleted_count > 0:
-            successful_messages = [m for m in messages if m not in failed_messages]
-            await cache_module.cache.delete_messages(*successful_messages)
-            logger_module.logger.info(f"Successfully deleted {deleted_count} message(s) from Telegram and cache")
-        else:
-            logger_module.logger.warning("Delete cycle: No messages were deleted in Telegram")
+        # 3. Удаляем из кэша все обработанные сообщения
+        if to_remove_from_cache:
+            await cache_module.cache.delete_messages(*to_remove_from_cache)
+            logger_module.logger.info(
+                f"Successfully removed {len(to_remove_from_cache)} message(s) from cache "
+                f"({len(to_remove_from_cache) - len(failed_messages)} deleted, "
+                f"{len(failed_messages)} failed)"
+            )
 
-        # 4. Итог по ошибкам
+        # 4. Принудительно удаляем из кэша старые проблемные сообщения (>1 час)
+        # чтобы они не засоряли кэш и логи вечно
         if failed_messages:
-            failed_ids = [(m.chat_id, m.message_id) for m in failed_messages]
-            logger_module.logger.error(f"Failed to delete {len(failed_messages)} message(s): {failed_ids}")
+            from datetime import datetime, timedelta
+
+            old_threshold = datetime.now() - timedelta(hours=1)
+            old_failed = [msg for msg in failed_messages if msg.timestamp < old_threshold]
+
+            if old_failed:
+                await cache_module.cache.delete_messages(*old_failed)
+                logger_module.logger.warning(
+                    f"Force-removed {len(old_failed)} old failed message(s) from cache "
+                    f"(failed to delete for >1 hour)"
+                )
+
+            # Логируем только свежие ошибки
+            recent_failed = [msg for msg in failed_messages if msg not in old_failed]
+            if recent_failed:
+                failed_ids = [(m.chat_id, m.message_id) for m in recent_failed]
+                logger_module.logger.warning(f"Failed to delete {len(recent_failed)} message(s): {failed_ids}")
 
     except Exception as e:
         logger_module.logger.error(f"Unexpected error in delete_cycle: {type(e).__name__}: {e}", exc_info=True)
     finally:
         # 5. Перезапуск цикла
-        logger_module.logger.trace("Delete cycle: Scheduling next run in 60 seconds")
         asyncio.create_task(await_and_run(60, delete_cycle))
