@@ -399,8 +399,7 @@ async def delete_cycle():
 
         logger_module.logger.debug(f"Delete cycle: Found {len(messages)} message(s) to delete")
 
-        # Используем set для эффективного поиска (O(1) вместо O(n))
-        to_remove_from_cache = set()
+        to_remove_from_cache = []
         failed_messages = []
 
         # 2. Удаляем каждое сообщение в Telegram
@@ -408,13 +407,12 @@ async def delete_cycle():
             try:
                 await _bot.delete_message(chat_id=msg.chat_id, message_id=msg.message_id)
                 logger_module.logger.debug(f"Deleted message: chat_id={msg.chat_id}, message_id={msg.message_id}")
-                to_remove_from_cache.add(msg)
+                to_remove_from_cache.append(msg)
 
             except TelegramBadRequest:
                 # Сообщение не найдено - уже удалено или никогда не существовало
-                # Убираем из кэша, чтобы не пытаться удалить снова
                 logger_module.logger.debug(f"Message not found: chat_id={msg.chat_id}, message_id={msg.message_id}")
-                to_remove_from_cache.add(msg)
+                to_remove_from_cache.append(msg)
 
             except Exception as e:
                 # Другие ошибки - временные проблемы с API
@@ -428,18 +426,15 @@ async def delete_cycle():
         if to_remove_from_cache:
             await cache_module.cache.delete_messages(*to_remove_from_cache)
             logger_module.logger.info(
-                f"Successfully removed {len(to_remove_from_cache)} message(s) from cache "
-                f"({len(to_remove_from_cache) - len(failed_messages)} deleted, "
-                f"{len(failed_messages)} failed)"
+                f"Successfully removed {len(to_remove_from_cache)} message(s) from cache"
             )
 
         # 4. Принудительно удаляем из кэша старые проблемные сообщения (>1 час)
-        # чтобы они не засоряли кэш и логи вечно
         if failed_messages:
             from datetime import datetime, timedelta
 
             old_threshold = datetime.now() - timedelta(hours=1)
-            old_failed = [msg for msg in failed_messages if msg.timestamp < old_threshold]
+            old_failed = [msg for msg in failed_messages if msg.create_time < old_threshold]
 
             if old_failed:
                 await cache_module.cache.delete_messages(*old_failed)
