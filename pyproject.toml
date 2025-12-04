@@ -19,6 +19,8 @@ setuptools = "^80.9.0"
 redis = "^6.4.0"
 poetry-core = "^2.2.1"
 aiogram-media-group = "^0.5.1"
+matplotlib = "^3.10.7"
+pandas = "^2.3.3"
 
 [build-system]
 requires = ["poetry-core"]

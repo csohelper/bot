@@ -185,6 +185,13 @@ class BlacklistedChat(BaseModel):
     topics: list[int | None] | None = Field(default=None)
 
 
+class MonitoringConfig(BaseModel):
+    back_hours: int = Field(default=4)
+    interval_minutes: int = Field(default=20)
+    rooms_endpoint: str = Field(default="https://monitor.slavapmk.ru/api/rooms")
+    graph_endpoint: str = Field(default="https://monitor.slavapmk.ru/api/graph")
+
+
 class AppConfig(BaseModel):
     """
     Главная конфигурация приложения, объединяющая все настройки.
@@ -209,6 +216,7 @@ class AppConfig(BaseModel):
     chat_config: ChatConfig = Field(default_factory=ChatConfig)
     refuser: RefuserConfig = Field(default_factory=RefuserConfig)
     blacklisted: list[BlacklistedChat] = Field(default_factory=list)
+    monitoring: MonitoringConfig = Field(default_factory=MonitoringConfig)
 
 
 # Путь к файлу конфигурации
