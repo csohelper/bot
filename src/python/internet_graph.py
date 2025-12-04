@@ -180,8 +180,10 @@ def configure_xaxis_ticks(ax: Axes, df: DataFrame, time_len: int, interval: int)
     num_ticks = (time_len * 60 // interval) + 1
     # Generate evenly spaced dates for ticks
     tick_dates = pd.date_range(start=df["x"].min(), end=df["x"].max(), periods=num_ticks)
+
     # Convert dates to matplotlib numbers
-    tick_nums = mdates.date2num(tick_dates.to_pydatetime())
+    tick_nums = mdates.date2num(tick_dates)
+
     # Set fixed locator for x-ticks
     ax.xaxis.set_major_locator(FixedLocator(tick_nums))
 
