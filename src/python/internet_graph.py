@@ -211,7 +211,7 @@ def add_labels_and_legend(ax: Axes):
     :return: None
     """
     # Set y-axis label
-    ax.set_ylabel("Losses, %", fontsize=12)
+    ax.set_ylabel("Потери за минуту, %", fontsize=12)
 
     # Add legend with title
     legend = ax.legend(
