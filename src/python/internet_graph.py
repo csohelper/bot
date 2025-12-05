@@ -124,43 +124,58 @@ def plot_datasets(lang: str | None, ax: Axes, graph_data: dict):
     :param graph_data: Dictionary containing datasets
     :return: DataFrame of the last processed dataset (for limits calculation)
     """
-    df = pd.DataFrame()  # Initialize empty DataFrame
-    for ds in graph_data["datasets"]:
-        # Convert dataset data to DataFrame
-        df = pd.DataFrame(ds["data"])
-        # Convert 'x' column to datetime
-        df["x"] = pd.to_datetime(df["x"])
-        # Sort by 'x' to ensure proper order
-        df = df.sort_values("x")
+    all_dataframes = []  # Собираем ВСЕ данные сюда
 
-        # Modify label if not total or summary
+    for ds in graph_data.get("datasets", []):
+        if not ds.get("data"):  # Пропускаем пустые датасеты
+            continue
+
+        df_part = pd.DataFrame(ds["data"])
+
+        # Защита от кривых данных
+        if "x" not in df_part.columns or "y" not in df_part.columns:
+            continue
+
+        df_part["x"] = pd.to_datetime(df_part["x"], errors="coerce")
+        df_part = df_part.dropna(subset=["x"])  # Убираем невалидные даты
+        if df_part.empty:
+            continue
+
+        df_part = df_part.sort_values("x")
+
+        # Подпись комнаты
         label_var = ds.get("label", "")
-        if label_var.lower() not in ["суммарные потери"]:
+        if label_var and label_var.lower() not in ["суммарные потери"]:
             label_var = get_string(lang, "internet.room", room=label_var)
 
-        # Convert colors to RGBA
         border = hex_to_rgba(ds["borderColor"])
         background = hex_to_rgba(ds["backgroundColor"])
 
-        # Plot the line
         ax.plot(
-            df["x"], df["y"],
-            label=label_var,  # Use modified label
-            color=border,  # Border color
-            linewidth=2,  # Line width
-            solid_capstyle="round"  # Rounded line caps
+            df_part["x"], df_part["y"],
+            label=label_var,
+            color=border,
+            linewidth=2,
+            solid_capstyle="round"
         )
 
-        # Fill area under the curve if 'fill' is True
         if ds.get("fill", False):
             ax.fill_between(
-                df["x"], df["y"], 0,
-                color=background,  # Fill color
-                interpolate=True,  # Interpolate between points
-                zorder=2  # Layer order
+                df_part["x"], df_part["y"], 0,
+                color=background,
+                interpolate=True,
+                zorder=2
             )
 
-    return df  # Return the last df for min/max calculations
+        all_dataframes.append(df_part)
+
+    # Если ничего не нарисовано — возвращаем пустой DF (чтобы не упасть ниже)
+    if not all_dataframes:
+        return pd.DataFrame(columns=["x", "y"])
+
+    # Объединяем все точки и берём общий диапазон
+    combined = pd.concat(all_dataframes, ignore_index=True)
+    return combined
 
 
 def configure_axes_limits_and_grid(ax: Axes, df: DataFrame):
