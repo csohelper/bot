@@ -384,6 +384,13 @@ triggers:
     - комната сушки
     - сушильная комната
     - сушка
+  internet:
+    - интернет
+    - мегафон
+    - internet
+    - megafon
+    - контора пидорасов
+    - контора пидарасов
 commands_list:
   - cards
   - index

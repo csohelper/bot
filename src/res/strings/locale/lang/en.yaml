@@ -3,6 +3,7 @@
 
 commands_description:
   cards: Discount cards of all popular store chains
+  internet: Internet loss status
   services: List of services offered by residents
   help: Help message
   kek: Doesn’t matter
@@ -74,6 +75,7 @@ echo_commands:
     <b>Dean</b> (or /dean), <b>Unified Deans</b> (or /ed), <b>IT Deans</b> (or /deanit), 
     <b>RiT Deans</b> (or /deanrit), <b>NaCS Deans</b> (or /deannacs), <b>CaIS Deans</b> (or /deancais), 
     <b>DEaMC Deans</b> (or /deandeamc), <b>Foreign Departament</b> (или /deanforeign)
+    <b>Internet</b>, <b>Megafon</b> (или /internet)
   cards: |
     <b>Discount cards of all popular chains:</b>
     

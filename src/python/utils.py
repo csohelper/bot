@@ -11,7 +11,7 @@ import aiohttp
 from aiogram import Bot
 from aiogram.types import (ChatMember, Message, ReactionTypeEmoji, CallbackQuery, ChatJoinRequest, File,
                            ChatMemberLeft, ChatMemberBanned)
-
+from aiogram.filters import Command, CommandStart, CommandObject, BaseFilter
 from python import logger as logger_module
 from python.storage import config as config_module
 from python.storage.strings import get_string
@@ -520,3 +520,11 @@ def list_files_recursively(directory_path):
         for file in files:
             file_paths.append(os.path.join(root, file))
     return file_paths
+
+
+class TriggerFilter(BaseFilter):
+    def __init__(self, triggers: list[str]):
+        self.triggers = [t.lower() for t in triggers]
+
+    async def __call__(self, message: Message) -> bool:
+        return bool(message.text and message.text.lower() in self.triggers)

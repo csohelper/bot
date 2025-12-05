@@ -10,7 +10,9 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from python import internet_graph
 from python.storage import config
+from python.storage.command_loader import get_all_triggers
 from python.storage.strings import get_string
+from python.utils import TriggerFilter
 
 router = Router()
 
@@ -23,9 +25,7 @@ class InternetChoseHandler(CallbackData, prefix="services.buttons"):
 
 
 @router.message(Command("internet"))
-@router.message(lambda message: message.text and message.text.lower() in [
-    "интернет", "мегафон", "контора пидорасов"
-])
+@router.message(TriggerFilter(get_all_triggers("internet")))
 async def command_internet_handler(message: Message) -> None:
     """
     Handler for the /internet command or specific text messages.
@@ -95,6 +95,7 @@ async def on_selected_room(
 
 async def generate_graph(lang: str | None, rooms: list[str]) -> bytes:
     """
+    :param lang: Language code
     :param rooms: List of rooms to generate graph for.
     :return: PNG image bytes of the generated graph.
     """

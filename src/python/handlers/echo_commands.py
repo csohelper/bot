@@ -51,14 +51,6 @@ def build_kwargs(working_status: List[TimeInfo], lang: str) -> dict[str, str]:
     return status_
 
 
-class TriggerFilter(BaseFilter):
-    def __init__(self, triggers: list[str]):
-        self.triggers = [t.lower() for t in triggers]
-
-    async def __call__(self, message: Message) -> bool:
-        return bool(message.text and message.text.lower() in self.triggers)
-
-
 async def create_delete_task(*messages: Message) -> None:
     """Добавить сообщения в кэш для автоматического удаления."""
     for message in messages:
