@@ -303,5 +303,5 @@ async def render_graph(
     :return: PNG image bytes of the rendered graph.
     """
     return await asyncio.to_thread(
-        lang, render_graph_sync, graph_data, time_len, interval
+        render_graph_sync, lang, graph_data, time_len, interval
     )
