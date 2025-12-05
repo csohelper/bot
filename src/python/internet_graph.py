@@ -1,15 +1,15 @@
 import asyncio
 import io
-
+import os
 import aiohttp
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import pandas as pd
+from matplotlib import font_manager
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.ticker import MultipleLocator, FixedLocator
 from pandas import DataFrame
-
 from python.storage import config
 from python.storage.strings import get_string
 
@@ -44,7 +44,7 @@ async def fetch_rooms() -> list[str]:
             return data["rooms"]
 
 
-async def fetch_graph_data(start: str, end: str, rooms: list[str]):
+async def fetch_graph_data(start: str, end: str, rooms: list[str]) -> dict:
     """
     :param start: Start time string.
     :param end: End time string.
@@ -63,7 +63,24 @@ async def fetch_graph_data(start: str, end: str, rooms: list[str]):
             return await resp.json()
 
 
-def setup_plot_style():
+def load_custom_font(font_file: str):
+    """
+    Загружает локальный шрифт из файла в проекте.
+    :param font_file: Путь к TTF-файлу относительно корня проекта.
+    :return: Путь к шрифту.
+    """
+    # Получаем абсолютный путь к файлу
+    font_path = os.path.abspath(font_file)
+
+    if not os.path.exists(font_path):
+        raise FileNotFoundError(f"Font not found: {font_path}")
+
+    # Добавляем шрифт в matplotlib
+    font_manager.fontManager.addfont(font_path)
+    return font_path
+
+
+def setup_plot_style() -> None:
     """
     Sets up the dark theme and custom RC parameters for the plot.
     :return: None
@@ -82,7 +99,7 @@ def setup_plot_style():
         "xtick.color": "#e0e0e0",  # X-tick color
         "ytick.color": "#e0e0e0",  # Y-tick color
         "font.size": 11,  # Default font size
-        "font.family": "Segoe UI",  # Font family
+        "font.family": "Open Sans",  # Font family
         "legend.frameon": True,  # Legend frame enabled
         "legend.facecolor": "#1a1a1a",  # Legend background
         "legend.edgecolor": "#404040",  # Legend edge color
@@ -102,6 +119,7 @@ def create_figure_and_axes():
 def plot_datasets(lang: str | None, ax: Axes, graph_data: dict):
     """
     Processes and plots each dataset from the graph_data.
+    :param lang: Language code
     :param ax: Matplotlib axes object
     :param graph_data: Dictionary containing datasets
     :return: DataFrame of the last processed dataset (for limits calculation)
@@ -208,6 +226,7 @@ def customize_spines(ax: Axes):
 def add_labels_and_legend(lang: str | None, ax: Axes):
     """
     Adds y-label and configures the legend.
+    :param lang: Language code
     :param ax: Matplotlib axes object
     :return: None
     """
@@ -257,11 +276,14 @@ def save_to_bytes(fig: Figure, facecolor: str) -> bytes:
 def render_graph_sync(lang: str | None, graph_data: dict, time_len: int, interval: int) -> bytes:
     """
     Main function to render the graph synchronously and return PNG bytes.
+    :param lang: Language code
     :param graph_data: Dictionary of graph datasets.
     :param time_len: Length of time in hours.
     :param interval: Interval for ticks in minutes.
     :return: PNG image bytes of the rendered graph.
     """
+    load_custom_font("src/res/fonts/OpenSans-Regular.ttf")
+
     # Step 1: Set up plot style
     setup_plot_style()
 
@@ -297,6 +319,7 @@ async def render_graph(
         lang: str | None, graph_data: dict, time_len: int, interval: int
 ) -> bytes:
     """
+    :param lang: Language code
     :param graph_data: Dictionary of graph datasets.
     :param time_len: Length of time in hours.
     :param interval: Interval for ticks in minutes.
