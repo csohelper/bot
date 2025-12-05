@@ -231,3 +231,8 @@ hype_collector:
   downloading_photo: ⏳ Скачивание фото
   downloading_photo_progress: ⏳ Скачивание фото {0}/{1}
   without_description: 🖼️ Без описания
+internet:
+  choose: Выберите нужную комнату
+  summary: Суммарные потери
+  total: Все комнаты
+  room: Комната {room}

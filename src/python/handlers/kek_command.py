@@ -8,7 +8,6 @@ from aiogram.exceptions import TelegramBadRequest, TelegramRetryAfter
 from aiogram.filters import Command
 from aiogram.types import ChatPermissions, Message
 
-# === ЗАМЕНА ИМПОРТОВ ===
 import python.logger as logger_module
 from python.storage import config as config_module
 
@@ -104,7 +103,9 @@ async def command_anecdote_handler(message: Message) -> None:
                             message.from_user.full_name,
                             ban_time
                         ))
-                        logger_module.logger.error("Failed to restrict user. User not admin and bot has rights", e, message=message)
+                        logger_module.logger.error(
+                            "Failed to restrict user. User not admin and bot has rights", e, message=message
+                        )
             else:
                 await message.reply(get_string(
                     message.from_user.language_code,
