@@ -229,15 +229,43 @@ def configure_xaxis_ticks(ax: Axes, df: DataFrame, time_len: int, interval: int)
     # Format x-ticks as day.month hour:minute
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%d.%m %H:%M'))
 
-    # Calculate number of ticks based on time length and interval
+    # Если данных нет или даты невалидные — ставим fallback (24 часа)
+    if df.empty or "x" not in df.columns:
+        _setup_fallback_ticks(ax, time_len, interval)
+        return
+
+    x_dates = pd.to_datetime(df["x"], errors="coerce", utc=True)
+    if x_dates.isna().all():
+        _setup_fallback_ticks(ax, time_len, interval)
+        return
+
+    valid_dates = x_dates.dropna()
+    if valid_dates.empty:
+        _setup_fallback_ticks(ax, time_len, interval)
+    else:
+        # Всё ок — используем реальные границы
+        start_dt = valid_dates.min()
+        end_dt = valid_dates.max()
+
+        num_ticks = (time_len * 60 // interval) + 1
+        try:
+            tick_dates = pd.date_range(start=start_dt, end=end_dt, periods=num_ticks)
+            tick_nums = mdates.date2num(tick_dates)
+            ax.xaxis.set_major_locator(FixedLocator(tick_nums))
+        except (ValueError, OverflowError):
+            # На всякий случай — если вдруг всё равно NaT или переполнение
+            _setup_fallback_ticks(ax, time_len, interval)
+
+
+def _setup_fallback_ticks(ax: Axes, time_len: int, interval: int):
+    """Запасной вариант: ровные тики за последние N часов"""
+    from datetime import datetime, timedelta
+    now = datetime.now()
+    start = now - timedelta(hours=time_len)
+
     num_ticks = (time_len * 60 // interval) + 1
-    # Generate evenly spaced dates for ticks
-    tick_dates = pd.date_range(start=df["x"].min(), end=df["x"].max(), periods=num_ticks)
-
-    # Convert dates to matplotlib numbers
+    tick_dates = pd.date_range(start=start, end=now, periods=num_ticks)
     tick_nums = mdates.date2num(tick_dates)
-
-    # Set fixed locator for x-ticks
     ax.xaxis.set_major_locator(FixedLocator(tick_nums))
 
 
