@@ -82,7 +82,7 @@ async def on_selected_room(
         rooms = ['total']
     else:
         rooms = [callback_data.room]
-    graph_bytes = await generate_graph(rooms)
+    graph_bytes = await generate_graph(callback.from_user.language_code, rooms)
     await callback.bot.send_photo(
         chat_id=callback.message.chat.id,
         reply_to_message_id=callback_data.original,
@@ -93,7 +93,7 @@ async def on_selected_room(
     )
 
 
-async def generate_graph(rooms: list[str]) -> bytes:
+async def generate_graph(lang: str | None, rooms: list[str]) -> bytes:
     """
     :param rooms: List of rooms to generate graph for.
     :return: PNG image bytes of the generated graph.
@@ -103,6 +103,7 @@ async def generate_graph(rooms: list[str]) -> bytes:
     graph_data = await internet_graph.fetch_graph_data(start, end, rooms)
 
     return await internet_graph.render_graph(
+        lang,
         graph_data,
         config.config.monitoring.back_hours,
         config.config.monitoring.interval_minutes

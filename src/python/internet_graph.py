@@ -99,7 +99,7 @@ def create_figure_and_axes():
     return fig, ax
 
 
-def plot_datasets(ax: Axes, graph_data: dict):
+def plot_datasets(lang: str | None, ax: Axes, graph_data: dict):
     """
     Processes and plots each dataset from the graph_data.
     :param ax: Matplotlib axes object
@@ -118,7 +118,7 @@ def plot_datasets(ax: Axes, graph_data: dict):
         # Modify label if not total or summary
         label_var = ds.get("label", "")
         if label_var.lower() not in ["суммарные потери"]:
-            label_var = get_string("internet.room", room=label_var)
+            label_var = get_string(lang, "internet.room", room=label_var)
 
         # Convert colors to RGBA
         border = hex_to_rgba(ds["borderColor"])
@@ -205,14 +205,14 @@ def customize_spines(ax: Axes):
     ax.spines['bottom'].set_color('#404040')
 
 
-def add_labels_and_legend(ax: Axes):
+def add_labels_and_legend(lang: str | None, ax: Axes):
     """
     Adds y-label and configures the legend.
     :param ax: Matplotlib axes object
     :return: None
     """
     # Set y-axis label
-    ax.set_ylabel(get_string('internet.losses_y'), fontsize=12)
+    ax.set_ylabel(get_string(lang, 'internet.losses_y'), fontsize=12)
 
     # Add legend with title
     legend = ax.legend(
@@ -254,7 +254,7 @@ def save_to_bytes(fig: Figure, facecolor: str) -> bytes:
     return image_bytes
 
 
-def render_graph_sync(graph_data: dict, time_len: int, interval: int) -> bytes:
+def render_graph_sync(lang: str | None, graph_data: dict, time_len: int, interval: int) -> bytes:
     """
     Main function to render the graph synchronously and return PNG bytes.
     :param graph_data: Dictionary of graph datasets.
@@ -269,7 +269,7 @@ def render_graph_sync(graph_data: dict, time_len: int, interval: int) -> bytes:
     fig, ax = create_figure_and_axes()
 
     # Step 3: Plot all datasets and get df for limits
-    df = plot_datasets(ax, graph_data)
+    df = plot_datasets(lang, ax, graph_data)
 
     # Step 4: Configure axes limits and grid
     configure_axes_limits_and_grid(ax, df)
@@ -284,7 +284,7 @@ def render_graph_sync(graph_data: dict, time_len: int, interval: int) -> bytes:
     customize_spines(ax)
 
     # Step 8: Add labels and legend
-    add_labels_and_legend(ax)
+    add_labels_and_legend(lang, ax)
 
     # Step 9: Apply tight layout with padding
     plt.tight_layout(pad=2.5)
@@ -294,7 +294,7 @@ def render_graph_sync(graph_data: dict, time_len: int, interval: int) -> bytes:
 
 
 async def render_graph(
-        graph_data: dict, time_len: int, interval: int
+        lang: str | None, graph_data: dict, time_len: int, interval: int
 ) -> bytes:
     """
     :param graph_data: Dictionary of graph datasets.
@@ -303,5 +303,5 @@ async def render_graph(
     :return: PNG image bytes of the rendered graph.
     """
     return await asyncio.to_thread(
-        render_graph_sync, graph_data, time_len, interval
+        lang, render_graph_sync, graph_data, time_len, interval
     )
