@@ -24,6 +24,7 @@ from python.storage.repository.users_repository import check_user, UserRecord
 from python.storage.strings import get_string, get_strings
 from python.storage.times import get_time_status
 from python.utils import check_blacklisted, log_exception, await_and_run
+from python.utils import TriggerFilter
 
 router = Router()
 _bot: Bot
