@@ -14,10 +14,6 @@ from aiohttp import TCPConnector, ClientTimeout
 from redis.asyncio import from_url
 
 from python import anecdote_poller, join_refuser
-from python.handlers import echo_commands, kek_command, admin_commands, hype_collector
-from python.handlers import static_help, internet_command
-from python.handlers.services_handlers import add_service_commands, list_services_command, moderate_service, \
-    join_service, my_services_command
 from python.storage import command_loader
 from python.storage import config as config_module
 from python.storage.cache import init_cache
@@ -192,6 +188,10 @@ async def main() -> None:
     # Инициализация диспетчера
     dp = Dispatcher(storage=storage)
 
+    from python.handlers import echo_commands, kek_command, admin_commands, hype_collector
+    from python.handlers import static_help, internet_command
+    from python.handlers.services_handlers import add_service_commands, list_services_command, moderate_service
+    from python.handlers.services_handlers import join_service, my_services_command
     # Подключение роутеров (порядок важен - default_router должен быть последним)
     dp.include_routers(
         echo_commands.router,
