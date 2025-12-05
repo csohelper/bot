@@ -11,6 +11,7 @@ from matplotlib.ticker import MultipleLocator, FixedLocator
 from pandas import DataFrame
 
 from python.storage import config
+from python.storage.strings import get_string
 
 
 def hex_to_rgba(hex_color: str):
@@ -117,7 +118,7 @@ def plot_datasets(ax: Axes, graph_data: dict):
         # Modify label if not total or summary
         label_var = ds.get("label", "")
         if label_var.lower() not in ["суммарные потери"]:
-            label_var = f"Комната {label_var}"
+            label_var = get_string("internet.room", room=label_var)
 
         # Convert colors to RGBA
         border = hex_to_rgba(ds["borderColor"])
@@ -211,7 +212,7 @@ def add_labels_and_legend(ax: Axes):
     :return: None
     """
     # Set y-axis label
-    ax.set_ylabel("Потери за минуту, %", fontsize=12)
+    ax.set_ylabel(get_string('internet.losses_y'), fontsize=12)
 
     # Add legend with title
     legend = ax.legend(

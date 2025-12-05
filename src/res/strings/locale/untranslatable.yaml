@@ -236,3 +236,4 @@ internet:
   summary: Суммарные потери
   total: Все комнаты
   room: Комната {room}
+  losses_y: Потери за минуту, %
