@@ -178,6 +178,14 @@ def plot_datasets(lang: str | None, ax: Axes, graph_data: dict):
     return combined
 
 
+def _set_fallback_xlim(ax: Axes):
+    """Внутренняя функция для запасного диапазона"""
+    from datetime import datetime, timedelta
+    now = datetime.now()
+    start = now - timedelta(hours=config.config.monitoring.back_hours)
+    ax.set_xlim(mdates.date2num(start), mdates.date2num(now))
+
+
 def configure_axes_limits_and_grid(ax: Axes, df: DataFrame):
     """
     Sets y-limits, x-limits, and configures grid and locators.
@@ -185,16 +193,27 @@ def configure_axes_limits_and_grid(ax: Axes, df: DataFrame):
     :param df: DataFrame with data for limits
     :return: None
     """
-    # Set y-axis limits from -0.1 to 100.1 to cover 0-100 range nicely
     ax.set_ylim(bottom=-0.1, top=100.1)
-    # Set x-axis limits to data range
-    ax.set_xlim(df["x"].min(), df["x"].max())
 
-    # Major y-ticks every 10 units
+    if df.empty or "x" not in df.columns:
+        _set_fallback_xlim(ax)
+        return
+
+    # Принудительно конвертируем и чистим
+    x_dates = pd.to_datetime(df["x"], errors="coerce", utc=True)
+    if x_dates.isna().all():
+        _set_fallback_xlim(ax)
+        return
+
+    # Убираем NaT и берём min/max
+    valid_dates = x_dates.dropna()
+    if valid_dates.empty:
+        _set_fallback_xlim(ax)
+    else:
+        ax.set_xlim(valid_dates.min(), valid_dates.max())
+
     ax.yaxis.set_major_locator(MultipleLocator(10))
-    # Minor y-ticks every 5 units
     ax.yaxis.set_minor_locator(MultipleLocator(5))
-    # Disable vertical grid lines for cleaner look
     ax.xaxis.grid(False)
 
 
