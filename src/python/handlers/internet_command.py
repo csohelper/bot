@@ -13,6 +13,7 @@ from python.storage import config
 from python.storage.command_loader import get_all_triggers
 from python.storage.strings import get_string
 from python.utils import TriggerFilter
+from asyncio import sleep
 
 router = Router()
 
@@ -76,6 +77,7 @@ async def on_selected_room(
         chat_id=callback.message.chat.id,
         action=ChatAction.UPLOAD_PHOTO
     )
+    await sleep(0.1)
     if callback_data.is_summary:
         rooms = ['summary']
     elif callback_data.is_total:
