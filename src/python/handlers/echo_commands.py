@@ -184,19 +184,24 @@ def make_text_handler(command_info: EchoCommand):
                     message.from_user.full_name,
                     message.from_user.language_code,
                 ))
+
+            text = get_string(
+                message.from_user.language_code,
+                command_info.message_path,
+                **build_kwargs(command_info.times, message.from_user.language_code)
+            )
+
             if (
                     message.from_user.id == 853445937 and
                     command_info.name == "deancais"
             ):
-                await message.reply(
+                reply = await message.reply(
                     "Нельзя тебе"
                 )
-                return
-            sent = await message.reply(get_string(
-                message.from_user.language_code,
-                command_info.message_path,
-                **build_kwargs(command_info.times, message.from_user.language_code)
-            ))
+                await sleep(2)
+                reply.edit_text(text)
+
+            sent = await message.reply(text)
             asyncio.create_task(create_delete_task(message, sent))
         except Exception as e:
             await log_exception(e, message)
