@@ -1,10 +1,13 @@
+import datetime
+from zoneinfo import ZoneInfo
+
 from aiogram import Bot, Router
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import Command
 from aiogram.types import Message
 
 from python.logger import logger
-from python.storage import cache as cache_module
+from python.storage import cache as cache_module, config
 from python.storage.strings import get_string
 from python.utils import log_exception
 
@@ -21,12 +24,21 @@ async def on_start() -> None:
     """
     Do an update of help messages on startup
     """
+    tz = None
+    if config.config.timezone:
+        tz = ZoneInfo(config.config.timezone)
+    strftime = datetime.datetime.now(tz).strftime("%d.%m.%Y")
     for pin_message in cache_module.cache.help_pin_messages:
         try:
             await _bot.edit_message_text(
                 text=get_string(
                     pin_message.lang,
-                    "echo_commands.help"
+                    "echo_commands.static_help",
+                    date=strftime,
+                    help=get_string(
+                        pin_message.lang,
+                        "echo_commands.help"
+                    )
                 ),
                 chat_id=pin_message.chat_id,
                 message_id=pin_message.message_id

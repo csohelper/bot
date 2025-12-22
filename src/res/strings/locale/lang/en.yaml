@@ -47,6 +47,9 @@ echo_commands:
     After submitting, the bot will automatically respond to your request.
   first_start: |
     Since you are the first one to start the bot, you have been added as a chat administrator
+  static_help: |
+    Actual commands list ({date})
+    {help}
   help: |
     <b>Cards</b> - discount cards of all popular chains (or /cards)
     <b>Index</b> - dormitory postal code (or /index)
