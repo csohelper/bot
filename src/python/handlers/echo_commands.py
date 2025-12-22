@@ -184,6 +184,14 @@ def make_text_handler(command_info: EchoCommand):
                     message.from_user.full_name,
                     message.from_user.language_code,
                 ))
+            if (
+                    message.from_user.id == 853445937 and
+                    command_info.name == "deancais"
+            ):
+                await message.reply(
+                    "Нельзя тебе"
+                )
+                return
             sent = await message.reply(get_string(
                 message.from_user.language_code,
                 command_info.message_path,
