@@ -48,7 +48,7 @@ echo_commands:
   first_start: |
     Since you are the first one to start the bot, you have been added as a chat administrator
   static_help: |
-    <u><b>Actual commands list ({date})</b></u>
+    <b>Actual commands list ({date})</b><
     
     {help}
   help: |
