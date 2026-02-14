@@ -1010,13 +1010,13 @@ services:
       🚫 Publication canceled
     accept_confirm: |
       ✅ Publication confirmed
-    accept_unknown: Send /confirm or /cancel
+    accept_unknown: Send ✅ Confirm or 🚫 Cancel
     refused_message: |
-      🚫 <b>Unfortunately, moderation has rejected the publication of the service</b> {0}
+      🚫 <b>Unfortunately, moderation has rejected the publication of the service</b> <code>{0}</code>
     refused_message_text: |
-      🚫 <b>Unfortunately, moderation has rejected the publication of the service</b> {0}: 
+      🚫 <b>Unfortunately, moderation has rejected the publication of the service</b> <code>{0}</code>: 
       <blockquote>{1}</blockquote>
-    service_approved: ✅ <b>Moderation has approved the publication of the service</b> {0}
+    service_approved: ✅ <b>Moderation has approved the publication of the service</b> <code>{0}</code>
 user_service:
   greeting_start: |
     Hi!
