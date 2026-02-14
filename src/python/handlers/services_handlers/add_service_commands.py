@@ -191,7 +191,9 @@ async def on_cost_per_chosen(message: Message, state: FSMContext) -> None:
 
         if not message.text or not (1 <= len(message.text) <= 6):
             await message.reply(
-                text=get_string(message.from_user.language_code, 'services.add_command.cost_per_incorrect')
+                text=get_string(
+                    message.from_user.language_code, 'services.add_command.incorrect_input.cost_per_incorrect'
+                )
             )
             return
 
