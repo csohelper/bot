@@ -899,7 +899,7 @@ services:
     <u><b>Service</b></u>: {0}
     <u><b>Price</b></u>: {1} / {2}
     <u><b>Description</b></u>: {3}
-  price_placeholder: {0}rub
+  price_placeholder: "{0}rub"
   negotiated_price: Negotiated
   folder_caption:
     header: List of available services and categories
