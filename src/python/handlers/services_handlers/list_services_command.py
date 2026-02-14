@@ -68,6 +68,12 @@ async def parse_folder_keyboard(lang: str, path: str, offset=0, is_pm=False) -> 
                     callback_data=ServicesHandlerFactory(action=ServicesActions.ADD_SERVICE).pack()
                 )
             )
+            builder.row(
+                InlineKeyboardButton(
+                    text=get_string(lang, "services.my_services"),
+                    callback_data=ServicesHandlerFactory(action=ServicesActions.MY_SERVICES).pack()
+                )
+            )
         else:
             builder.row(
                 InlineKeyboardButton(
@@ -75,13 +81,6 @@ async def parse_folder_keyboard(lang: str, path: str, offset=0, is_pm=False) -> 
                     url=await create_start_link(_bot, 'addservice', encode=True)
                 )
             )
-    if is_pm:
-        builder.row(
-            InlineKeyboardButton(
-                text=get_string(lang, "services.my_services"),
-                callback_data=ServicesHandlerFactory(action=ServicesActions.MY_SERVICES).pack()
-            )
-        )
 
     if len(services) > PAGE_SIZE:
         cropped_services = services[offset:offset + PAGE_SIZE]
