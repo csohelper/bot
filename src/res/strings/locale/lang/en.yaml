@@ -931,6 +931,7 @@ services:
       Great!
       Now you can send a photo (cover) for your service
     without_picture: 🖼️ No cover
+    processing_image: ⏳ Processing image
     preview: |
       🗒️ Предпросмотр
       

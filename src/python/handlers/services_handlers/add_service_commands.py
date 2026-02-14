@@ -228,9 +228,17 @@ async def on_picture_chosen(message: Message, state: FSMContext) -> None:
             return
 
         if message.text == get_string(message.from_user.language_code, 'services.add_command.without_picture'):
+            reply = await message.reply(
+                text=get_string(
+                    message.from_user.language_code,
+                    'services.add_command.processing_image',
+                ),
+                reply_markup=ReplyKeyboardRemove()
+            )
             await state.update_data(
                 image=None
             )
+            await reply.delete()
             await process_create_service(message, state)
             await state.clear()
             return
@@ -241,6 +249,14 @@ async def on_picture_chosen(message: Message, state: FSMContext) -> None:
             )
             return
 
+        reply = await message.reply(
+            text=get_string(
+                message.from_user.language_code,
+                'services.add_command.processing_image',
+            ),
+            reply_markup=ReplyKeyboardRemove()
+        )
+
         largest_photo = message.photo[-1]
         photo_base64: str = (await utils.download_photos(
             _bot,
@@ -250,6 +266,8 @@ async def on_picture_chosen(message: Message, state: FSMContext) -> None:
         await state.update_data(
             image=photo_base64
         )
+
+        await reply.delete()
 
         await process_create_service(message, state)
         await state.clear()
@@ -319,7 +337,7 @@ async def process_create_service(message: Message, state: FSMContext) -> None:
         reply = await message.reply_photo(
             photo=media,
             caption=caption,
-            reply_markup=ReplyKeyboardRemove(),
+            reply_markup=keyboard,
         )
 
         update_keyboard = InlineKeyboardBuilder().row(InlineKeyboardButton(
