@@ -320,7 +320,7 @@ async def on_accept_chosen(message: Message, state: FSMContext) -> None:
             )
             await _bot.send_message(
                 update_service.owner,
-                get_string("services.moderation.service_approved", update_service.name)
+                get_string(message.from_user.language_code, "services.moderation.service_approved", update_service.name)
             )
         else:
             await message.reply(

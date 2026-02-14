@@ -14,6 +14,7 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, InputMedia
 from aiogram.utils.deep_linking import create_start_link
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 
+from python import utils
 from python.handlers.services_handlers import moderate_service
 from python.storage.repository import services_repository
 from python.storage.repository.services_repository import Service
@@ -238,14 +239,10 @@ async def on_picture_chosen(message: Message, state: FSMContext) -> None:
             return
 
         largest_photo = message.photo[-1]
-        photo_buffer = io.BytesIO()
-        await _bot.download(
-            file=largest_photo.file_id,
-            destination=photo_buffer
-        )
-        photo_buffer.seek(0)
-        photo_bytes = photo_buffer.read()
-        photo_base64 = base64.b64encode(photo_bytes).decode('utf-8')
+        photo_base64: str = (await utils.download_photos(
+            _bot,
+            [largest_photo.file_id]
+        ))[0]
 
         await state.update_data(
             image=photo_base64
@@ -691,14 +688,11 @@ async def on_picture_edit(message: Message, state: FSMContext) -> None:
             return
 
         largest_photo = message.photo[-1]
-        photo_buffer = io.BytesIO()
-        await _bot.download(
-            file=largest_photo.file_id,
-            destination=photo_buffer
-        )
-        photo_buffer.seek(0)
-        photo_bytes = photo_buffer.read()
-        photo_base64 = base64.b64encode(photo_bytes).decode('utf-8')
+
+        photo_base64 = (await utils.download_photos(
+            _bot,
+            [largest_photo.file_id]
+        ))[0]
 
         callback_data: EditServiceCallbackFactory = EditServiceCallbackFactory.unpack(
             await state.get_value("callback_data")
