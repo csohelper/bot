@@ -883,6 +883,7 @@ services:
   add_button: Add Service 📝
   service_button: |
     {0} - {1}rub / {2} ➡️
+  negotiated_price_button: Negotiated
   folder_button: 📂 {0}
   back_button: ⬅️ Back
   prev_button: ⏪ Previous Page
@@ -898,6 +899,7 @@ services:
     <u><b>Service</b></u>: {0}
     <u><b>Price</b></u>: {1}rub / {2}
     <u><b>Description</b></u>: {3}
+  negotiated_price: Negotiated
   folder_caption:
     header: List of available services and categories
     folder:

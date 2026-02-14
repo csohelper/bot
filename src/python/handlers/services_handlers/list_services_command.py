@@ -94,10 +94,16 @@ async def parse_folder_keyboard(lang: str, path: str, offset=0, is_pm=False) -> 
             text = get_string(lang, "services.folder_button", service.name)
         else:
             button_path = service.service_id
+
+            cost_text = get_string(
+                lang,
+                'services.negotiated_price_button'
+            ) if int(service.cost) == -1 else int(service.cost)
+
             text = get_string(
                 lang,
                 "services.service_button",
-                service.name, service.cost, service.cost_per,
+                service.name, cost_text, service.cost_per,
                 service.owner
             )
 
@@ -243,8 +249,13 @@ async def callbacks_num_change_fab(
                     show_alert=True,
                     text="Server error"
                 )
-                logger_module.logger.error(f"Callback message not present or it is InaccessibleMessage: {callback.message}")
+                logger_module.logger.error(
+                    f"Callback message not present or it is InaccessibleMessage: {callback.message}")
                 return
+            cost_text = get_string(
+                callback.from_user.language_code,
+                'services.negotiated_price'
+            ) if int(service.cost) == -1 else int(service.cost)
             try:
                 if service.image:
                     image_bytes = base64.b64decode(service.image)
@@ -257,11 +268,17 @@ async def callbacks_num_change_fab(
                         media=media,
                         caption=get_string(
                             callback.from_user.language_code,
-                            "services.author_page_description", service.name, int(service.cost), service.cost_per,
+                            "services.author_page_description",
+                            service.name,
+                            cost_text,
+                            service.cost_per,
                             service.description
                         ) if service.description else get_string(
                             callback.from_user.language_code,
-                            "services.author_page", service.name, int(service.cost), service.cost_per
+                            "services.author_page",
+                            service.name,
+                            cost_text,
+                            service.cost_per
                         ),
                     ),
                     reply_markup=builder.as_markup()
@@ -271,11 +288,17 @@ async def callbacks_num_change_fab(
                 await callback.message.edit_caption(
                     caption=get_string(
                         callback.from_user.language_code,
-                        "services.author_page_description", service.name, int(service.cost), service.cost_per,
+                        "services.author_page_description",
+                        service.name,
+                        cost_text,
+                        service.cost_per,
                         service.description
                     ) if service.description else get_string(
                         callback.from_user.language_code,
-                        "services.author_page", service.name, int(service.cost), service.cost_per
+                        "services.author_page",
+                        service.name,
+                        cost_text,
+                        service.cost_per
                     ),
                     reply_markup=builder.as_markup()
                 )
@@ -285,7 +308,8 @@ async def callbacks_num_change_fab(
                     show_alert=True,
                     text="Server error"
                 )
-                logger_module.logger.error(f"Callback message not present or it is InaccessibleMessage: {callback.message}")
+                logger_module.logger.error(
+                    f"Callback message not present or it is InaccessibleMessage: {callback.message}")
                 return
             new_keyboard, page, pages = await parse_folder_keyboard(
                 callback.from_user.language_code,
