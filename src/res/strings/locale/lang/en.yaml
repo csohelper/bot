@@ -1,6 +1,7 @@
 # FORMAT
 # "Command Name (/command_name)": Telegram Hint Description
 
+in_development: 🏗️ In development
 commands_description:
   cards: Discount cards of all popular store chains
   internet: Internet loss status

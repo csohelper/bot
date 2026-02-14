@@ -1,6 +1,7 @@
 # FORMAT
 # "Command Name (/command_name)": Telegram Hint Description
 
+in_development: 🏗️ В разработке
 commands_description:
   cards: Cкидочные карты всех популярных сетей
   internet: Статус потерь интернета

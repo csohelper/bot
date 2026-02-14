@@ -174,7 +174,10 @@ async def add_service_button(
             await add_service_commands.on_addservice(callback.message, state, callback.from_user.language_code)
         elif callback_data.action == ServicesActions.MY_SERVICES:
             await my_services_command.on_my_services(callback.message, state, callback.from_user.language_code)
-            await callback.answer(text="SOON")
+            await callback.answer(text=get_string(
+                callback.from_user.language_code,
+                'in_development'
+            ))
     except Exception as e:
         await log_exception(e, callback, state=state)
 
