@@ -12,8 +12,7 @@ ENV LANG=ru_RU.UTF-8 \
     LC_ALL=ru_RU.UTF-8
 
 # ---------- Install Poetry ----------
-RUN curl -sSL https://install.python-poetry.org | python3 - && \
-    ln -s /root/.local/bin/poetry /usr/local/bin/poetry
+RUN pip install --no-cache-dir poetry==2.3.2
 
 # ---------- Working directory ----------
 WORKDIR /app
