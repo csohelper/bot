@@ -932,7 +932,7 @@ services:
       Now you can send a photo (cover) for your service
     without_picture: 🖼️ No cover
     preview: |
-      🗒️Preview
+      🗒️ Предпросмотр
       
       <u><b>Service</b></u>: {0}
       <u><b>Cost</b></u>: {1}rub / {2}
