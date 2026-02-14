@@ -294,7 +294,7 @@ async def process_create_service(message: Message, state: FSMContext) -> None:
             name=data['name'],
             cost=data['cost'],
             cost_per=data['cost_per'],
-            description=data['cost_per'],
+            description=data['description'],
             owner=message.from_user.id,
             image=data['image'],
             status='moderation'
