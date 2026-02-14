@@ -260,6 +260,7 @@ async def callbacks_num_change_fab(
                             "services.author_page_description", service.name, int(service.cost), service.cost_per,
                             service.description
                         ) if service.description else get_string(
+                            callback.from_user.language_code,
                             "services.author_page", service.name, int(service.cost), service.cost_per
                         ),
                     ),
