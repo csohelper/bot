@@ -426,8 +426,19 @@ async def callbacks_edit_service(
                         )
                     )
                 )
-                await moderate_service.send_to_moderation(service, callback.from_user.full_name,
-                                                          callback.from_user.language_code)
+                await _bot.send_message(
+                    chat_id=callback.message.chat.id,
+                    reply_to_message_id=callback_data.original_msg,
+                    text=get_string(
+                        callback.from_user.language_code,
+                        'services.add_command.wait_for_moderation'
+                    ),
+                    reply_markup=ReplyKeyboardRemove()
+                )
+                await moderate_service.send_to_moderation(
+                    service, callback.from_user.full_name,
+                    callback.from_user.language_code
+                )
 
         await callback.answer()
     except Exception as e:

@@ -972,6 +972,8 @@ services:
       cost_too_big: ⚠️ Price is too high
       cost_per_incorrect: ⚠️ Incorrect unit format. It must be {0}..{1} characters long
       not_photo_and_empty: ⚠️ Please send either a cover photo for the service or use the /empty command to continue
+    wait_for_moderation: |
+      ⏳ Expect moderation within 3 days. If this does not happen, contact the elders of the dormitory
   service_no_description: 🚫 Not set
   moderation:
     preview: |
