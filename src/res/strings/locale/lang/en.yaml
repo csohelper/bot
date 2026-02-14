@@ -882,7 +882,7 @@ time:
 services:
   add_button: Add Service 📝
   service_button: |
-    {0} - {1}rub / {2} ➡️
+    {0} - {1} / {2} ➡️
   negotiated_price_button: Negotiated
   folder_button: 📂 {0}
   back_button: ⬅️ Back
@@ -893,12 +893,13 @@ services:
     url_placeholder: tg://user?id={0}
   author_page: |
     <u><b>Service</b></u>: {0}
-    <u><b>Price</b></u>: {1}rub / {2}
+    <u><b>Price</b></u>: {1} / {2}
     <u><b>Description</b></u>: 🚫 Not Available
   author_page_description: |
     <u><b>Service</b></u>: {0}
-    <u><b>Price</b></u>: {1}rub / {2}
+    <u><b>Price</b></u>: {1} / {2}
     <u><b>Description</b></u>: {3}
+  price_placeholder: {0}rub
   negotiated_price: Negotiated
   folder_caption:
     header: List of available services and categories
