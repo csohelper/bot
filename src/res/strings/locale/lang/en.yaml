@@ -1031,7 +1031,9 @@ user_service:
     Please confirm that you are a resident.
     To do this, you need to answer a few questions. If you agree, press ✅ Start or ❌ Cancel.
     The application will be automatically rejected in {0} hours.
-    If you think there has been a mistake, contact @slavapmk
+    
+    If you do not want to be automatically checked by the elders, or if you think that some mistake has occurred, contact the chairman of the dormitory:
+    @slavapmk
   greeting_start_refused: |
     Hi!
     You submitted an application to the student chat of the First Dormitory of MTUCI.
@@ -1040,11 +1042,13 @@ user_service:
     The application will be automatically rejected in {0} hours.
     
     UPD: ❌ The application was automatically rejected after {0} hours.
-    ⚠️ If you think there has been a mistake, contact @slavapmk
+    ⚠️ If you do not want to be automatically checked by the elders, or if you think that some mistake has occurred, contact the chairman of the dormitory.:
+    @slavapmk
   auto_refused: |
     ❌ Your application was automatically rejected after {0} hours from submission.
     You can submit it again for review.
-    ⚠️ If you think there has been a mistake, contact @slavapmk
+    ⚠️ If you do not want to be automatically checked by the elders, or if you think that some mistake has occurred, contact the chairman of the dormitory.:
+    @slavapmk
   greeting_unknown: |
     Please choose one of the options: ✅ Start or ❌ Cancel
   greeting_button_start: ✅ Start
