@@ -32,7 +32,7 @@
   nano .env
   ```
 
-3. First start bot
+3. First start the bot
     #### Via Docker
     ```sh
     docker compose up
@@ -48,7 +48,7 @@
     poetry run csohelper
     ```
 
-4. Configure the `storage/config.yaml` file (created automatically on first run).
+4. Configure the `storage/config.yaml` file, which is created automatically on first run.
 
 5. Retry start bot:
     #### Docker
@@ -63,10 +63,10 @@
 ## Project structure
 
 `src/python/` — bot source code<br>
-`src/res/locale/ru.yaml` — localization and command texts<br>
+`src/res/strings/locale/ru.yaml` — localization and command texts<br>
 `src/res/images/` — images for cards and cafés<br>
 `storage/config.yaml` — application configuration<br>
-`Dockerfile`, `docker-compose.yml` — containerization and database launch
+`Dockerfile`, `docker-compose-dev.yml` — containerization and database launch
 
 ## Adding commands and texts
 
@@ -79,4 +79,3 @@ All commands and response texts are stored in `src/res/locale/ru.yaml`. To add a
 License
 MIT
 
-Honestly, I have no idea if anyone actually read this
