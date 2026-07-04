@@ -56,10 +56,13 @@ ANSWERS_NO = [
 
 # Хэндлер ловит всё, что НАЧИНАЕТСЯ с нужной фразы
 @router.message(
-    lambda message: message.text
-                    and message.text.lower().strip().startswith("цсошник, вода будет")
+    lambda message: message.text and(
+        message.text.lower().strip().startswith("цсошник, вода будет") or
+        message.text.lower().strip().startswith("цсошник вода будет") or
+        message.text.lower().strip().startswith("ботяра вода будет")
+    )
 )
-async def command_anecdote_handler(message: Message) -> None:
+async def command_water_handler(message: Message) -> None:
     # Вытаскиваем саму дату/текст, который идет после вопроса, для атмосферности
     user_query = message.text.lower().replace("цсошник, вода будет", "").strip()
 
