@@ -14,6 +14,7 @@ from aiohttp import TCPConnector, ClientTimeout
 from redis.asyncio import from_url
 
 from python import anecdote_poller, join_refuser
+from python.handlers import water_random
 from python.storage import command_loader
 from python.storage import config as config_module
 from python.storage.cache import init_cache
@@ -204,6 +205,7 @@ async def main() -> None:
         hype_collector.router,
         static_help.router,
         internet_command.router,
+        water_random.router,
         default_router  # Must be in ending
     )
 
@@ -231,6 +233,7 @@ async def main() -> None:
         await join_refuser.init(bot=bot, storage=dp.storage)
         await join_service.init(bot=bot)
         await echo_commands.init(bot=bot)
+        await water_random.init(bot=bot)
         await hype_collector.init(bot_username=bot_username, bot=bot)
         await static_help.init(bot=bot)
 
