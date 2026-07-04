@@ -374,6 +374,7 @@ triggers:
     - linen
     - linen exchange
     - storage room
+    - склад
   vostok:
     - vostok
     - восток
