@@ -63,17 +63,7 @@ ANSWERS_NO = [
     )
 )
 async def command_water_handler(message: Message) -> None:
-    # Вытаскиваем саму дату/текст, который идет после вопроса, для атмосферности
-    user_query = message.text.lower().replace("цсошник, вода будет", "").strip()
-
-    # Если юзер указал конкретную дату (например, "15 августа"), бот может вставить её в размышления
-    if user_query:
-        initial_text = (
-            f"Так-так, смотрю на '{user_query}'... "
-            f"{random.choice(THINKING_PHRASES)}"
-        )
-    else:
-        initial_text = random.choice(THINKING_PHRASES)
+    initial_text = random.choice(THINKING_PHRASES)
 
     reply_ = await message.reply(f"⏳ {initial_text}")
     await asyncio.sleep(1.2)
