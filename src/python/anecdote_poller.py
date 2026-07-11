@@ -1,4 +1,5 @@
 import asyncio
+import random
 
 import aiohttp
 import yaml
@@ -101,14 +102,14 @@ async def process_anecdote(original: str) -> str | None:
     return None
 
 
-anecdotes_url = 'https://baneks.ru/random'
+anecdotes_url = 'https://baneks.ru/'
 
 
 async def get_original() -> tuple[int, str] | None:
     for _ in range(10):
         async with aiohttp.ClientSession() as session:
             try:
-                async with session.get(anecdotes_url) as response:
+                async with session.get(anecdotes_url + str(random.randrange(0, 2000))) as response:
                     response.raise_for_status()
 
                     # конечный URL после редиректа

@@ -32,11 +32,11 @@ async def command_anecdote_handler(message: Message) -> None:
     try:
         if await check_blacklisted(message):
             return
-        if message.chat.type not in ['group', 'supergroup']:
-            await message.reply(get_string(
-                message.from_user.language_code, 'echo_commands.kek.only_group'
-            ))
-            return
+        # if message.chat.type not in ['group', 'supergroup']:
+        #     await message.reply(get_string(
+        #         message.from_user.language_code, 'echo_commands.kek.only_group'
+        #     ))
+        #     return
 
         global kek_last_use
         if message.chat.id in kek_last_use:
@@ -57,7 +57,7 @@ async def command_anecdote_handler(message: Message) -> None:
                 message.from_user.full_name,
                 antiflood_time,
                 remain
-            ))
+            ) or '#echo_commands.kek.too_many')
             await asyncio.sleep(5)
             try:
                 await message.delete()
