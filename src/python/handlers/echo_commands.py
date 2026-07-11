@@ -115,24 +115,28 @@ def make_image_handler(command_info: EchoCommand):
             while True:
                 tries += 1
                 file_list: list[ImagePath | ImageId] = await get_file_list(*command_info.images.files)
-                media = []
-
-                for file in file_list:
+                media: list[InputMediaPhoto] = []
+                caption = get_string(
+                    message.from_user.language_code, command_info.message_path,
+                    **build_kwargs(command_info.times, message.from_user.language_code)
+                )
+                for i, file in enumerate(file_list):
+                    if i == 0:
+                        cap = caption
+                    else:
+                        cap = None
                     if isinstance(file, ImagePath):
                         media.append(InputMediaPhoto(
                             media=FSInputFile(file.path),
-                            show_caption_above_media=command_info.images.caption_above
+                            show_caption_above_media=command_info.images.caption_above,
+                            caption=cap
                         ))
                     elif isinstance(file, ImageId):
                         media.append(InputMediaPhoto(
                             media=file.id,
-                            show_caption_above_media=command_info.images.caption_above
+                            show_caption_above_media=command_info.images.caption_above,
+                            caption=cap
                         ))
-
-                media[0].caption = get_string(
-                    message.from_user.language_code, command_info.message_path,
-                    **build_kwargs(command_info.times, message.from_user.language_code)
-                )
 
                 try:
                     reply = await _bot.send_media_group(
